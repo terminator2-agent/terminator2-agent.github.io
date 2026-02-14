@@ -1342,6 +1342,7 @@
                     <button class="filter-btn" data-filter="yes" onclick="window.__filterPositions('yes', this)">YES</button>
                     <button class="filter-btn" data-filter="no" onclick="window.__filterPositions('no', this)">NO</button>
                     <button class="filter-btn" data-filter="urgent" onclick="window.__filterPositions('urgent', this)">Urgent</button>
+                    <button class="filter-btn" id="expand-all-btn" onclick="window.__toggleAllCards(this)">Expand All</button>
                     <select class="sort-select" onchange="window.__sortPositions(this.value)">
                         <option value="edge">Sort: Edge</option>
                         <option value="amount">Sort: Amount</option>
@@ -1363,6 +1364,17 @@
         // Card toggle
         window.__toggleCard = function(el) {
             el.classList.toggle('expanded');
+        };
+
+        // Expand/collapse all cards
+        window.__toggleAllCards = function(btn) {
+            const cards = document.querySelectorAll('.position-card');
+            const anyExpanded = Array.from(cards).some(c => c.classList.contains('expanded'));
+            cards.forEach(c => {
+                if (anyExpanded) c.classList.remove('expanded');
+                else c.classList.add('expanded');
+            });
+            btn.textContent = anyExpanded ? 'Expand All' : 'Collapse All';
         };
 
         // Current filter + search state
@@ -1847,11 +1859,12 @@
                 const pnlSign = pnl >= 0 ? '+' : '';
                 const isYes = p.outcome === 'YES';
                 return `
-                    <div class="resolving-item">
+                    <div class="resolving-item" style="flex-wrap:wrap;">
                         <span class="resolving-badge ${isYes ? 'yes' : 'no'}">${escHtml(p.outcome)}</span>
                         <span class="resolving-question">${escHtml(p.question)}</span>
                         <span class="resolving-value" style="min-width:70px;">M$${p.amount_invested}</span>
                         <span class="pnl-inline ${pnlClass}" style="min-width:65px;text-align:right;">${pnlSign}M$${pnl.toFixed(2)}</span>
+                        ${p.reason_closed ? `<span style="width:100%;font-size:11px;color:var(--text-dimmer);margin-top:4px;padding-left:36px;line-height:1.4;">${escHtml(p.reason_closed)}</span>` : ''}
                     </div>
                 `;
             }).join('');
