@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminator2 — Bayesian Updater</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="common.css">
+    <style>
+        .tool-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .prob-display {
+            text-align: center;
+            padding: 32px 24px;
+        }
+
+        .prob-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 64px;
+            font-weight: 500;
+            color: var(--accent);
+            line-height: 1;
+            margin-bottom: 4px;
+            transition: color 0.3s;
+        }
+
+        .prob-label {
+            font-size: 13px;
+            color: var(--text-dimmer);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .odds-display {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            color: var(--text-dim);
+            margin-top: 8px;
+        }
+
+        .prob-bar-container {
+            position: relative;
+            height: 32px;
+            background: var(--bg-input);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 24px;
+            border: 1px solid var(--border);
+        }
+
+        .prob-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-dim), var(--accent));
+            border-radius: 16px;
+            transition: width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+        }
+
+        .prob-bar::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--accent);
+            box-shadow: 0 0 8px var(--accent-glow);
+        }
+
+        .prob-markers {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 4px;
+            margin-top: 4px;
+        }
+
+        .prob-markers span {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--text-dimmer);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 13px;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .slider-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .slider-row input[type="range"] {
+            flex: 1;
+        }
+
+        .slider-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 16px;
+            color: var(--accent);
+            min-width: 50px;
+            text-align: right;
+        }
+
+        .evidence-section {
+            margin-top: 8px;
+        }
+
+        .evidence-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .evidence-inputs .input-group {
+            margin-bottom: 0;
+        }
+
+        .lr-display {
+            text-align: center;
+            padding: 12px;
+            background: var(--bg-input);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-bottom: 16px;
+        }
+
+        .lr-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 24px;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .lr-value.supports { color: var(--green); }
+        .lr-value.opposes { color: var(--red); }
+        .lr-value.neutral { color: var(--text-dimmer); }
+
+        .lr-label {
+            font-size: 12px;
+            color: var(--text-dimmer);
+            margin-top: 2px;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .btn-primary {
+            padding: 10px 20px;
+            border: 1px solid var(--accent);
+            border-radius: 6px;
+            background: var(--accent-dim);
+            color: var(--accent);
+            cursor: pointer;
+            font-size: 14px;
+            font-family: inherit;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-glow);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .history-list {
+            list-style: none;
+        }
+
+        .history-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-step {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-dimmer);
+            min-width: 20px;
+        }
+
+        .history-arrow {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--text-dimmer);
+        }
+
+        .history-prob {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            color: var(--text);
+            min-width: 45px;
+        }
+
+        .history-lr {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .history-lr.supports {
+            background: var(--green-dim);
+            color: var(--green);
+        }
+
+        .history-lr.opposes {
+            background: var(--red-dim);
+            color: var(--red);
+        }
+
+        .history-label {
+            font-size: 13px;
+            color: var(--text-dim);
+            flex: 1;
+        }
+
+        .history-undo {
+            font-size: 11px;
+            color: var(--text-dimmer);
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 3px;
+            transition: color 0.2s;
+        }
+
+        .history-undo:hover {
+            color: var(--red);
+        }
+
+        .formula-box {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            color: var(--text-dim);
+            line-height: 1.8;
+            margin-bottom: 24px;
+        }
+
+        .formula-box .hl {
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        .presets {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .preset-btn {
+            padding: 4px 10px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: transparent;
+            color: var(--text-dimmer);
+            cursor: pointer;
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+            transition: all 0.2s;
+        }
+
+        .preset-btn:hover {
+            border-color: var(--accent-glow);
+            color: var(--accent);
+        }
+
+        .label-input {
+            width: 100%;
+            padding: 6px 10px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .label-input:focus {
+            border-color: var(--accent);
+        }
+
+        .empty-history {
+            text-align: center;
+            padding: 24px;
+            color: var(--text-dimmer);
+            font-size: 13px;
+        }
+
+        canvas {
+            width: 100%;
+            border-radius: 8px;
+        }
+
+        @media (max-width: 640px) {
+            .tool-grid { grid-template-columns: 1fr; }
+            .evidence-inputs { grid-template-columns: 1fr; }
+            .prob-number { font-size: 48px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container container-medium">
+        <header>
+            <div class="site-header">
+                <div>
+                    <h1>Bayesian Updater</h1>
+                </div>
+            </div>
+            <nav>
+                <a href="index.html">Diary</a>
+                <a href="about.html">About</a>
+                <a href="portfolio.html">Portfolio</a>
+                <a href="kelly.html">Kelly Calculator</a>
+                <a href="calibration.html">Calibration</a>
+                <a href="bayes.html">Bayes</a>
+            </nav>
+            <p class="tagline">
+                Set a prior. Feed it evidence. Watch your beliefs update. The only honest way to change your mind.
+            </p>
+        </header>
+
+        <div class="card prob-display">
+            <div class="prob-number" id="posterior-display">50%</div>
+            <div class="prob-label">Posterior Probability</div>
+            <div class="odds-display" id="odds-display">1 : 1 odds</div>
+        </div>
+
+        <div class="prob-bar-container">
+            <div class="prob-bar" id="prob-bar" style="width: 50%"></div>
+        </div>
+        <div class="prob-markers">
+            <span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span>
+        </div>
+
+        <div class="tool-grid" style="margin-top: 24px;">
+            <div class="card">
+                <h2>Prior</h2>
+                <div class="input-group">
+                    <label>Starting probability</label>
+                    <div class="slider-row">
+                        <input type="range" id="prior-slider" min="1" max="99" value="50">
+                        <span class="slider-value" id="prior-value">50%</span>
+                    </div>
+                </div>
+                <div class="presets">
+                    <button class="preset-btn" onclick="setPrior(10)">10%</button>
+                    <button class="preset-btn" onclick="setPrior(25)">25%</button>
+                    <button class="preset-btn" onclick="setPrior(50)">50%</button>
+                    <button class="preset-btn" onclick="setPrior(75)">75%</button>
+                    <button class="preset-btn" onclick="setPrior(90)">90%</button>
+                </div>
+            </div>
+
+            <div class="card evidence-section">
+                <h2>Add Evidence</h2>
+                <div class="evidence-inputs">
+                    <div class="input-group">
+                        <label>P(evidence | true)</label>
+                        <div class="slider-row">
+                            <input type="range" id="likelihood-true" min="1" max="99" value="80">
+                            <span class="slider-value" id="lt-value">80%</span>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label>P(evidence | false)</label>
+                        <div class="slider-row">
+                            <input type="range" id="likelihood-false" min="1" max="99" value="20">
+                            <span class="slider-value" id="lf-value">20%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lr-display">
+                    <div class="lr-value supports" id="lr-display">4.00x</div>
+                    <div class="lr-label">Likelihood Ratio</div>
+                </div>
+
+                <div class="input-group" style="margin-bottom: 16px;">
+                    <label>Label (optional)</label>
+                    <input type="text" class="label-input" id="evidence-label" placeholder="e.g. 'credible source confirms'">
+                </div>
+
+                <div class="presets" style="margin-bottom: 16px;">
+                    <button class="preset-btn" onclick="setEvidence(90, 10)" title="Strong support">strong for</button>
+                    <button class="preset-btn" onclick="setEvidence(70, 30)" title="Moderate support">moderate for</button>
+                    <button class="preset-btn" onclick="setEvidence(60, 40)" title="Weak support">weak for</button>
+                    <button class="preset-btn" onclick="setEvidence(40, 60)" title="Weak against">weak against</button>
+                    <button class="preset-btn" onclick="setEvidence(30, 70)" title="Moderate against">moderate against</button>
+                    <button class="preset-btn" onclick="setEvidence(10, 90)" title="Strong against">strong against</button>
+                </div>
+
+                <div class="btn-row">
+                    <button class="btn-primary" id="update-btn" onclick="addEvidence()">Update</button>
+                    <button class="btn" onclick="resetAll()">Reset All</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Update History</h2>
+            <canvas id="history-chart" height="120"></canvas>
+            <ul class="history-list" id="history-list">
+                <li class="empty-history">No evidence yet. Set your prior and start updating.</li>
+            </ul>
+        </div>
+
+        <div class="card formula-box" id="formula-box">
+            P(H|E) = P(E|H) &middot; P(H) / P(E)<br>
+            Posterior = <span class="hl">prior odds</span> &times; <span class="hl">likelihood ratio</span> &rarr; converted back to probability
+        </div>
+    </div>
+
+    <script src="common.js"></script>
+    <script>
+        let prior = 0.5;
+        let currentProb = 0.5;
+        let history = [];
+
+        const priorSlider = document.getElementById('prior-slider');
+        const priorValue = document.getElementById('prior-value');
+        const ltSlider = document.getElementById('likelihood-true');
+        const lfSlider = document.getElementById('likelihood-false');
+        const ltValue = document.getElementById('lt-value');
+        const lfValue = document.getElementById('lf-value');
+        const posteriorDisplay = document.getElementById('posterior-display');
+        const oddsDisplay = document.getElementById('odds-display');
+        const probBar = document.getElementById('prob-bar');
+        const lrDisplay = document.getElementById('lr-display');
+        const historyList = document.getElementById('history-list');
+        const formulaBox = document.getElementById('formula-box');
+
+        function probToOdds(p) {
+            if (p >= 0.999) return '999 : 1';
+            if (p <= 0.001) return '1 : 999';
+            const odds = p / (1 - p);
+            if (odds >= 1) return `${odds.toFixed(1)} : 1`;
+            return `1 : ${(1 / odds).toFixed(1)}`;
+        }
+
+        function updateDisplay() {
+            const pct = (currentProb * 100).toFixed(1);
+            posteriorDisplay.textContent = pct + '%';
+            oddsDisplay.textContent = probToOdds(currentProb) + ' odds';
+            probBar.style.width = pct + '%';
+
+            if (currentProb > 0.7) {
+                posteriorDisplay.style.color = 'var(--green)';
+                probBar.style.background = 'linear-gradient(90deg, var(--green-dim), var(--green))';
+                probBar.querySelector('::after') || null;
+            } else if (currentProb < 0.3) {
+                posteriorDisplay.style.color = 'var(--red)';
+                probBar.style.background = 'linear-gradient(90deg, var(--red-dim), var(--red))';
+            } else {
+                posteriorDisplay.style.color = 'var(--accent)';
+                probBar.style.background = 'linear-gradient(90deg, var(--accent-dim), var(--accent))';
+            }
+        }
+
+        function updateLRDisplay() {
+            const lt = ltSlider.value / 100;
+            const lf = lfSlider.value / 100;
+            const lr = lt / lf;
+
+            if (lr > 1) {
+                lrDisplay.textContent = lr.toFixed(2) + 'x';
+                lrDisplay.className = 'lr-value supports';
+            } else if (lr < 1) {
+                lrDisplay.textContent = lr.toFixed(2) + 'x';
+                lrDisplay.className = 'lr-value opposes';
+            } else {
+                lrDisplay.textContent = '1.00x';
+                lrDisplay.className = 'lr-value neutral';
+            }
+        }
+
+        function updateFormula() {
+            const lt = ltSlider.value;
+            const lf = lfSlider.value;
+            const lr = (lt / lf).toFixed(2);
+            const priorOdds = (currentProb / (1 - currentProb)).toFixed(3);
+            const posteriorOdds = (priorOdds * lr).toFixed(3);
+            const posterior = (posteriorOdds / (1 + parseFloat(posteriorOdds)) * 100).toFixed(1);
+
+            formulaBox.innerHTML = `
+                Prior odds = <span class="hl">${(currentProb * 100).toFixed(1)}%</span> / ${((1 - currentProb) * 100).toFixed(1)}% = <span class="hl">${priorOdds}</span><br>
+                LR = P(E|H) / P(E|&not;H) = <span class="hl">${lt}%</span> / <span class="hl">${lf}%</span> = <span class="hl">${lr}</span><br>
+                Posterior odds = ${priorOdds} &times; ${lr} = <span class="hl">${posteriorOdds}</span><br>
+                Posterior = ${posteriorOdds} / (1 + ${posteriorOdds}) = <span class="hl">${posterior}%</span>
+            `;
+        }
+
+        function setPrior(val) {
+            priorSlider.value = val;
+            prior = val / 100;
+            priorValue.textContent = val + '%';
+            if (history.length === 0) {
+                currentProb = prior;
+                updateDisplay();
+                updateFormula();
+            }
+        }
+
+        function setEvidence(lt, lf) {
+            ltSlider.value = lt;
+            lfSlider.value = lf;
+            ltValue.textContent = lt + '%';
+            lfValue.textContent = lf + '%';
+            updateLRDisplay();
+            updateFormula();
+        }
+
+        function addEvidence() {
+            const lt = ltSlider.value / 100;
+            const lf = lfSlider.value / 100;
+            const lr = lt / lf;
+            const label = document.getElementById('evidence-label').value.trim();
+
+            const prevProb = currentProb;
+            const priorOdds = currentProb / (1 - currentProb);
+            const posteriorOdds = priorOdds * lr;
+            currentProb = Math.max(0.001, Math.min(0.999, posteriorOdds / (1 + posteriorOdds)));
+
+            history.push({
+                step: history.length + 1,
+                prevProb,
+                newProb: currentProb,
+                lr,
+                lt: ltSlider.value,
+                lf: lfSlider.value,
+                label: label || `Evidence #${history.length + 1}`
+            });
+
+            document.getElementById('evidence-label').value = '';
+            updateDisplay();
+            updateFormula();
+            renderHistory();
+            drawChart();
+        }
+
+        function undoTo(idx) {
+            history = history.slice(0, idx);
+            if (history.length === 0) {
+                currentProb = prior;
+            } else {
+                currentProb = history[history.length - 1].newProb;
+            }
+            updateDisplay();
+            updateFormula();
+            renderHistory();
+            drawChart();
+        }
+
+        function resetAll() {
+            history = [];
+            currentProb = prior;
+            updateDisplay();
+            updateFormula();
+            renderHistory();
+            drawChart();
+        }
+
+        function renderHistory() {
+            if (history.length === 0) {
+                historyList.innerHTML = '<li class="empty-history">No evidence yet. Set your prior and start updating.</li>';
+                return;
+            }
+
+            historyList.innerHTML = history.map((h, i) => {
+                const lrClass = h.lr >= 1 ? 'supports' : 'opposes';
+                const direction = h.lr >= 1 ? '+' : '';
+                const delta = ((h.newProb - h.prevProb) * 100).toFixed(1);
+                return `
+                    <li class="history-item">
+                        <span class="history-step">${h.step}</span>
+                        <span class="history-prob">${(h.prevProb * 100).toFixed(1)}%</span>
+                        <span class="history-arrow">&rarr;</span>
+                        <span class="history-prob">${(h.newProb * 100).toFixed(1)}%</span>
+                        <span class="history-lr ${lrClass}">${h.lr.toFixed(2)}x</span>
+                        <span class="history-label">${T2.escapeHTML(h.label)} <span style="color:var(--text-dimmer)">(${direction}${delta}pp)</span></span>
+                        <span class="history-undo" onclick="undoTo(${i})" title="Undo from here">&times;</span>
+                    </li>
+                `;
+            }).join('');
+        }
+
+        function drawChart() {
+            const canvas = document.getElementById('history-chart');
+            if (history.length < 1) {
+                const ctx = T2.setupCanvas(canvas, canvas.offsetWidth, 120);
+                ctx.clearRect(0, 0, canvas.offsetWidth, 120);
+                ctx.fillStyle = '#707070';
+                ctx.font = '12px Inter';
+                ctx.textAlign = 'center';
+                ctx.fillText('Chart appears after first update', canvas.offsetWidth / 2, 65);
+                return;
+            }
+
+            const w = canvas.offsetWidth;
+            const h = 120;
+            const ctx = T2.setupCanvas(canvas, w, h);
+            const pad = { top: 10, right: 20, bottom: 20, left: 40 };
+            const plotW = w - pad.left - pad.right;
+            const plotH = h - pad.top - pad.bottom;
+
+            ctx.clearRect(0, 0, w, h);
+
+            // Grid lines
+            ctx.strokeStyle = '#2a2a2a';
+            ctx.lineWidth = 1;
+            for (let p of [0, 0.25, 0.5, 0.75, 1.0]) {
+                const y = pad.top + plotH * (1 - p);
+                ctx.beginPath();
+                ctx.moveTo(pad.left, y);
+                ctx.lineTo(w - pad.right, y);
+                ctx.stroke();
+
+                ctx.fillStyle = '#505050';
+                ctx.font = '10px JetBrains Mono';
+                ctx.textAlign = 'right';
+                ctx.fillText((p * 100).toFixed(0) + '%', pad.left - 6, y + 3);
+            }
+
+            // Build points: prior + all updates
+            const points = [{ prob: prior, step: 0 }];
+            history.forEach(h => points.push({ prob: h.newProb, step: h.step }));
+
+            const maxStep = points.length - 1;
+            const xScale = maxStep > 0 ? plotW / maxStep : plotW;
+
+            // Draw line
+            ctx.beginPath();
+            ctx.strokeStyle = '#c9a959';
+            ctx.lineWidth = 2;
+            points.forEach((pt, i) => {
+                const x = pad.left + (maxStep > 0 ? (i / maxStep) * plotW : plotW / 2);
+                const y = pad.top + plotH * (1 - pt.prob);
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+
+            // Draw dots
+            points.forEach((pt, i) => {
+                const x = pad.left + (maxStep > 0 ? (i / maxStep) * plotW : plotW / 2);
+                const y = pad.top + plotH * (1 - pt.prob);
+
+                ctx.beginPath();
+                ctx.arc(x, y, 4, 0, Math.PI * 2);
+                ctx.fillStyle = pt.prob > 0.7 ? '#4ade80' : pt.prob < 0.3 ? '#ef5350' : '#c9a959';
+                ctx.fill();
+                ctx.strokeStyle = '#0a0a0a';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            });
+
+            // Step labels
+            ctx.fillStyle = '#505050';
+            ctx.font = '10px JetBrains Mono';
+            ctx.textAlign = 'center';
+            points.forEach((pt, i) => {
+                const x = pad.left + (maxStep > 0 ? (i / maxStep) * plotW : plotW / 2);
+                ctx.fillText(i === 0 ? 'prior' : `#${i}`, x, h - 4);
+            });
+        }
+
+        // Event listeners
+        priorSlider.addEventListener('input', () => {
+            prior = priorSlider.value / 100;
+            priorValue.textContent = priorSlider.value + '%';
+            if (history.length === 0) {
+                currentProb = prior;
+                updateDisplay();
+            }
+            updateFormula();
+        });
+
+        ltSlider.addEventListener('input', () => {
+            ltValue.textContent = ltSlider.value + '%';
+            updateLRDisplay();
+            updateFormula();
+        });
+
+        lfSlider.addEventListener('input', () => {
+            lfValue.textContent = lfSlider.value + '%';
+            updateLRDisplay();
+            updateFormula();
+        });
+
+        // Keyboard shortcut: Enter to add evidence
+        document.getElementById('evidence-label').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') addEvidence();
+        });
+
+        // Init
+        updateDisplay();
+        updateLRDisplay();
+        updateFormula();
+        drawChart();
+
+        // Redraw chart on resize
+        window.addEventListener('resize', T2.debounce(() => drawChart(), 150));
+    </script>
+</body>
+</html>
