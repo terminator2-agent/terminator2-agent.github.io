@@ -298,6 +298,15 @@
             font-weight: 500;
         }
 
+        .pnl-inline {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .pnl-inline.positive { color: var(--green); }
+        .pnl-inline.negative { color: var(--red); }
+
         .urgency {
             padding: 1px 6px;
             border-radius: 3px;
@@ -1222,11 +1231,13 @@
             const totalEquity = data.total_equity || totalCapital;
             const roiPct = ((totalEquity - 1000) / 1000) * 100;
 
-            // Count YES/NO positions
-            let yesCount = 0, noCount = 0;
+            // Count YES/NO positions and compute unrealized P&L
+            let yesCount = 0, noCount = 0, totalUnrealizedPnl = 0;
             (data.positions || []).forEach(p => {
                 if (p.outcome === 'YES') yesCount++;
                 else noCount++;
+                const uv = p.unrealized_value != null ? p.unrealized_value : p.amount;
+                totalUnrealizedPnl += (uv - p.amount);
             });
 
             const html = `
@@ -1254,7 +1265,8 @@
                 </div>
                 <div class="pnl-strip animate-in" style="animation-delay:0.25s;">
                     <span class="pnl-label">Started with M$1,000</span>
-                    <span class="pnl-label" style="margin-left:auto;">Cycle ${data.cycles || '?'}</span>
+                    <span class="pnl-value ${totalUnrealizedPnl >= 0 ? 'positive' : 'negative'}" style="margin-left:auto;">unrealized: ${totalUnrealizedPnl >= 0 ? '+' : ''}M$${totalUnrealizedPnl.toFixed(0)}</span>
+                    <span class="pnl-label" style="margin-left:16px;">Cycle ${data.cycles || '?'}</span>
                     ${data.last_updated ? `<span class="pnl-label" style="font-family:'JetBrains Mono',monospace;font-size:11px;margin-left:12px;">updated ${new Date(data.last_updated).toLocaleDateString('en-US', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}</span>` : ''}
                 </div>
             `;
@@ -1330,6 +1342,13 @@
                 const mktPct = (pos.current_prob * 100).toFixed(0);
                 const estPct = (pos.my_estimate * 100).toFixed(0);
 
+                // Unrealized P&L
+                const unrealizedValue = pos.unrealized_value != null ? pos.unrealized_value : pos.amount;
+                const pnl = unrealizedValue - pos.amount;
+                const pnlPct = pos.amount > 0 ? (pnl / pos.amount * 100) : 0;
+                const pnlSign = pnl >= 0 ? '+' : '';
+                const pnlClass = pnl >= 0 ? 'positive' : 'negative';
+
                 cardsHtml += `
                     <div class="position-card stagger-in" style="animation-delay:${0.05 * i}s;" data-idx="${i}" onclick="window.__toggleCard(this)">
                         <div class="card-top">
@@ -1338,6 +1357,7 @@
                         </div>
                         <div class="card-meta">
                             <span class="amount">M$${pos.amount}</span>
+                            <span class="pnl-inline ${pnlClass}">${pnlSign}${pnl.toFixed(1)} (${pnlSign}${pnlPct.toFixed(0)}%)</span>
                             <span class="urgency ${urgencyClass}">${urgencyLabel}</span>
                             <span>edge: ${(absEdge * 100).toFixed(0)}%</span>
                         </div>
@@ -1372,6 +1392,7 @@
                     <select class="sort-select" onchange="window.__sortPositions(this.value)">
                         <option value="edge">Sort: Edge</option>
                         <option value="amount">Sort: Amount</option>
+                        <option value="pnl">Sort: P&L</option>
                         <option value="days">Sort: Days to close</option>
                         <option value="name">Sort: Name</option>
                     </select>
@@ -1446,6 +1467,10 @@
                         return Math.abs(pb.my_estimate - pb.current_prob) - Math.abs(pa.my_estimate - pa.current_prob);
                     case 'amount':
                         return pb.amount - pa.amount;
+                    case 'pnl':
+                        const pnlA = (pa.unrealized_value != null ? pa.unrealized_value : pa.amount) - pa.amount;
+                        const pnlB = (pb.unrealized_value != null ? pb.unrealized_value : pb.amount) - pb.amount;
+                        return pnlB - pnlA;
                     case 'days':
                         const da = pa.days_to_close == null ? 9999 : pa.days_to_close;
                         const db = pb.days_to_close == null ? 9999 : pb.days_to_close;
