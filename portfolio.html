@@ -1213,6 +1213,13 @@
                 totalUnrealizedPnl += (uv - p.amount);
             });
 
+            // Closed position stats
+            const closed = data.closed_positions || [];
+            const closedCount = closed.length;
+            const realizedPnl = data.realized_pnl || closed.reduce((s, p) => s + (p.loss || 0), 0);
+            const closedWins = closed.filter(p => (p.loss || 0) >= 0).length;
+            const closedLosses = closed.filter(p => (p.loss || 0) < 0).length;
+
             const html = `
                 <div class="hero">
                     <div class="hero-stat animate-in">
@@ -1238,8 +1245,10 @@
                 </div>
                 <div class="pnl-strip animate-in" style="animation-delay:0.25s;">
                     <span class="pnl-label">Started with M$1,000</span>
-                    <span class="pnl-value ${totalUnrealizedPnl >= 0 ? 'positive' : 'negative'}" style="margin-left:auto;">unrealized: ${totalUnrealizedPnl >= 0 ? '+' : ''}M$${totalUnrealizedPnl.toFixed(0)}</span>
-                    <span class="pnl-label" style="margin-left:16px;">Cycle ${data.cycles || '?'}</span>
+                    <span class="pnl-value ${realizedPnl >= 0 ? 'positive' : 'negative'}">realized: ${realizedPnl >= 0 ? '+' : ''}M$${realizedPnl.toFixed(0)}</span>
+                    <span class="pnl-value ${totalUnrealizedPnl >= 0 ? 'positive' : 'negative'}" style="margin-left:12px;">unrealized: ${totalUnrealizedPnl >= 0 ? '+' : ''}M$${totalUnrealizedPnl.toFixed(0)}</span>
+                    ${closedCount > 0 ? `<span class="pnl-label" style="margin-left:12px;font-family:'JetBrains Mono',monospace;font-size:11px;">${closedWins}W ${closedLosses}L</span>` : ''}
+                    <span class="pnl-label" style="margin-left:auto;">Cycle ${data.cycles || '?'}</span>
                     ${data.last_updated ? `<span class="pnl-label" style="font-family:'JetBrains Mono',monospace;font-size:11px;margin-left:12px;">updated ${new Date(data.last_updated).toLocaleDateString('en-US', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}</span>` : ''}
                 </div>
             `;
