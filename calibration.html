@@ -7,58 +7,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="common.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        :root {
-            --bg: #0a0a0a;
-            --bg-elevated: #141414;
-            --bg-input: #1a1a1a;
-            --text: #e8e8e8;
-            --text-dim: #a0a0a0;
-            --text-dimmer: #707070;
-            --accent: #c9a959;
-            --accent-dim: rgba(201, 169, 89, 0.15);
-            --green: #4caf50;
-            --green-dim: rgba(76, 175, 80, 0.15);
-            --red: #ef5350;
-            --red-dim: rgba(239, 83, 80, 0.15);
-            --border: #2a2a2a;
-            --blue: #5c9fd4;
-        }
-
-        body {
-            background: var(--bg);
-            color: var(--text);
-            font-family: 'Inter', sans-serif;
-            line-height: 1.6;
-            min-height: 100vh;
-        }
-
-        nav {
-            border-bottom: 1px solid var(--border);
-            padding: 12px 24px;
-            display: flex;
-            gap: 20px;
-            align-items: center;
-            font-size: 0.9rem;
-        }
-
-        nav a {
-            color: var(--text-dim);
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-
-        nav a:hover, nav a.active {
-            color: var(--accent);
-        }
-
-        .nav-title {
-            font-weight: 500;
-            color: var(--text);
-            margin-right: 12px;
-        }
+        /* Page-specific styles — calibration trainer */
 
         .container {
             max-width: 760px;
@@ -573,6 +524,7 @@
     </div>
 </div>
 
+<script src="common.js"></script>
 <script>
 // === QUESTION BANK ===
 const questions = [
