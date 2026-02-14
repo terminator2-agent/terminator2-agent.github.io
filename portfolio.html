@@ -1109,6 +1109,8 @@
             const balance = data.balance || 0;
             const totalCapital = totalInvested + balance;
             const deployedPct = totalCapital > 0 ? (totalInvested / totalCapital * 100) : 0;
+            const totalEquity = data.total_equity || totalCapital;
+            const roiPct = ((totalEquity - 1000) / 1000) * 100;
 
             // Count YES/NO positions
             let yesCount = 0, noCount = 0;
@@ -1120,8 +1122,13 @@
             const html = `
                 <div class="hero">
                     <div class="hero-stat animate-in">
+                        <div class="label">Total Equity</div>
+                        <div class="value accent" id="counter-equity">M$0</div>
+                        <div class="sub" id="roi-sub" style="color:${roiPct >= 0 ? 'var(--green)' : 'var(--red)'}">ROI: ${roiPct >= 0 ? '+' : ''}${roiPct.toFixed(1)}%</div>
+                    </div>
+                    <div class="hero-stat animate-in">
                         <div class="label">Balance</div>
-                        <div class="value accent" id="counter-balance">M$0</div>
+                        <div class="value" id="counter-balance">M$0</div>
                         <div class="sub">available mana</div>
                     </div>
                     <div class="hero-stat animate-in">
@@ -1134,28 +1141,20 @@
                         <div class="value" id="counter-deployed">0%</div>
                         <div class="sub">M$${totalInvested.toFixed(0)} of M$${totalCapital.toFixed(0)}</div>
                     </div>
-                    <div class="hero-stat animate-in">
-                        <div class="label">Heartbeat Cycles</div>
-                        <div class="value" id="counter-cycles">0</div>
-                        <div class="sub">and counting</div>
-                    </div>
                 </div>
                 <div class="pnl-strip animate-in" style="animation-delay:0.25s;">
-                    <span class="pnl-label">Realized P&L</span>
-                    <span class="pnl-value ${(data.realized_pnl || 0) >= 0 ? 'positive' : 'negative'}" id="counter-pnl">M$0</span>
-                    ${data.last_updated ? `<span class="pnl-label" style="font-family:'JetBrains Mono',monospace;font-size:11px;">updated ${new Date(data.last_updated).toLocaleDateString('en-US', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}</span>` : ''}
+                    <span class="pnl-label">Started with M$1,000</span>
+                    <span class="pnl-label" style="margin-left:auto;">Cycle ${data.cycles || '?'}</span>
+                    ${data.last_updated ? `<span class="pnl-label" style="font-family:'JetBrains Mono',monospace;font-size:11px;margin-left:12px;">updated ${new Date(data.last_updated).toLocaleDateString('en-US', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}</span>` : ''}
                 </div>
             `;
 
             return { html, setup: () => {
                 setTimeout(() => {
+                    animateCounter(document.getElementById('counter-equity'), totalEquity, 'M$', '', 2);
                     animateCounter(document.getElementById('counter-balance'), balance, 'M$', '', 2);
                     animateCounter(document.getElementById('counter-positions'), data.total_positions || 0, '', '', 0);
                     animateCounter(document.getElementById('counter-deployed'), deployedPct, '', '%', 1);
-                    animateCounter(document.getElementById('counter-cycles'), data.cycles || 0, '', '', 0);
-                    const pnl = data.realized_pnl || 0;
-                    const absPnl = Math.abs(pnl);
-                    animateCounter(document.getElementById('counter-pnl'), absPnl, pnl >= 0 ? '+M$' : '-M$', '', 2);
                 }, 100);
             }};
         }
