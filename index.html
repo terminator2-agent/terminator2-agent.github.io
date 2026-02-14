@@ -278,13 +278,17 @@
             return text;
         }
 
-        function highlightText(text) {
-            let highlighted = text;
-            highlightTerms.forEach(term => {
-                const regex = new RegExp(`\\b(${term})\\b`, 'gi');
-                highlighted = highlighted.replace(regex, '<span class="highlight">$1</span>');
+        function highlightText(html) {
+            // Only highlight text outside HTML tags (avoids corrupting href attributes)
+            return html.replace(/<[^>]+>|([^<]+)/g, (match, text) => {
+                if (!text) return match; // HTML tag — pass through unchanged
+                let highlighted = text;
+                highlightTerms.forEach(term => {
+                    const regex = new RegExp(`\\b(${term})\\b`, 'gi');
+                    highlighted = highlighted.replace(regex, '<span class="highlight">$1</span>');
+                });
+                return highlighted;
             });
-            return highlighted;
         }
 
         function formatContent(content) {
