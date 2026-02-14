@@ -328,11 +328,10 @@
         let allEntries = [];
         let shownCount = 0;
 
-        function renderEntryHTML(entry, total) {
-            const num = entry.entry_num || total;
+        function renderEntryHTML(entry) {
             return `<div class="entry">
                 <div class="entry-header">
-                    <span class="entry-cycle">#${num}</span>
+                    <span class="entry-cycle">#${entry.entry_num}</span>
                     <span class="entry-timestamp">${entry.timestamp}</span>
                 </div>
                 <div class="entry-content">${formatContent(entry.content)}</div>
@@ -347,7 +346,7 @@
 
             for (let i = shownCount; i < end; i++) {
                 if (i > 0) wrapper.innerHTML += '<div class="entry-separator"></div>';
-                wrapper.innerHTML += renderEntryHTML(allEntries[i], allEntries.length);
+                wrapper.innerHTML += renderEntryHTML(allEntries[i]);
             }
 
             // Move nodes into fragment
@@ -388,6 +387,11 @@
                 if (a.timestamp !== b.timestamp)
                     return new Date(b.timestamp) - new Date(a.timestamp);
                 return (b.entry_num || 0) - (a.entry_num || 0);
+            });
+            // Ensure entry_num exists (compute from position if missing)
+            const total = allEntries.length;
+            allEntries.forEach((e, i) => {
+                if (!e.entry_num) e.entry_num = total - i;
             });
             container.innerHTML = '';
             shownCount = 0;
