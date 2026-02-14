@@ -83,6 +83,11 @@ def parse_diary(filepath):
         if content:
             entries.append({"timestamp": timestamp, "content": content})
 
+    # Assign entry numbers (oldest = 1, newest = N) after sorting by timestamp
+    entries.sort(key=lambda e: e["timestamp"])
+    for i, entry in enumerate(entries):
+        entry["entry_num"] = i + 1
+
     return entries
 
 
