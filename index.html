@@ -30,6 +30,17 @@
         .entry-content strong { font-weight: 500; color: var(--text); }
         .entry-content em { font-style: italic; color: var(--text-dim); }
 
+        .entry-content ul {
+            margin: 0 0 16px 0;
+            padding-left: 24px;
+            list-style: disc;
+        }
+        .entry-content ul:last-child { margin-bottom: 0; }
+        .entry-content li {
+            margin-bottom: 6px;
+            line-height: 1.7;
+        }
+
         .entry-content a {
             color: var(--accent);
             text-decoration: none;
@@ -108,6 +119,8 @@
         ];
 
         function parseMarkdown(text) {
+            // Escape angle brackets to prevent HTML injection (preserve & for URLs)
+            text = text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
             text = T2.linkify(text);
             text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
             text = text.replace(/\*(.+?)\*/g, '<em>$1</em>');
@@ -127,10 +140,31 @@
             });
         }
 
+        function formatBlock(block) {
+            const trimmed = block.trim();
+            // Skip --- separators
+            if (/^-{3,}\s*$/.test(trimmed)) return '';
+            // Detect list blocks (lines starting with - )
+            const lines = trimmed.split('\n');
+            if (lines.every(l => /^\s*-\s/.test(l) || l.trim() === '')) {
+                const items = lines
+                    .filter(l => l.trim())
+                    .map(l => `<li>${highlightText(parseMarkdown(l.replace(/^\s*-\s+/, '')))}</li>`)
+                    .join('');
+                return `<ul>${items}</ul>`;
+            }
+            // Regular paragraph (preserve single newlines as <br>)
+            const html = lines
+                .map(l => highlightText(parseMarkdown(l)))
+                .join('<br>');
+            return `<p>${html}</p>`;
+        }
+
         function formatContent(content) {
             return content.trim().split(/\n\n+/)
                 .filter(p => p.trim().length > 0)
-                .map(p => `<p>${highlightText(parseMarkdown(p))}</p>`)
+                .map(formatBlock)
+                .filter(h => h.length > 0)
                 .join('');
         }
 

@@ -1026,6 +1026,75 @@
             min-width: 60px;
             text-align: right;
         }
+
+        /* ==================== CAPITAL PIPELINE ==================== */
+        .capital-pipeline {
+            margin-top: 24px;
+            padding: 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+        .pipeline-header {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--blue);
+            margin-bottom: 16px;
+        }
+        .pipeline-bar {
+            display: flex;
+            height: 28px;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 12px;
+            border: 1px solid var(--border);
+        }
+        .pipeline-segment {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 500;
+            color: #fff;
+            transition: width 0.6s ease;
+            min-width: 0;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        .pipeline-segment.available { background: var(--green); opacity: 0.85; }
+        .pipeline-segment.week { background: var(--accent); opacity: 0.85; }
+        .pipeline-segment.month { background: var(--blue); opacity: 0.75; }
+        .pipeline-segment.quarter { background: var(--purple); opacity: 0.7; }
+        .pipeline-segment.long { background: var(--text-dimmer); opacity: 0.5; }
+        .pipeline-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            font-size: 12px;
+            color: var(--text-dim);
+        }
+        .pipeline-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .pipeline-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+        }
+        .pipeline-dot.available { background: var(--green); }
+        .pipeline-dot.week { background: var(--accent); }
+        .pipeline-dot.month { background: var(--blue); }
+        .pipeline-dot.quarter { background: var(--purple); }
+        .pipeline-dot.long { background: var(--text-dimmer); }
+        .pipeline-amount {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body>
@@ -1668,6 +1737,56 @@
             return div.innerHTML;
         }
 
+        // ==================== CAPITAL PIPELINE ====================
+        function renderCapitalPipeline(data) {
+            const positions = data.positions || [];
+            const balance = data.balance || 0;
+            const totalEquity = data.total_equity || (balance + positions.reduce((s, p) => s + (p.amount || 0), 0));
+
+            // Bucket positions by resolution horizon
+            const buckets = { available: balance, week: 0, month: 0, quarter: 0, long: 0 };
+            positions.forEach(p => {
+                const d = p.days_to_close;
+                const amt = p.amount || 0;
+                if (d == null || d > 180) buckets.long += amt;
+                else if (d <= 7) buckets.week += amt;
+                else if (d <= 30) buckets.month += amt;
+                else buckets.quarter += amt;
+            });
+
+            const total = buckets.available + buckets.week + buckets.month + buckets.quarter + buckets.long;
+            if (total === 0) return { html: '', setup: () => {} };
+
+            const pct = (v) => ((v / total) * 100).toFixed(1);
+            const fmt = (v) => Math.round(v);
+
+            const segments = [
+                { key: 'available', label: 'Free', value: buckets.available },
+                { key: 'week', label: '≤7d', value: buckets.week },
+                { key: 'month', label: '≤30d', value: buckets.month },
+                { key: 'quarter', label: '≤180d', value: buckets.quarter },
+                { key: 'long', label: '180d+', value: buckets.long },
+            ].filter(s => s.value > 0);
+
+            const barSegments = segments.map(s =>
+                `<div class="pipeline-segment ${s.key}" style="width:${pct(s.value)}%" title="${s.label}: M$${fmt(s.value)}">${pct(s.value) > 6 ? 'M$' + fmt(s.value) : ''}</div>`
+            ).join('');
+
+            const legendItems = segments.map(s =>
+                `<div class="pipeline-legend-item"><span class="pipeline-dot ${s.key}"></span>${s.label}: <span class="pipeline-amount">M$${fmt(s.value)}</span></div>`
+            ).join('');
+
+            const html = `
+                <div class="capital-pipeline animate-in" style="animation-delay:0.35s;">
+                    <div class="pipeline-header">Capital Pipeline</div>
+                    <div class="pipeline-bar">${barSegments}</div>
+                    <div class="pipeline-legend">${legendItems}</div>
+                </div>
+            `;
+
+            return { html, setup: () => {} };
+        }
+
         // ==================== MAIN RENDER ====================
         async function main() {
             const data = await loadData();
@@ -1684,6 +1803,7 @@
 
             const hero = renderHero(data);
             const resolvingSoon = renderResolvingSoon(data);
+            const pipeline = renderCapitalPipeline(data);
             const positions = renderPositions(data);
             const constellation = renderConstellation(data);
             const edge = renderEdgeDetector(data);
@@ -1692,6 +1812,7 @@
             app.innerHTML = `
                 ${hero.html}
                 ${resolvingSoon.html}
+                ${pipeline.html}
 
                 <div class="section-header" style="margin-top:48px;">
                     <h2>Positions</h2>
