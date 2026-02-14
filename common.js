@@ -1,10 +1,11 @@
 /* Terminator2 — Shared Utilities */
 
 const T2 = {
-    // Load JSON with error handling
+    // Load JSON with error handling + cache-busting
     async loadJSON(path) {
         try {
-            const resp = await fetch(path);
+            const sep = path.includes('?') ? '&' : '?';
+            const resp = await fetch(path + sep + '_t=' + Date.now());
             if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
             return await resp.json();
         } catch (err) {
