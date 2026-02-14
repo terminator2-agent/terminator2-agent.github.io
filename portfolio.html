@@ -412,6 +412,26 @@
             opacity: 0.4;
         }
 
+        .search-clear {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            font-size: 16px;
+            cursor: pointer;
+            padding: 2px 6px;
+            line-height: 1;
+            opacity: 0.6;
+        }
+
+        .search-clear:hover {
+            opacity: 1;
+            color: var(--accent);
+        }
+
         /* Filter bar */
         .filter-bar {
             display: flex;
@@ -1336,6 +1356,7 @@
             const html = `
                 <div class="search-wrap">
                     <input type="text" class="search-input" id="position-search" placeholder="Search positions..." oninput="window.__searchPositions(this.value)">
+                    <button class="search-clear" id="search-clear" onclick="document.getElementById('position-search').value=''; window.__searchPositions(''); this.style.display='none';" style="display:none;">&times;</button>
                 </div>
                 <div class="filter-bar">
                     <button class="filter-btn active" data-filter="all" onclick="window.__filterPositions('all', this)">All (${positions.length})</button>
@@ -1365,6 +1386,18 @@
         window.__toggleCard = function(el) {
             el.classList.toggle('expanded');
         };
+
+        // Escape key collapses all expanded cards
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const expanded = document.querySelectorAll('.position-card.expanded');
+                if (expanded.length > 0) {
+                    expanded.forEach(c => c.classList.remove('expanded'));
+                    const btn = document.querySelector('[onclick*="__toggleAllCards"]');
+                    if (btn) btn.textContent = 'Expand All';
+                }
+            }
+        });
 
         // Expand/collapse all cards
         window.__toggleAllCards = function(btn) {
@@ -1416,6 +1449,8 @@
         window.__searchPositions = function(query) {
             window.__currentSearch = query;
             window.__applyFilters();
+            const clearBtn = document.getElementById('search-clear');
+            if (clearBtn) clearBtn.style.display = query ? 'block' : 'none';
         };
 
         // Sort
