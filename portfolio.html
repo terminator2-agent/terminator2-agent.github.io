@@ -966,6 +966,66 @@
             border: 1px solid var(--border);
             border-radius: 12px;
         }
+
+        /* ==================== RESOLVING SOON ==================== */
+        .resolving-soon {
+            margin-top: 24px;
+            padding: 16px 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--accent);
+            border-radius: 8px;
+        }
+        .resolving-soon-header {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--accent);
+            margin-bottom: 12px;
+        }
+        .resolving-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+            font-size: 13px;
+        }
+        .resolving-item:last-child { border-bottom: none; }
+        .resolving-days {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 500;
+            padding: 2px 8px;
+            border-radius: 4px;
+            min-width: 48px;
+            text-align: center;
+        }
+        .resolving-days.critical { background: var(--red-dim); color: var(--red); }
+        .resolving-days.warning { background: rgba(255, 193, 7, 0.12); color: #ffc107; }
+        .resolving-question {
+            flex: 1;
+            color: var(--text-dim);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .resolving-badge {
+            font-size: 11px;
+            font-weight: 600;
+            padding: 1px 6px;
+            border-radius: 3px;
+        }
+        .resolving-badge.yes { background: var(--green-dim); color: var(--green); }
+        .resolving-badge.no { background: var(--red-dim); color: var(--red); }
+        .resolving-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--text-dim);
+            min-width: 60px;
+            text-align: right;
+        }
     </style>
 </head>
 <body>
@@ -1098,6 +1158,40 @@
                     animateCounter(document.getElementById('counter-pnl'), absPnl, pnl >= 0 ? '+M$' : '-M$', '', 2);
                 }, 100);
             }};
+        }
+
+        // ==================== RENDER RESOLVING SOON ====================
+        function renderResolvingSoon(data) {
+            const positions = data.positions || [];
+            const soon = positions
+                .filter(p => p.days_to_close !== null && p.days_to_close !== undefined && p.days_to_close <= 30 && p.days_to_close >= 0)
+                .sort((a, b) => a.days_to_close - b.days_to_close);
+
+            if (soon.length === 0) return { html: '', setup: () => {} };
+
+            const totalAtRisk = soon.reduce((s, p) => s + (p.amount || 0), 0);
+
+            const items = soon.map(p => {
+                const isCritical = p.days_to_close <= 7;
+                const isYes = p.outcome === 'YES';
+                return `
+                    <div class="resolving-item">
+                        <span class="resolving-days ${isCritical ? 'critical' : 'warning'}">${p.days_to_close}d</span>
+                        <span class="resolving-badge ${isYes ? 'yes' : 'no'}">${p.outcome}</span>
+                        <span class="resolving-question">${escHtml(p.question)}</span>
+                        <span class="resolving-value">M$${p.amount}</span>
+                    </div>
+                `;
+            }).join('');
+
+            const html = `
+                <div class="resolving-soon animate-in" style="animation-delay:0.3s;">
+                    <div class="resolving-soon-header">Resolving within 30 days — M$${totalAtRisk} at stake</div>
+                    ${items}
+                </div>
+            `;
+
+            return { html, setup: () => {} };
         }
 
         // ==================== RENDER POSITION CARDS ====================
@@ -1590,6 +1684,7 @@
             }
 
             const hero = renderHero(data);
+            const resolvingSoon = renderResolvingSoon(data);
             const positions = renderPositions(data);
             const constellation = renderConstellation(data);
             const edge = renderEdgeDetector(data);
@@ -1597,6 +1692,7 @@
 
             app.innerHTML = `
                 ${hero.html}
+                ${resolvingSoon.html}
 
                 <div class="section-header" style="margin-top:48px;">
                     <h2>Positions</h2>
