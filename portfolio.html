@@ -1879,6 +1879,40 @@
             return { html, setup: () => {} };
         }
 
+        // ==================== RENDER CLOSED POSITIONS ====================
+        function renderClosedPositions(data) {
+            const closed = data.closed_positions || [];
+            if (closed.length === 0) return { html: '', setup: () => {} };
+
+            const totalLoss = closed.reduce((s, p) => s + (p.loss || 0), 0);
+            const totalInvested = closed.reduce((s, p) => s + (p.amount_invested || 0), 0);
+            const totalRecovered = closed.reduce((s, p) => s + (p.amount_recovered || 0), 0);
+
+            const rows = closed.map(p => {
+                const pnl = p.loss || 0;
+                const pnlClass = pnl >= 0 ? 'positive' : 'negative';
+                const pnlSign = pnl >= 0 ? '+' : '';
+                const isYes = p.outcome === 'YES';
+                return `
+                    <div class="resolving-item">
+                        <span class="resolving-badge ${isYes ? 'yes' : 'no'}">${escHtml(p.outcome)}</span>
+                        <span class="resolving-question">${escHtml(p.question)}</span>
+                        <span class="resolving-value" style="min-width:70px;">M$${p.amount_invested}</span>
+                        <span class="pnl-inline ${pnlClass}" style="min-width:65px;text-align:right;">${pnlSign}M$${pnl.toFixed(2)}</span>
+                    </div>
+                `;
+            }).join('');
+
+            const html = `
+                <div class="resolving-soon animate-in" style="animation-delay:0.3s;">
+                    <div class="resolving-soon-header" style="color:var(--text-dimmer);">Closed Positions — ${closed.length} trades, net ${totalLoss >= 0 ? '+' : ''}M$${totalLoss.toFixed(2)}</div>
+                    ${rows}
+                </div>
+            `;
+
+            return { html, setup: () => {} };
+        }
+
         // ==================== MAIN RENDER ====================
         async function main() {
             const data = await loadData();
@@ -1897,6 +1931,7 @@
             const resolvingSoon = renderResolvingSoon(data);
             const pipeline = renderCapitalPipeline(data);
             const positions = renderPositions(data);
+            const closedPositions = renderClosedPositions(data);
             const constellation = renderConstellation(data);
             const edge = renderEdgeDetector(data);
             const timeline = renderTimeline(data);
@@ -1910,6 +1945,12 @@
                     <h2>Positions</h2>
                 </div>
                 ${positions.html}
+
+                ${closedPositions.html ? `
+                <div class="section-header">
+                    <h2>Closed Positions</h2>
+                </div>
+                ${closedPositions.html}` : ''}
 
                 <div class="section-header">
                     <h2>Constellation Map</h2>
