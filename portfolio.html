@@ -409,6 +409,47 @@
             opacity: 0;
         }
 
+        /* Search input */
+        .search-input {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 7px 12px 7px 32px;
+            color: var(--text);
+            font-size: 12px;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            width: 100%;
+            max-width: 260px;
+            transition: border-color 0.2s;
+            margin-bottom: 10px;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-dimmer);
+        }
+
+        .search-wrap {
+            position: relative;
+            max-width: 260px;
+            margin-bottom: 10px;
+        }
+
+        .search-wrap::before {
+            content: '\1F50D';
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            pointer-events: none;
+            opacity: 0.4;
+        }
+
         /* Filter bar */
         .filter-bar {
             display: flex;
@@ -1320,6 +1361,9 @@
             });
 
             const html = `
+                <div class="search-wrap">
+                    <input type="text" class="search-input" id="position-search" placeholder="Search positions..." oninput="window.__searchPositions(this.value)">
+                </div>
                 <div class="filter-bar">
                     <button class="filter-btn active" data-filter="all" onclick="window.__filterPositions('all', this)">All (${positions.length})</button>
                     <button class="filter-btn" data-filter="yes" onclick="window.__filterPositions('yes', this)">YES</button>
@@ -1347,10 +1391,14 @@
             el.classList.toggle('expanded');
         };
 
-        // Filter
-        window.__filterPositions = function(filter, btn) {
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+        // Current filter + search state
+        window.__currentFilter = 'all';
+        window.__currentSearch = '';
+
+        // Apply both filter and search
+        window.__applyFilters = function() {
+            const filter = window.__currentFilter;
+            const search = window.__currentSearch.toLowerCase();
 
             document.querySelectorAll('.position-card').forEach(card => {
                 const idx = parseInt(card.dataset.idx);
@@ -1361,8 +1409,27 @@
                 else if (filter === 'no') show = pos.outcome === 'NO';
                 else if (filter === 'urgent') show = pos.days_to_close !== null && pos.days_to_close < 7;
 
+                if (show && search) {
+                    show = pos.question.toLowerCase().includes(search) ||
+                           (pos.reasoning && pos.reasoning.toLowerCase().includes(search));
+                }
+
                 card.style.display = show ? '' : 'none';
             });
+        };
+
+        // Filter
+        window.__filterPositions = function(filter, btn) {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            window.__currentFilter = filter;
+            window.__applyFilters();
+        };
+
+        // Search
+        window.__searchPositions = function(query) {
+            window.__currentSearch = query;
+            window.__applyFilters();
         };
 
         // Sort
