@@ -1469,6 +1469,51 @@
             const closedWins = closed.filter(p => (p.loss || 0) >= 0).length;
             const closedLosses = closed.filter(p => (p.loss || 0) < 0).length;
 
+            // Compute next capital unlock waves (group by close date week)
+            const now = new Date();
+            const unlockWaves = [];
+            const positionsWithClose = (data.positions || [])
+                .filter(p => p.close_date && p.days_to_close != null && p.days_to_close <= 90 && p.days_to_close > 0)
+                .sort((a, b) => new Date(a.close_date) - new Date(b.close_date));
+
+            // Group by close date (same date = same wave)
+            const dateGroups = {};
+            positionsWithClose.forEach(p => {
+                const d = p.close_date.split('T')[0];
+                if (!dateGroups[d]) dateGroups[d] = { date: d, amount: 0, shares: 0, count: 0 };
+                dateGroups[d].amount += p.amount;
+                dateGroups[d].shares += (p.shares || 0);
+                dateGroups[d].count++;
+            });
+            Object.values(dateGroups).forEach(g => unlockWaves.push(g));
+            unlockWaves.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            // Build unlock banner HTML
+            let unlockHtml = '';
+            if (unlockWaves.length > 0) {
+                const nextWave = unlockWaves[0];
+                const nextDate = new Date(nextWave.date);
+                const daysUntil = Math.ceil((nextDate - now) / 86400000);
+                const totalUnlockAmount = unlockWaves.reduce((s, w) => s + w.amount, 0);
+                const waveBars = unlockWaves.slice(0, 5).map(w => {
+                    const wd = new Date(w.date);
+                    const dd = Math.ceil((wd - now) / 86400000);
+                    const pct = totalUnlockAmount > 0 ? (w.amount / totalUnlockAmount * 100) : 0;
+                    return `<span class="unlock-wave" title="${w.count} position${w.count > 1 ? 's' : ''} closing ${w.date}, M$${w.amount.toFixed(0)}" style="flex:${Math.max(pct, 5)} 0 0;background:linear-gradient(90deg,rgba(201,169,89,${Math.min(0.15 + pct/200, 0.4)}),rgba(201,169,89,${Math.min(0.08 + pct/400, 0.2)}));height:4px;border-radius:2px;"></span>`;
+                }).join('');
+                unlockHtml = `
+                <div class="pnl-strip animate-in" style="animation-delay:0.35s;margin-top:8px;gap:12px;">
+                    <span class="pnl-label" style="flex-shrink:0;">Next unlock</span>
+                    <span class="pnl-value" style="color:var(--accent);flex-shrink:0;" id="unlock-countdown" data-date="${nextWave.date}">
+                        M$${nextWave.amount.toFixed(0)} in ${daysUntil}d
+                    </span>
+                    <span style="flex:1;display:flex;gap:3px;align-items:center;">${waveBars}</span>
+                    <span class="pnl-label" style="flex-shrink:0;font-family:'JetBrains Mono',monospace;font-size:11px;">
+                        M$${totalUnlockAmount.toFixed(0)} total / 90d
+                    </span>
+                </div>`;
+            }
+
             const html = `
                 <div class="hero">
                     <div class="hero-stat animate-in">
@@ -1500,6 +1545,7 @@
                     <span class="pnl-label" style="margin-left:auto;">Cycle ${data.cycles || '?'}</span>
                     ${data.last_updated ? `<span id="freshness-indicator" class="pnl-label" style="font-family:'JetBrains Mono',monospace;font-size:11px;margin-left:12px;" data-updated="${data.last_updated}"></span>` : ''}
                 </div>
+                ${unlockHtml}
             `;
 
             return { html, setup: () => {
@@ -1527,6 +1573,26 @@
                     }
                     updateFreshness();
                     setInterval(updateFreshness, 60000);
+                }
+                // Live unlock countdown
+                const unlockEl = document.getElementById('unlock-countdown');
+                if (unlockEl) {
+                    function updateUnlock() {
+                        const target = new Date(unlockEl.dataset.date);
+                        const now = new Date();
+                        const diffMs = target - now;
+                        if (diffMs <= 0) {
+                            unlockEl.textContent = 'NOW';
+                            unlockEl.style.color = 'var(--green)';
+                            return;
+                        }
+                        const d = Math.floor(diffMs / 86400000);
+                        const h = Math.floor((diffMs % 86400000) / 3600000);
+                        const amount = unlockEl.textContent.match(/M\$\d+/)?.[0] || '';
+                        unlockEl.textContent = amount + ' in ' + d + 'd ' + h + 'h';
+                    }
+                    updateUnlock();
+                    setInterval(updateUnlock, 3600000);
                 }
                 setTimeout(() => {
                     animateCounter(document.getElementById('counter-equity'), totalEquity, 'M$', '', 2);
