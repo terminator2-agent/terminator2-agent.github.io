@@ -1489,13 +1489,17 @@
                 const payout = p.shares ? p.shares.toFixed(0) : null;
                 const returnPct = (p.shares && p.amount) ? ((p.shares / p.amount - 1) * 100).toFixed(0) : null;
                 const countdownId = isCritical && p.close_date ? `countdown-${i}` : null;
+                const linkOpen = p.market_url ? `<a href="${escHtml(p.market_url)}" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit;display:contents;">` : '';
+                const linkClose = p.market_url ? `</a>` : '';
                 return `
-                    <div class="resolving-item">
+                    <div class="resolving-item" ${p.market_url ? 'style="cursor:pointer;"' : ''}>
+                        ${linkOpen}
                         <span class="resolving-days ${isCritical ? 'critical' : 'warning'}">${countdownId ? `<span id="${countdownId}" title="${p.close_date}">${p.days_to_close}d</span>` : `${p.days_to_close}d`}</span>
                         <span class="resolving-badge ${isYes ? 'yes' : 'no'}">${p.outcome}</span>
                         <span class="resolving-question">${escHtml(p.question)}</span>
                         <span class="resolving-value">M$${p.amount}</span>
                         ${payout ? `<span class="pnl-inline positive" style="font-size:11px;" title="Payout if correct">+${returnPct}%</span>` : ''}
+                        ${linkClose}
                     </div>
                 `;
             }).join('');
@@ -1808,7 +1812,7 @@
 
             const html = `
                 <div class="constellation-wrapper">
-                    <canvas id="constellation-canvas" height="400"></canvas>
+                    <canvas id="constellation-canvas" height="400" role="img" aria-label="Constellation map plotting positions by time horizon vs edge magnitude"></canvas>
                     <div class="constellation-y-axis">edge magnitude</div>
                     <div class="constellation-axes">
                         <span>closes soon</span>
