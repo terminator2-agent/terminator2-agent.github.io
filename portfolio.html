@@ -37,6 +37,55 @@
             overflow-x: hidden;
         }
 
+        /* ==================== SECTION JUMP BAR ==================== */
+        .section-jump-bar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(10, 10, 10, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border);
+            padding: 8px 16px;
+            display: flex;
+            gap: 6px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            opacity: 0;
+            transform: translateY(-100%);
+            transition: opacity 0.25s ease, transform 0.25s ease;
+            pointer-events: none;
+        }
+        .section-jump-bar.visible {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+        .section-jump-bar::-webkit-scrollbar { display: none; }
+        .section-jump-pill {
+            flex-shrink: 0;
+            padding: 4px 12px;
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-dimmer);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        .section-jump-pill:hover {
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+        .section-jump-pill.active {
+            color: var(--accent);
+            border-color: rgba(201, 169, 89, 0.4);
+            background: rgba(201, 169, 89, 0.08);
+        }
+
         /* ==================== AGENT STATUS ==================== */
         .agent-status {
             display: flex;
@@ -1500,6 +1549,15 @@
             </nav>
         </header>
 
+        <div class="section-jump-bar" id="section-jump-bar" role="navigation" aria-label="Section navigation">
+            <a class="section-jump-pill" href="#section-positions" data-section="positions">Positions</a>
+            <a class="section-jump-pill" href="#section-concentration" data-section="concentration">Concentration</a>
+            <a class="section-jump-pill" href="#section-closed" data-section="closed">Closed</a>
+            <a class="section-jump-pill" href="#section-constellation" data-section="constellation">Constellation</a>
+            <a class="section-jump-pill" href="#section-edge" data-section="edge">Edge</a>
+            <a class="section-jump-pill" href="#section-timeline" data-section="timeline">Timeline</a>
+        </div>
+
         <div id="app">
             <div class="loading-state" role="status" aria-live="polite">
                 <span class="loading-pulse"></span>
@@ -2845,33 +2903,33 @@
                 ${calendar.html}
 
                 ${concentration.html ? `
-                <div class="section-header" style="margin-top:48px;">
+                <div id="section-concentration" class="section-header" style="margin-top:48px;">
                     <h2>Concentration Risk</h2>
                 </div>
                 ${concentration.html}` : ''}
 
-                <div class="section-header" style="margin-top:48px;">
+                <div id="section-positions" class="section-header" style="margin-top:48px;">
                     <h2>Positions</h2>
                 </div>
                 ${positions.html}
 
                 ${closedPositions.html ? `
-                <div class="section-header">
+                <div id="section-closed" class="section-header">
                     <h2>Closed Positions</h2>
                 </div>
                 ${closedPositions.html}` : ''}
 
-                <div class="section-header">
+                <div id="section-constellation" class="section-header">
                     <h2>Constellation Map</h2>
                 </div>
                 ${constellation.html}
 
-                <div class="section-header">
+                <div id="section-edge" class="section-header">
                     <h2>Edge Detector</h2>
                 </div>
                 ${edge.html}
 
-                <div class="section-header">
+                <div id="section-timeline" class="section-header">
                     <h2>Decision Timeline</h2>
                 </div>
                 ${timeline.html}
@@ -3001,6 +3059,78 @@
                 focusIdx = -1;
                 document.querySelectorAll('.position-card.kb-focus').forEach(c => c.classList.remove('kb-focus'));
             };
+        })();
+
+        // ==================== SECTION JUMP BAR ====================
+        (function() {
+            const jumpBar = document.getElementById('section-jump-bar');
+            if (!jumpBar) return;
+
+            const pills = jumpBar.querySelectorAll('.section-jump-pill');
+            const sectionIds = Array.from(pills).map(p => p.getAttribute('href').slice(1));
+
+            // Show/hide jump bar based on scroll position
+            let heroBottom = 0;
+            const observer = new IntersectionObserver(entries => {
+                entries.forEach(entry => {
+                    if (!entry.isIntersecting) {
+                        jumpBar.classList.add('visible');
+                    } else {
+                        jumpBar.classList.remove('visible');
+                    }
+                });
+            }, { threshold: 0, rootMargin: '-50px 0px 0px 0px' });
+
+            // Observe the hero section (first .hero element)
+            function initJumpBar() {
+                const heroEl = document.querySelector('.hero');
+                if (heroEl) observer.observe(heroEl);
+            }
+            // Re-init after data loads (hero is rendered dynamically)
+            const appObserver = new MutationObserver(() => {
+                const heroEl = document.querySelector('.hero');
+                if (heroEl) {
+                    observer.observe(heroEl);
+                    appObserver.disconnect();
+                }
+            });
+            appObserver.observe(document.getElementById('app'), { childList: true, subtree: true });
+
+            // Smooth scroll on click
+            pills.forEach(pill => {
+                pill.addEventListener('click', e => {
+                    e.preventDefault();
+                    const targetId = pill.getAttribute('href').slice(1);
+                    const target = document.getElementById(targetId);
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            });
+
+            // Highlight active section on scroll
+            let ticking = false;
+            window.addEventListener('scroll', () => {
+                if (!ticking) {
+                    requestAnimationFrame(() => {
+                        const scrollY = window.scrollY + 80;
+                        let activeId = null;
+                        for (let i = sectionIds.length - 1; i >= 0; i--) {
+                            const el = document.getElementById(sectionIds[i]);
+                            if (el && el.offsetTop <= scrollY) {
+                                activeId = sectionIds[i];
+                                break;
+                            }
+                        }
+                        pills.forEach(p => {
+                            const href = p.getAttribute('href').slice(1);
+                            p.classList.toggle('active', href === activeId);
+                        });
+                        ticking = false;
+                    });
+                    ticking = true;
+                }
+            });
         })();
 
         main();
