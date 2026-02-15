@@ -1496,7 +1496,7 @@
                     </select>
                 </div>
                 <div class="filter-count" id="filter-count" style="display:none;font-size:12px;color:var(--text-dimmer);margin-bottom:8px;"></div>
-                <div style="font-size:10px;color:var(--text-dimmer);margin-bottom:12px;font-family:'JetBrains Mono',monospace;opacity:0.5;">j/k navigate &middot; enter expand &middot; g/G top/bottom &middot; esc collapse all</div>
+                <div style="font-size:10px;color:var(--text-dimmer);margin-bottom:12px;font-family:'JetBrains Mono',monospace;opacity:0.5;">j/k navigate &middot; enter/space toggle &middot; g/G top/bottom &middot; esc collapse all</div>
                 <div class="positions-grid" id="positions-grid">
                     ${cardsHtml}
                 </div>
@@ -1569,7 +1569,9 @@
             const countEl = document.getElementById('filter-count');
             if (countEl) {
                 if (filter !== 'all' || search) {
-                    countEl.textContent = `Showing ${visible} of ${total} positions`;
+                    countEl.textContent = visible === 0
+                        ? `No positions match "${search || filter}" — try a different filter`
+                        : `Showing ${visible} of ${total} positions`;
                     countEl.style.display = '';
                 } else {
                     countEl.style.display = 'none';
