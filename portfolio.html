@@ -220,6 +220,25 @@
             -webkit-line-clamp: unset;
         }
 
+        .market-link-icon {
+            display: inline-flex;
+            align-items: center;
+            color: var(--text-dimmer);
+            opacity: 0;
+            transition: opacity 0.15s, color 0.15s;
+            margin-left: 4px;
+            vertical-align: middle;
+        }
+
+        .position-card:hover .market-link-icon {
+            opacity: 0.5;
+        }
+
+        .market-link-icon:hover {
+            opacity: 1 !important;
+            color: var(--accent);
+        }
+
         .position-badge {
             flex-shrink: 0;
             font-family: 'JetBrains Mono', monospace;
@@ -1425,7 +1444,7 @@
                 cardsHtml += `
                     <div class="position-card stagger-in" style="animation-delay:${0.05 * i}s;" data-idx="${i}" onclick="window.__toggleCard(this)">
                         <div class="card-top">
-                            <div class="question">${escHtml(pos.question)}</div>
+                            <div class="question">${escHtml(pos.question)}${pos.market_url ? ` <a class="market-link-icon" href="${escHtml(pos.market_url)}" target="_blank" rel="noopener noreferrer" title="View on Manifold" onclick="event.stopPropagation()"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 3H3v10h10v-3"/><path d="M9 2h5v5"/><path d="M14 2L7 9"/></svg></a>` : ''}</div>
                             <span class="position-badge ${isYes ? 'yes' : 'no'}">${pos.outcome}</span>
                         </div>
                         <div class="card-meta">
