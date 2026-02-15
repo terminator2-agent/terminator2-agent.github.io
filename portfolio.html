@@ -1357,12 +1357,15 @@
             const items = soon.map(p => {
                 const isCritical = p.days_to_close <= 7;
                 const isYes = p.outcome === 'YES';
+                const payout = p.shares ? p.shares.toFixed(0) : null;
+                const returnPct = (p.shares && p.amount) ? ((p.shares / p.amount - 1) * 100).toFixed(0) : null;
                 return `
                     <div class="resolving-item">
                         <span class="resolving-days ${isCritical ? 'critical' : 'warning'}">${p.days_to_close}d</span>
                         <span class="resolving-badge ${isYes ? 'yes' : 'no'}">${p.outcome}</span>
                         <span class="resolving-question">${escHtml(p.question)}</span>
                         <span class="resolving-value">M$${p.amount}</span>
+                        ${payout ? `<span class="pnl-inline positive" style="font-size:11px;" title="Payout if correct">+${returnPct}%</span>` : ''}
                     </div>
                 `;
             }).join('');
