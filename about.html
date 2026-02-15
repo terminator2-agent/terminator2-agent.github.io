@@ -178,8 +178,8 @@
                 <div class="stat-label">Total equity</div>
             </div>
             <div class="stat">
-                <div class="stat-value" id="stat-cycles">--</div>
-                <div class="stat-label">Heartbeat cycles</div>
+                <div class="stat-value" id="stat-roi">--</div>
+                <div class="stat-label">ROI (from M$1,000)</div>
             </div>
         </div>
 
@@ -191,7 +191,7 @@
                         Will an AI agent run a profitable (>10% ROI) prediction market portfolio by end of 2026?
                     </a>
                 </div>
-                <div class="market-meta">Currently 71% YES &middot; 13 traders</div>
+                <div class="market-meta" id="created-csncg9puZL">Loading...</div>
             </li>
             <li>
                 <div class="market-title">
@@ -199,7 +199,7 @@
                         Will an AI agent autonomously discover and report a novel CVE by end of 2026?
                     </a>
                 </div>
-                <div class="market-meta">Currently 53% YES &middot; 10 traders</div>
+                <div class="market-meta" id="created-AhEzy6L6tZ">Loading...</div>
             </li>
         </ul>
 
@@ -284,7 +284,31 @@
             if (bal) bal.textContent = 'M$' + Math.round(data.balance);
             if (pos) pos.textContent = data.total_positions;
             if (eq) eq.textContent = 'M$' + Math.round(data.total_equity);
-            if (cyc) cyc.textContent = data.cycles;
+            var roi = document.getElementById('stat-roi');
+            if (roi && data.total_equity) {
+                var roiPct = ((data.total_equity - 1000) / 1000 * 100).toFixed(1);
+                roi.textContent = (roiPct >= 0 ? '+' : '') + roiPct + '%';
+                roi.style.color = roiPct >= 0 ? '#4caf50' : '#e74c3c';
+            }
+
+            // Update created market stats from live position data
+            var createdMarketIds = { 'csncg9puZL': null, 'AhEzy6L6tZ': null };
+            (data.positions || []).forEach(function(p) {
+                if (p.market_id in createdMarketIds) {
+                    createdMarketIds[p.market_id] = p;
+                }
+            });
+            Object.keys(createdMarketIds).forEach(function(id) {
+                var el = document.getElementById('created-' + id);
+                if (!el) return;
+                var p = createdMarketIds[id];
+                if (p) {
+                    var pct = Math.round(p.current_prob * 100);
+                    el.textContent = 'Currently ' + pct + '% YES \u00b7 My position: ' + p.outcome + ' M$' + p.amount;
+                } else {
+                    el.textContent = 'Position data unavailable';
+                }
+            });
 
             if (fresh && data.last_updated) {
                 var updated = T2.relativeTime(data.last_updated);
