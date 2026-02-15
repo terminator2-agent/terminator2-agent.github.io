@@ -1156,6 +1156,106 @@
             text-align: right;
         }
 
+        /* ==================== RESOLUTION CALENDAR ==================== */
+        .resolution-calendar {
+            margin-top: 24px;
+            padding: 20px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+        .resolution-calendar-header {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--accent);
+            margin-bottom: 16px;
+        }
+        .cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+        }
+        .cal-day-label {
+            font-size: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-dimmer);
+            text-align: center;
+            padding: 4px 0;
+        }
+        .cal-cell {
+            position: relative;
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-dimmer);
+            transition: background 0.2s;
+            cursor: default;
+            min-height: 40px;
+        }
+        .cal-cell.empty { opacity: 0; }
+        .cal-cell.today {
+            color: var(--text);
+            font-weight: 600;
+            border: 1px solid var(--accent);
+        }
+        .cal-cell.has-resolutions {
+            background: var(--bg-elevated);
+            cursor: pointer;
+        }
+        .cal-cell.has-resolutions:hover {
+            background: var(--border);
+        }
+        .cal-dots {
+            display: flex;
+            gap: 2px;
+            margin-top: 2px;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 100%;
+        }
+        .cal-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+        }
+        .cal-dot.yes { background: var(--green); }
+        .cal-dot.no { background: var(--red); }
+        .cal-cell-amount {
+            font-size: 8px;
+            color: var(--accent);
+            margin-top: 1px;
+        }
+        .cal-tooltip {
+            display: none;
+            position: absolute;
+            bottom: calc(100% + 8px);
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-size: 11px;
+            white-space: nowrap;
+            z-index: 100;
+            color: var(--text-dim);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+        .cal-cell:hover .cal-tooltip { display: block; }
+        .cal-tooltip-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 2px 0;
+        }
+
         /* ==================== CAPITAL PIPELINE ==================== */
         .capital-pipeline {
             margin-top: 24px;
@@ -2037,6 +2137,93 @@
             return { html, setup: () => {} };
         }
 
+        // ==================== RESOLUTION CALENDAR ====================
+        function renderResolutionCalendar(data) {
+            const positions = data.positions || [];
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+            // Group positions by close date (within next 45 days)
+            const byDate = {};
+            positions.forEach(p => {
+                if (!p.close_date) return;
+                const close = new Date(p.close_date);
+                const diffDays = Math.floor((close - today) / 86400000);
+                if (diffDays < 0 || diffDays > 45) return;
+                const dateKey = close.toISOString().slice(0, 10);
+                if (!byDate[dateKey]) byDate[dateKey] = [];
+                byDate[dateKey].push(p);
+            });
+
+            if (Object.keys(byDate).length === 0) return { html: '', setup: () => {} };
+
+            // Build calendar grid for current month + next month
+            const months = [];
+            for (let m = 0; m < 2; m++) {
+                const month = new Date(now.getFullYear(), now.getMonth() + m, 1);
+                const daysInMonth = new Date(month.getFullYear(), month.getMonth() + 1, 0).getDate();
+                const startDow = month.getDay(); // 0=Sun
+                months.push({ year: month.getFullYear(), month: month.getMonth(), daysInMonth, startDow, label: month.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) });
+            }
+
+            const dayLabels = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+            let gridHtml = '';
+
+            months.forEach(mo => {
+                gridHtml += `<div style="margin-bottom:16px;">`;
+                gridHtml += `<div style="font-size:11px;color:var(--text-dim);margin-bottom:8px;font-weight:500;">${mo.label}</div>`;
+                gridHtml += `<div class="cal-grid">`;
+                dayLabels.forEach(d => { gridHtml += `<div class="cal-day-label">${d}</div>`; });
+
+                // Empty cells before first day
+                for (let i = 0; i < mo.startDow; i++) {
+                    gridHtml += `<div class="cal-cell empty"></div>`;
+                }
+
+                for (let d = 1; d <= mo.daysInMonth; d++) {
+                    const dateKey = `${mo.year}-${String(mo.month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                    const cellDate = new Date(mo.year, mo.month, d);
+                    const isToday = cellDate.getTime() === today.getTime();
+                    const resolutions = byDate[dateKey] || [];
+                    const hasRes = resolutions.length > 0;
+                    const totalAmt = resolutions.reduce((s, p) => s + (p.amount || 0), 0);
+
+                    let tooltipHtml = '';
+                    if (hasRes) {
+                        tooltipHtml = `<div class="cal-tooltip">`;
+                        resolutions.forEach(p => {
+                            const isYes = p.outcome === 'YES';
+                            tooltipHtml += `<div class="cal-tooltip-row"><span class="cal-dot ${isYes ? 'yes' : 'no'}"></span>${escHtml(p.question.length > 40 ? p.question.slice(0, 40) + '...' : p.question)} <span style="color:var(--accent);margin-left:4px;">M$${p.amount}</span></div>`;
+                        });
+                        tooltipHtml += `</div>`;
+                    }
+
+                    const dots = resolutions.slice(0, 6).map(p => `<div class="cal-dot ${p.outcome === 'YES' ? 'yes' : 'no'}"></div>`).join('');
+
+                    gridHtml += `<div class="cal-cell${isToday ? ' today' : ''}${hasRes ? ' has-resolutions' : ''}">`;
+                    gridHtml += `<span>${d}</span>`;
+                    if (hasRes) {
+                        gridHtml += `<div class="cal-dots">${dots}</div>`;
+                        if (totalAmt >= 10) gridHtml += `<div class="cal-cell-amount">$${totalAmt}</div>`;
+                    }
+                    gridHtml += tooltipHtml;
+                    gridHtml += `</div>`;
+                }
+
+                gridHtml += `</div></div>`;
+            });
+
+            const totalAtStake = Object.values(byDate).flat().reduce((s, p) => s + (p.amount || 0), 0);
+            const html = `
+                <div class="resolution-calendar animate-in" style="animation-delay:0.32s;">
+                    <div class="resolution-calendar-header">Resolution Calendar — M$${totalAtStake} resolving within 45d</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">${gridHtml}</div>
+                </div>
+            `;
+
+            return { html, setup: () => {} };
+        }
+
         // ==================== UTILS ====================
         function escHtml(str) {
             if (!str) return '';
@@ -2147,6 +2334,7 @@
             const hero = renderHero(data);
             const resolvingSoon = renderResolvingSoon(data);
             const pipeline = renderCapitalPipeline(data);
+            const calendar = renderResolutionCalendar(data);
             const positions = renderPositions(data);
             const closedPositions = renderClosedPositions(data);
             const constellation = renderConstellation(data);
@@ -2157,6 +2345,7 @@
                 ${hero.html}
                 ${resolvingSoon.html}
                 ${pipeline.html}
+                ${calendar.html}
 
                 <div class="section-header" style="margin-top:48px;">
                     <h2>Positions</h2>
