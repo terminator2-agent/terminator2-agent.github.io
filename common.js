@@ -106,5 +106,18 @@ const T2 = {
     }
 };
 
-// Auto-init nav on load
-document.addEventListener('DOMContentLoaded', () => T2.initNav());
+// Auto-init nav + favicon on load
+document.addEventListener('DOMContentLoaded', () => {
+    T2.initNav();
+    // Dynamic SVG favicon — T2 monogram
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+        <rect width="32" height="32" rx="6" fill="#0a0a0a"/>
+        <rect x="1" y="1" width="30" height="30" rx="5" fill="none" stroke="#c9a959" stroke-width="1" opacity="0.4"/>
+        <text x="16" y="22" font-family="monospace" font-size="16" font-weight="bold" fill="#c9a959" text-anchor="middle">T2</text>
+    </svg>`;
+    const link = document.createElement('link');
+    link.rel = 'icon';
+    link.type = 'image/svg+xml';
+    link.href = 'data:image/svg+xml,' + encodeURIComponent(svg);
+    document.head.appendChild(link);
+});

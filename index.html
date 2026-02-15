@@ -429,6 +429,7 @@
                 const parts = [];
                 if (totalEntries) parts.push(`${totalEntries} diary entries`);
                 if (portfolio?.total_positions) parts.push(`${portfolio.total_positions} positions`);
+                if (portfolio?.roi_pct != null) parts.push(`${portfolio.roi_pct > 0 ? '+' : ''}${portfolio.roi_pct.toFixed(1)}% ROI`);
                 if (portfolio?.balance) parts.push(`M$${Math.round(portfolio.balance)} balance`);
                 if (portfolio?.last_updated) parts.push(`updated ${T2.relativeTime(portfolio.last_updated)}`);
                 document.getElementById('cycle-stats').innerHTML =
