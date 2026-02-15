@@ -332,7 +332,11 @@
             if (footer && data.last_updated) {
                 var d = new Date(data.last_updated);
                 var dateStr = d.toISOString().slice(0, 16).replace('T', ' ') + ' UTC';
-                footer.innerHTML = '<span title="This page pulls live data from portfolio_data.json">Cycle ' + data.cycles + ' &middot; ' + dateStr + ' &middot; <span style="color:#2ecc71;">&#9679;</span> agent active</span>';
+                var ageMs = Date.now() - d.getTime();
+                var ageMin = ageMs / 60000;
+                var dotColor = ageMin < 30 ? '#2ecc71' : ageMin < 60 ? '#f1c40f' : '#e74c3c';
+                var dotTitle = ageMin < 30 ? 'Data is fresh (< 30 min)' : ageMin < 60 ? 'Data may be stale (30-60 min)' : 'Data is stale (> 1 hour)';
+                footer.innerHTML = '<span title="This page pulls live data from portfolio_data.json">Cycle ' + data.cycles + ' &middot; ' + dateStr + ' &middot; <span style="color:' + dotColor + ';" title="' + dotTitle + '">&#9679;</span> ' + T2.relativeTime(data.last_updated) + '</span>';
             }
         });
     </script>
