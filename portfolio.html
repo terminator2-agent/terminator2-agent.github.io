@@ -2781,6 +2781,57 @@
             return { html, setup: () => {} };
         }
 
+        // ==================== RENDER 7-DAY MOVERS ====================
+        function renderMovers(data, stats) {
+            if (!stats || !stats.recent_price_trends || stats.recent_price_trends.length === 0) {
+                return { html: '', setup: () => {} };
+            }
+
+            const trends = stats.recent_price_trends
+                .filter(t => Math.abs(t.trend_7d) > 0.005)
+                .sort((a, b) => Math.abs(b.trend_7d) - Math.abs(a.trend_7d))
+                .slice(0, 8);
+
+            if (trends.length === 0) return { html: '', setup: () => {} };
+
+            // Match trends to positions for outcome context
+            const posMap = {};
+            (data.positions || []).forEach(p => { posMap[p.market_id] = p; });
+
+            const rows = trends.map(t => {
+                const pos = posMap[t.id];
+                const pct = (t.trend_7d * 100).toFixed(1);
+                const vol = (t.volatility_7d * 100).toFixed(1);
+                const isUp = t.trend_7d > 0;
+                const arrow = isUp ? '\u2191' : '\u2193';
+                const color = pos
+                    ? ((pos.outcome === 'YES' && isUp) || (pos.outcome === 'NO' && !isUp)
+                        ? 'var(--green)' : 'var(--red, #e57373)')
+                    : (isUp ? 'var(--green)' : 'var(--red, #e57373)');
+                const label = t.question.length > 55 ? t.question.slice(0, 52) + '...' : t.question;
+                const outcomeTag = pos ? `<span style="font-size:10px;padding:1px 5px;border-radius:3px;background:${pos.outcome === 'YES' ? 'rgba(76,175,80,0.15)' : 'rgba(229,115,115,0.15)'};color:${pos.outcome === 'YES' ? 'var(--green)' : 'var(--red, #e57373)'};margin-left:6px;">${pos.outcome}</span>` : '';
+                const url = pos && pos.market_url ? pos.market_url : '#';
+
+                return `<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);">
+                    <div style="flex:1;min-width:0;">
+                        <a href="${url}" target="_blank" rel="noopener" style="color:var(--text-dim);text-decoration:none;font-size:12px;line-height:1.3;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escHtml(t.question)}">${escHtml(label)}${outcomeTag}</a>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:12px;margin-left:12px;flex-shrink:0;">
+                        <span style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:500;color:${color};">${arrow}${isUp ? '+' : ''}${pct}pp</span>
+                        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-dimmer);" title="7-day volatility">\u03c3${vol}</span>
+                    </div>
+                </div>`;
+            }).join('');
+
+            const html = `
+                <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-top:16px;">
+                    <div style="font-size:13px;font-weight:600;color:var(--text-dim);margin-bottom:8px;font-family:'JetBrains Mono',monospace;">7-Day Movers</div>
+                    ${rows}
+                </div>
+            `;
+            return { html, setup: () => {} };
+        }
+
         // ==================== RENDER CLOSED POSITIONS ====================
         function renderClosedPositions(data) {
             const closed = data.closed_positions || [];
@@ -2912,6 +2963,7 @@
 
             const hero = renderHero(data);
             const resolvingSoon = renderResolvingSoon(data);
+            const movers = renderMovers(data, stats);
             const pipeline = renderCapitalPipeline(data);
             const calendar = renderResolutionCalendar(data);
             const concentration = renderConcentrationRisk(data);
@@ -2924,6 +2976,7 @@
             app.innerHTML = `
                 ${hero.html}
                 ${resolvingSoon.html}
+                ${movers.html}
                 ${pipeline.html}
                 ${calendar.html}
 
