@@ -1846,6 +1846,26 @@
 
                 const entryPct = pos.prob_at_bet != null ? (pos.prob_at_bet * 100).toFixed(0) : null;
 
+                // 7-day trend indicator
+                let trendHtml = '';
+                if (pos._trend7d != null) {
+                    const t = pos._trend7d;
+                    const absTrend = Math.abs(t * 100);
+                    let arrow, trendColor, trendTitle;
+                    if (absTrend < 1) {
+                        arrow = '\u2192'; trendColor = 'var(--text-dimmer)'; trendTitle = 'Flat (7d)';
+                    } else if (t > 0) {
+                        arrow = absTrend > 5 ? '\u2191\u2191' : '\u2191';
+                        trendColor = isYes ? 'var(--green)' : 'var(--red)';
+                        trendTitle = '+' + absTrend.toFixed(1) + 'pp (7d)';
+                    } else {
+                        arrow = absTrend > 5 ? '\u2193\u2193' : '\u2193';
+                        trendColor = isYes ? 'var(--red)' : 'var(--green)';
+                        trendTitle = absTrend.toFixed(1) + 'pp (7d)';
+                    }
+                    trendHtml = `<span class="trend-7d" title="${trendTitle}" style="color:${trendColor};font-size:11px;font-weight:600;margin-left:4px;">${arrow}</span>`;
+                }
+
                 // Win probability: P(position pays out) based on my estimate
                 const winProb = isYes ? (pos.my_estimate || pos.current_prob) : (1 - (pos.my_estimate || pos.current_prob));
                 const winPct = (winProb * 100).toFixed(0);
@@ -1869,7 +1889,7 @@
                             <div class="estimate-marker ${isYes ? 'yes' : 'no'}" style="left:calc(${estPct}% - 1.5px)"></div>
                         </div>
                         <div class="prob-labels">
-                            <span class="mkt">mkt ${mktPct}%</span>
+                            <span class="mkt">mkt ${mktPct}%${trendHtml}</span>
                             <span class="est ${isYes ? 'yes' : 'no'}">est ${estPct}%</span>
                         </div>
                         <div class="position-reasoning">
@@ -1906,6 +1926,7 @@
                         <option value="return">Sort: Return if correct</option>
                         <option value="market">Sort: Market cluster</option>
                         <option value="confidence">Sort: Confidence</option>
+                        <option value="trend">Sort: 7d Trend</option>
                         <option value="name">Sort: Name</option>
                     </select>
                 </div>
@@ -2042,6 +2063,8 @@
                         const confA = pa.outcome === 'YES' ? (pa.my_estimate || pa.current_prob) : (1 - (pa.my_estimate || pa.current_prob));
                         const confB = pb.outcome === 'YES' ? (pb.my_estimate || pb.current_prob) : (1 - (pb.my_estimate || pb.current_prob));
                         return confB - confA;
+                    case 'trend':
+                        return Math.abs(pb._trend7d || 0) - Math.abs(pa._trend7d || 0);
                     case 'days':
                         const da = pa.days_to_close == null ? 9999 : pa.days_to_close;
                         const db = pb.days_to_close == null ? 9999 : pb.days_to_close;
@@ -2726,7 +2749,10 @@
 
         // ==================== MAIN RENDER ====================
         async function main() {
-            const data = await loadData();
+            const [data, stats] = await Promise.all([
+                loadData(),
+                fetch('portfolio_stats.json').then(r => r.ok ? r.json() : null).catch(() => null)
+            ]);
             const app = document.getElementById('app');
 
             if (!data) {
@@ -2736,6 +2762,19 @@
                     </div>
                 `;
                 return;
+            }
+
+            // Merge 7-day trend data into positions
+            if (stats && stats.recent_price_trends) {
+                const trendMap = {};
+                stats.recent_price_trends.forEach(t => { trendMap[t.id] = t; });
+                (data.positions || []).forEach(p => {
+                    const t = trendMap[p.market_id];
+                    if (t) {
+                        p._trend7d = t.trend_7d;
+                        p._vol7d = t.volatility_7d;
+                    }
+                });
             }
 
             const hero = renderHero(data);
