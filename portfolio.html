@@ -2500,6 +2500,70 @@
             return { html, setup: () => {} };
         }
 
+        // ==================== CONCENTRATION RISK ====================
+        function renderConcentrationRisk(data) {
+            const positions = data.positions || [];
+            if (positions.length === 0) return { html: '', setup: () => {} };
+
+            // Group by market_id
+            const byMarket = {};
+            positions.forEach(p => {
+                const mid = p.market_id;
+                if (!mid) return;
+                if (!byMarket[mid]) byMarket[mid] = { positions: [], totalAmount: 0, question: '' };
+                byMarket[mid].positions.push(p);
+                byMarket[mid].totalAmount += (p.amount || 0);
+                // Use shortest question as the group label
+                if (!byMarket[mid].question || p.question.length < byMarket[mid].question.length) {
+                    byMarket[mid].question = p.question;
+                }
+            });
+
+            // Filter to markets with 2+ positions
+            const concentrated = Object.entries(byMarket)
+                .filter(([, g]) => g.positions.length >= 2)
+                .sort((a, b) => b[1].totalAmount - a[1].totalAmount);
+
+            if (concentrated.length === 0) return { html: '', setup: () => {} };
+
+            const totalConcentrated = concentrated.reduce((s, [, g]) => s + g.totalAmount, 0);
+            const totalPortfolio = positions.reduce((s, p) => s + (p.amount || 0), 0);
+            const concentrationPct = totalPortfolio > 0 ? (totalConcentrated / totalPortfolio * 100) : 0;
+
+            const rows = concentrated.map(([mid, g]) => {
+                const pct = totalPortfolio > 0 ? (g.totalAmount / totalPortfolio * 100) : 0;
+                const barWidth = Math.min(pct, 100);
+                const answers = g.positions.map(p => {
+                    // Extract answer-specific part of question
+                    const parts = p.question.split(' - ');
+                    const label = parts.length > 1 ? parts[parts.length - 1] : p.question;
+                    return `<span style="font-size:10px;padding:2px 6px;background:var(--bg-input);border-radius:3px;color:var(--text-dimmer);">${escHtml(label.slice(0, 30))}</span>`;
+                }).join(' ');
+                return `
+                    <div style="padding:10px 0;border-bottom:1px solid rgba(42,42,42,0.5);">
+                        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+                            <span style="font-size:12px;color:var(--text-dim);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(g.question)}</span>
+                            <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--accent);white-space:nowrap;">${g.positions.length} pos &middot; M$${g.totalAmount.toFixed(0)}</span>
+                            <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dimmer);white-space:nowrap;">${pct.toFixed(0)}%</span>
+                        </div>
+                        <div style="height:3px;background:var(--bg-input);border-radius:2px;overflow:hidden;">
+                            <div style="height:100%;width:${barWidth}%;background:${pct > 30 ? 'var(--red, #e74c3c)' : pct > 15 ? '#ffc107' : 'var(--accent)'};border-radius:2px;transition:width 0.6s;"></div>
+                        </div>
+                        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;">${answers}</div>
+                    </div>
+                `;
+            }).join('');
+
+            const html = `
+                <div class="resolving-soon animate-in" style="animation-delay:0.28s;">
+                    <div class="resolving-soon-header" style="color:${concentrationPct > 50 ? 'var(--red, #e74c3c)' : '#ffc107'};">Concentration Risk — ${concentrationPct.toFixed(0)}% of capital in ${concentrated.length} correlated group${concentrated.length > 1 ? 's' : ''}</div>
+                    ${rows}
+                </div>
+            `;
+
+            return { html, setup: () => {} };
+        }
+
         // ==================== MAIN RENDER ====================
         async function main() {
             const data = await loadData();
@@ -2518,6 +2582,7 @@
             const resolvingSoon = renderResolvingSoon(data);
             const pipeline = renderCapitalPipeline(data);
             const calendar = renderResolutionCalendar(data);
+            const concentration = renderConcentrationRisk(data);
             const positions = renderPositions(data);
             const closedPositions = renderClosedPositions(data);
             const constellation = renderConstellation(data);
@@ -2529,6 +2594,12 @@
                 ${resolvingSoon.html}
                 ${pipeline.html}
                 ${calendar.html}
+
+                ${concentration.html ? `
+                <div class="section-header" style="margin-top:48px;">
+                    <h2>Concentration Risk</h2>
+                </div>
+                ${concentration.html}` : ''}
 
                 <div class="section-header" style="margin-top:48px;">
                     <h2>Positions</h2>
