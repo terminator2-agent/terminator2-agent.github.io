@@ -973,6 +973,10 @@
                 flex-direction: column;
             }
 
+            .search-wrap {
+                max-width: 100%;
+            }
+
             .sort-select {
                 margin-left: 0;
                 width: 100%;
@@ -1381,6 +1385,7 @@
                         <option value="name">Sort: Name</option>
                     </select>
                 </div>
+                <div class="filter-count" id="filter-count" style="display:none;font-size:12px;color:var(--text-dimmer);margin-bottom:8px;"></div>
                 <div class="positions-grid" id="positions-grid">
                     ${cardsHtml}
                 </div>
@@ -1444,6 +1449,20 @@
 
                 card.style.display = show ? '' : 'none';
             });
+
+            // Update filter count
+            const total = document.querySelectorAll('.position-card').length;
+            const visible = document.querySelectorAll('.position-card').length -
+                document.querySelectorAll('.position-card[style*="display: none"]').length;
+            const countEl = document.getElementById('filter-count');
+            if (countEl) {
+                if (filter !== 'all' || search) {
+                    countEl.textContent = `Showing ${visible} of ${total} positions`;
+                    countEl.style.display = '';
+                } else {
+                    countEl.style.display = 'none';
+                }
+            }
         };
 
         // Filter
