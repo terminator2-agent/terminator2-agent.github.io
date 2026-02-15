@@ -1859,6 +1859,8 @@
                     <button class="filter-btn" data-filter="no" onclick="window.__filterPositions('no', this)">NO</button>
                     <button class="filter-btn" data-filter="urgent" onclick="window.__filterPositions('urgent', this)">Urgent</button>
                     <button class="filter-btn" data-filter="soon" onclick="window.__filterPositions('soon', this)">&lt; 30d</button>
+                    <button class="filter-btn" data-filter="winning" onclick="window.__filterPositions('winning', this)">Winning</button>
+                    <button class="filter-btn" data-filter="losing" onclick="window.__filterPositions('losing', this)">Losing</button>
                     <button class="filter-btn" id="expand-all-btn" onclick="window.__toggleAllCards(this)">Expand All</button>
                     <select class="sort-select" onchange="window.__sortPositions(this.value)">
                         <option value="edge">Sort: Edge</option>
@@ -1930,6 +1932,8 @@
                 else if (filter === 'no') show = pos.outcome === 'NO';
                 else if (filter === 'urgent') show = pos.days_to_close !== null && pos.days_to_close < 7;
                 else if (filter === 'soon') show = pos.days_to_close !== null && pos.days_to_close <= 30 && pos.days_to_close >= 0;
+                else if (filter === 'winning') { const uv = pos.unrealized_value != null ? pos.unrealized_value : pos.amount; show = uv >= pos.amount; }
+                else if (filter === 'losing') { const uv = pos.unrealized_value != null ? pos.unrealized_value : pos.amount; show = uv < pos.amount; }
 
                 if (show && search) {
                     show = pos.question.toLowerCase().includes(search) ||
