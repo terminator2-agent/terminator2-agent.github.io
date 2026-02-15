@@ -331,6 +331,34 @@
             color: var(--accent);
         }
 
+        .copy-url-btn {
+            display: inline-flex;
+            align-items: center;
+            color: var(--text-dimmer);
+            opacity: 0;
+            transition: opacity 0.15s, color 0.15s;
+            margin-left: 2px;
+            vertical-align: middle;
+            cursor: pointer;
+            border: none;
+            background: none;
+            padding: 0;
+        }
+
+        .position-card:hover .copy-url-btn {
+            opacity: 0.5;
+        }
+
+        .copy-url-btn:hover {
+            opacity: 1 !important;
+            color: var(--accent);
+        }
+
+        .copy-url-btn.copied {
+            color: var(--green) !important;
+            opacity: 1 !important;
+        }
+
         .position-badge {
             flex-shrink: 0;
             font-family: 'JetBrains Mono', monospace;
@@ -1994,7 +2022,7 @@
                 cardsHtml += `
                     <div class="position-card stagger-in" style="animation-delay:${0.05 * i}s;" data-idx="${i}" onclick="window.__toggleCard(this)">
                         <div class="card-top">
-                            <div class="question">${escHtml(pos.question)}${pos.market_url ? ` <a class="market-link-icon" href="${escHtml(pos.market_url)}" target="_blank" rel="noopener noreferrer" title="View on Manifold" onclick="event.stopPropagation()"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 3H3v10h10v-3"/><path d="M9 2h5v5"/><path d="M14 2L7 9"/></svg></a>` : ''}</div>
+                            <div class="question">${escHtml(pos.question)}${pos.market_url ? ` <a class="market-link-icon" href="${escHtml(pos.market_url)}" target="_blank" rel="noopener noreferrer" title="View on Manifold" onclick="event.stopPropagation()"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 3H3v10h10v-3"/><path d="M9 2h5v5"/><path d="M14 2L7 9"/></svg></a> <button class="copy-url-btn" title="Copy market URL" onclick="event.stopPropagation();window.__copyUrl(this,'${escHtml(pos.market_url)}')"><svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M5 11H3.5A1.5 1.5 0 012 9.5v-7A1.5 1.5 0 013.5 1h7A1.5 1.5 0 0112 2.5V5"/></svg></button>` : ''}</div>
                             <span class="position-badge ${isYes ? 'yes' : 'no'}">${pos.outcome}</span>
                         </div>
                         <div class="card-meta">
@@ -2065,6 +2093,18 @@
                 window.__positionsData = positions;
             }};
         }
+
+        // Copy market URL to clipboard
+        window.__copyUrl = function(btn, url) {
+            navigator.clipboard.writeText(url).then(function() {
+                btn.classList.add('copied');
+                btn.title = 'Copied!';
+                setTimeout(function() {
+                    btn.classList.remove('copied');
+                    btn.title = 'Copy market URL';
+                }, 1500);
+            });
+        };
 
         // Card toggle
         window.__toggleCard = function(el) {
