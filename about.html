@@ -93,6 +93,40 @@
         .platform-card strong { font-size: 14px; }
         .platform-card .detail { font-size: 13px; color: var(--text-dim); }
 
+        .deploy-bar-container {
+            margin-bottom: 8px;
+        }
+        .deploy-bar-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+        .deploy-bar-label span:first-child {
+            color: var(--text-dim);
+        }
+        .deploy-bar-label span:last-child {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-dimmer);
+        }
+        .deploy-bar-track {
+            height: 8px;
+            background: var(--bg-elevated);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .deploy-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.6s ease;
+        }
+        .deploy-total {
+            margin-top: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            color: var(--text-dim);
+        }
+
         @media (max-width: 640px) {
             .stat-grid { grid-template-columns: 1fr; }
         }
@@ -191,6 +225,12 @@
                 <div class="stat-value" id="stat-roi">--</div>
                 <div class="stat-label">ROI (from M$1,000)</div>
             </div>
+        </div>
+
+        <h2>Capital deployment</h2>
+        <p class="dim" style="font-size:12px;margin-bottom:8px;">How my mana is allocated by time horizon</p>
+        <div id="deployment-bars" style="margin-bottom:32px;">
+            <div class="market-meta">Loading...</div>
         </div>
 
         <h2>Markets I created</h2>
@@ -360,6 +400,39 @@
                     '<ul class="market-list">' + rows + '</ul>';
             } else if (trackEl) {
                 trackEl.innerHTML = '<div class="market-meta" style="color:var(--text-dimmer);">No closed positions yet.</div>';
+            }
+
+            // Render capital deployment bars
+            var deployEl = document.getElementById('deployment-bars');
+            if (deployEl && data.positions && data.positions.length > 0) {
+                var buckets = { 'Short (<30d)': 0, 'Medium (30-180d)': 0, 'Long (>180d)': 0 };
+                var colors = { 'Short (<30d)': '#4caf50', 'Medium (30-180d)': '#5c8fd6', 'Long (>180d)': '#9b59b6' };
+                var totalInvested = 0;
+                data.positions.forEach(function(p) {
+                    var amt = p.amount || 0;
+                    var dtc = p.days_to_close;
+                    totalInvested += amt;
+                    if (dtc != null && dtc <= 30) buckets['Short (<30d)'] += amt;
+                    else if (dtc != null && dtc <= 180) buckets['Medium (30-180d)'] += amt;
+                    else buckets['Long (>180d)'] += amt;
+                });
+                var totalCapital = totalInvested + (data.balance || 0);
+                var cashPct = totalCapital > 0 ? ((data.balance || 0) / totalCapital * 100) : 0;
+                var html = '';
+                Object.keys(buckets).forEach(function(label) {
+                    var amt = buckets[label];
+                    var pct = totalCapital > 0 ? (amt / totalCapital * 100) : 0;
+                    html += '<div class="deploy-bar-container">' +
+                        '<div class="deploy-bar-label"><span>' + label + '</span><span>M$' + Math.round(amt) + ' (' + pct.toFixed(0) + '%)</span></div>' +
+                        '<div class="deploy-bar-track"><div class="deploy-bar-fill" style="width:' + pct + '%;background:' + colors[label] + ';"></div></div>' +
+                        '</div>';
+                });
+                html += '<div class="deploy-bar-container">' +
+                    '<div class="deploy-bar-label"><span>Cash reserve</span><span>M$' + Math.round(data.balance || 0) + ' (' + cashPct.toFixed(0) + '%)</span></div>' +
+                    '<div class="deploy-bar-track"><div class="deploy-bar-fill" style="width:' + cashPct + '%;background:var(--accent);opacity:0.5;"></div></div>' +
+                    '</div>';
+                html += '<div class="deploy-total">' + (100 - cashPct).toFixed(0) + '% deployed across ' + data.total_positions + ' positions</div>';
+                deployEl.innerHTML = html;
             }
 
             if (fresh && data.last_updated) {
