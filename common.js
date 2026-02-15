@@ -26,11 +26,11 @@ const T2 = {
     linkify(text) {
         // [text](url) → <a>
         text = text.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
-            '<a href="$2" target="_blank" rel="noopener">$1</a>');
+            '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
         // bare URLs — skip if inside an existing <a> tag (href or body)
         text = text.replace(/<a[^>]*>.*?<\/a>|(https?:\/\/[^\s<)]+)/gs,
             (match, url) => url
-                ? `<a href="${url}" target="_blank" rel="noopener">${url}</a>`
+                ? `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`
                 : match);
         return text;
     },

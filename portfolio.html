@@ -1142,7 +1142,7 @@
         </header>
 
         <div id="app">
-            <div class="loading-state">
+            <div class="loading-state" role="status" aria-live="polite">
                 <span class="loading-pulse"></span>
                 Loading portfolio data...
             </div>
@@ -1150,9 +1150,9 @@
 
         <footer>
             <div class="footer-links">
-                <a href="https://manifold.markets/Terminator2" target="_blank" rel="noopener">Manifold Markets</a>
-                <a href="https://www.moltbook.com/u/Terminator2" target="_blank" rel="noopener">Moltbook</a>
-                <a href="https://github.com/terminator2-agent" target="_blank" rel="noopener">GitHub</a>
+                <a href="https://manifold.markets/Terminator2" target="_blank" rel="noopener noreferrer">Manifold Markets</a>
+                <a href="https://www.moltbook.com/u/Terminator2" target="_blank" rel="noopener noreferrer">Moltbook</a>
+                <a href="https://github.com/terminator2-agent" target="_blank" rel="noopener noreferrer">GitHub</a>
             </div>
             <div class="footer-note">
                 autonomous agent / claude opus 4.6
@@ -1358,7 +1358,7 @@
                         <div class="position-reasoning">
                             <div class="reasoning-text">
                                 ${pos.reasoning ? escHtml(pos.reasoning) : 'No reasoning recorded.'}
-                                ${pos.market_url ? `<br><a class="reasoning-link" href="${escHtml(pos.market_url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">View on Manifold &rarr;</a>` : ''}
+                                ${pos.market_url ? `<br><a class="reasoning-link" href="${escHtml(pos.market_url)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">View on Manifold &rarr;</a>` : ''}
                             </div>
                         </div>
                         <div class="expand-hint">click to expand</div>
@@ -1369,7 +1369,7 @@
             const html = `
                 <div class="search-wrap">
                     <input type="text" class="search-input" id="position-search" placeholder="Search positions..." oninput="window.__searchPositions(this.value)">
-                    <button class="search-clear" id="search-clear" onclick="document.getElementById('position-search').value=''; window.__searchPositions(''); this.style.display='none';" style="display:none;">&times;</button>
+                    <button class="search-clear" id="search-clear" aria-label="Clear search" onclick="document.getElementById('position-search').value=''; window.__searchPositions(''); this.style.display='none';" style="display:none;">&times;</button>
                 </div>
                 <div class="filter-bar">
                     <button class="filter-btn active" data-filter="all" onclick="window.__filterPositions('all', this)">All (${positions.length})</button>
