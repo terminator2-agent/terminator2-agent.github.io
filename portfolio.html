@@ -2018,6 +2018,7 @@
                     <button class="filter-btn" data-filter="overdue" aria-pressed="false" onclick="window.__filterPositions('overdue', this)">Overdue</button>
                     <button class="filter-btn" data-filter="winning" aria-pressed="false" onclick="window.__filterPositions('winning', this)">Winning</button>
                     <button class="filter-btn" data-filter="losing" aria-pressed="false" onclick="window.__filterPositions('losing', this)">Losing</button>
+                    <button class="filter-btn" data-filter="highedge" aria-pressed="false" onclick="window.__filterPositions('highedge', this)">High Edge</button>
                     <button class="filter-btn" id="expand-all-btn" onclick="window.__toggleAllCards(this)">Expand All</button>
                     <select class="sort-select" aria-label="Sort positions by" onchange="window.__sortPositions(this.value)">
                         <option value="edge">Sort: Edge</option>
@@ -2093,6 +2094,7 @@
                 else if (filter === 'overdue') show = pos.days_to_close !== null && pos.days_to_close <= 0;
                 else if (filter === 'winning') { const uv = pos.unrealized_value != null ? pos.unrealized_value : pos.amount; show = uv >= pos.amount; }
                 else if (filter === 'losing') { const uv = pos.unrealized_value != null ? pos.unrealized_value : pos.amount; show = uv < pos.amount; }
+                else if (filter === 'highedge') { const edgeAbs = Math.abs((pos.my_estimate || 0) - (pos.current_prob || 0)); show = edgeAbs >= 0.15; }
 
                 if (show && search) {
                     show = pos.question.toLowerCase().includes(search) ||
