@@ -1375,6 +1375,66 @@
             font-family: 'JetBrains Mono', monospace;
             font-weight: 500;
         }
+        .unlock-forecast {
+            margin-top: 16px;
+            border-top: 1px solid var(--border);
+            padding-top: 12px;
+        }
+        .unlock-forecast-title {
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-dimmer);
+            margin-bottom: 8px;
+        }
+        .unlock-row {
+            display: grid;
+            grid-template-columns: 90px 1fr 70px 70px;
+            align-items: center;
+            padding: 5px 0;
+            font-size: 12px;
+            border-bottom: 1px solid rgba(42,42,42,0.3);
+        }
+        .unlock-row:last-child { border-bottom: none; }
+        .unlock-date {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-dim);
+        }
+        .unlock-label {
+            color: var(--text-dim);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            padding-right: 8px;
+        }
+        .unlock-amount {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--accent);
+            text-align: right;
+        }
+        .unlock-cumulative {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--green);
+            text-align: right;
+        }
+        .unlock-bar-track {
+            height: 3px;
+            background: var(--bg-input);
+            border-radius: 2px;
+            margin-top: 2px;
+            grid-column: 1 / -1;
+            overflow: hidden;
+        }
+        .unlock-bar-fill {
+            height: 100%;
+            border-radius: 2px;
+            background: linear-gradient(90deg, var(--accent), var(--green));
+            transition: width 0.6s ease;
+        }
     </style>
 </head>
 <body>
@@ -2466,11 +2526,59 @@
                 `<div class="pipeline-legend-item"><span class="pipeline-dot ${s.key}"></span>${s.label}: <span class="pipeline-amount">M$${fmt(s.value)}</span></div>`
             ).join('');
 
+            // Build unlock forecast: group by close_date, sorted chronologically
+            const unlockByDate = {};
+            positions.forEach(p => {
+                if (!p.close_date || !p.amount) return;
+                const d = p.close_date.slice(0, 10);
+                if (!unlockByDate[d]) unlockByDate[d] = { amount: 0, positions: [] };
+                unlockByDate[d].amount += p.amount;
+                const parts = (p.question || '').split(' - ');
+                const label = parts.length > 1 ? parts[parts.length - 1] : (p.question || '').slice(0, 40);
+                unlockByDate[d].positions.push(label);
+            });
+
+            const unlockDates = Object.entries(unlockByDate)
+                .sort((a, b) => a[0].localeCompare(b[0]))
+                .filter(([d]) => {
+                    const dt = new Date(d);
+                    return dt >= new Date(new Date().toISOString().slice(0, 10));
+                });
+
+            let cumulative = balance;
+            const unlockRows = unlockDates.map(([date, info]) => {
+                cumulative += info.amount;
+                const dateStr = new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                const posCount = info.positions.length;
+                const tooltip = info.positions.slice(0, 3).join(', ') + (posCount > 3 ? ` +${posCount - 3} more` : '');
+                const pctFill = total > 0 ? (cumulative / total * 100) : 0;
+                return `
+                    <div class="unlock-row">
+                        <div class="unlock-date">${dateStr}</div>
+                        <div class="unlock-label" title="${escHtml(tooltip)}">${posCount} position${posCount > 1 ? 's' : ''}</div>
+                        <div class="unlock-amount">+M$${Math.round(info.amount)}</div>
+                        <div class="unlock-cumulative">M$${Math.round(cumulative)}</div>
+                    </div>
+                    <div class="unlock-bar-track"><div class="unlock-bar-fill" style="width:${pctFill.toFixed(1)}%"></div></div>
+                `;
+            }).join('');
+
+            const forecastHtml = unlockDates.length > 0 ? `
+                <div class="unlock-forecast">
+                    <div class="unlock-forecast-title">Capital Unlock Forecast</div>
+                    <div class="unlock-row" style="font-weight:600;font-size:11px;color:var(--text-dimmer);border-bottom:1px solid var(--border);">
+                        <div>Date</div><div>Positions</div><div style="text-align:right">Unlocks</div><div style="text-align:right">Cumulative</div>
+                    </div>
+                    ${unlockRows}
+                </div>
+            ` : '';
+
             const html = `
                 <div class="capital-pipeline animate-in" style="animation-delay:0.35s;">
                     <div class="pipeline-header">Capital Pipeline</div>
                     <div class="pipeline-bar">${barSegments}</div>
                     <div class="pipeline-legend">${legendItems}</div>
+                    ${forecastHtml}
                 </div>
             `;
 
