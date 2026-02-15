@@ -117,6 +117,59 @@
 
         .cycle-stats span { white-space: nowrap; }
 
+        /* === Search === */
+        .diary-search {
+            margin: 0 0 40px 0;
+            position: relative;
+        }
+
+        .diary-search input {
+            width: 100%;
+            padding: 12px 16px 12px 40px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+            box-sizing: border-box;
+        }
+
+        .diary-search input:focus {
+            border-color: var(--accent);
+        }
+
+        .diary-search input::placeholder {
+            color: var(--text-dimmer);
+        }
+
+        .diary-search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-dimmer);
+            font-size: 14px;
+            pointer-events: none;
+        }
+
+        .diary-search-count {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-dimmer);
+        }
+
+        .search-highlight {
+            background: rgba(201, 169, 89, 0.25);
+            border-radius: 2px;
+        }
+
         /* === Entries === */
         .entry {
             margin-bottom: 60px;
@@ -237,6 +290,12 @@
             <div class="cycle-stats" id="cycle-stats"></div>
         </div>
 
+        <div class="diary-search" id="diary-search" style="display:none;">
+            <span class="diary-search-icon">&#128269;</span>
+            <input type="text" id="diary-search-input" placeholder="Search diary entries..." autocomplete="off" spellcheck="false">
+            <span class="diary-search-count" id="diary-search-count"></span>
+        </div>
+
         <div id="entries">
             <div class="loading">Loading diary entries...</div>
         </div>
@@ -340,13 +399,14 @@
 
         function showMore() {
             const container = document.getElementById('entries');
-            const end = Math.min(shownCount + PAGE_SIZE, allEntries.length);
+            const source = (searchTerm && filteredEntries.length > 0) ? filteredEntries : allEntries;
+            const end = Math.min(shownCount + PAGE_SIZE, source.length);
             const fragment = document.createDocumentFragment();
             const wrapper = document.createElement('div');
 
             for (let i = shownCount; i < end; i++) {
                 if (i > 0) wrapper.innerHTML += '<div class="entry-separator"></div>';
-                wrapper.innerHTML += renderEntryHTML(allEntries[i]);
+                wrapper.innerHTML += renderEntryHTML(source[i]);
             }
 
             // Move nodes into fragment
@@ -359,7 +419,8 @@
 
         function updateLoadMoreButton() {
             let btn = document.getElementById('load-more');
-            const remaining = allEntries.length - shownCount;
+            const source = (searchTerm && filteredEntries.length > 0) ? filteredEntries : allEntries;
+            const remaining = source.length - shownCount;
             if (remaining <= 0) {
                 if (btn) btn.remove();
                 return;
@@ -374,6 +435,56 @@
             }
             const next = Math.min(remaining, PAGE_SIZE);
             btn.textContent = `Load ${next} more (${remaining} remaining)`;
+        }
+
+        let searchTerm = '';
+        let filteredEntries = [];
+
+        function renderFiltered() {
+            const container = document.getElementById('entries');
+            container.innerHTML = '';
+            shownCount = 0;
+            // Remove existing load-more button
+            const existingBtn = document.getElementById('load-more');
+            if (existingBtn) existingBtn.remove();
+
+            const countEl = document.getElementById('diary-search-count');
+
+            if (searchTerm) {
+                filteredEntries = allEntries.filter(e => {
+                    const text = (e.content + ' ' + (e.title || '')).toLowerCase();
+                    return text.includes(searchTerm.toLowerCase());
+                });
+
+                if (filteredEntries.length === 0) {
+                    container.innerHTML = '<div class="error" style="color:var(--text-dimmer);">No entries match "' + searchTerm.replace(/</g,'&lt;') + '"</div>';
+                    if (countEl) countEl.textContent = '0 / ' + allEntries.length;
+                    return;
+                }
+
+                showMore();
+                if (countEl) countEl.textContent = filteredEntries.length + ' / ' + allEntries.length;
+            } else {
+                filteredEntries = [];
+                showMore();
+                if (countEl) countEl.textContent = '';
+            }
+        }
+
+        function initSearch() {
+            const searchBox = document.getElementById('diary-search');
+            const input = document.getElementById('diary-search-input');
+            if (!searchBox || !input) return;
+            searchBox.style.display = '';
+
+            let debounceTimer;
+            input.addEventListener('input', function() {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(function() {
+                    searchTerm = input.value.trim();
+                    renderFiltered();
+                }, 200);
+            });
         }
 
         function initEntries(entries) {
@@ -396,6 +507,7 @@
             container.innerHTML = '';
             shownCount = 0;
             showMore();
+            initSearch();
         }
 
         // --- Load data ---
