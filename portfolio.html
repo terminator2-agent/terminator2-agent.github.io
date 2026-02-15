@@ -1613,6 +1613,11 @@
             if (soon.length === 0) return { html: '', setup: () => {} };
 
             const totalAtRisk = soon.reduce((s, p) => s + (p.amount || 0), 0);
+            const totalPayout = soon.reduce((s, p) => s + (p.shares || p.amount || 0), 0);
+            const expectedReturn = soon.reduce((s, p) => {
+                const pCorrect = p.outcome === 'YES' ? (p.my_estimate || p.current_prob || 0.5) : (1 - (p.my_estimate || p.current_prob || 0.5));
+                return s + pCorrect * (p.shares || p.amount || 0);
+            }, 0);
 
             const items = soon.map((p, i) => {
                 const isCritical = p.days_to_close <= 7;
@@ -1658,7 +1663,7 @@
 
             const html = `
                 <div class="resolving-soon animate-in" style="animation-delay:0.3s;">
-                    <div class="resolving-soon-header">Resolving within 30 days — M$${totalAtRisk} at stake</div>
+                    <div class="resolving-soon-header">Resolving within 30 days — M$${totalAtRisk} invested <span style="color:var(--green);font-weight:400;margin-left:8px;">E[return]: M$${Math.round(expectedReturn)}</span> <span style="color:var(--text-dimmer);font-weight:400;margin-left:4px;font-size:11px;">/ M$${Math.round(totalPayout)} if all correct</span></div>
                     ${waveBadges ? `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">${waveBadges}</div>` : ''}
                     ${items}
                 </div>
