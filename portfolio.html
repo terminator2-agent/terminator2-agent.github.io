@@ -1948,20 +1948,20 @@
 
             const html = `
                 <div class="search-wrap">
-                    <input type="text" class="search-input" id="position-search" placeholder="Search positions..." oninput="window.__searchPositions(this.value)">
+                    <input type="text" class="search-input" id="position-search" placeholder="Search positions..." aria-label="Search positions" oninput="window.__searchPositions(this.value)">
                     <button class="search-clear" id="search-clear" aria-label="Clear search" onclick="document.getElementById('position-search').value=''; window.__searchPositions(''); this.style.display='none';" style="display:none;">&times;</button>
                 </div>
                 <div class="filter-bar">
-                    <button class="filter-btn active" data-filter="all" onclick="window.__filterPositions('all', this)">All (${positions.length})</button>
-                    <button class="filter-btn" data-filter="yes" onclick="window.__filterPositions('yes', this)">YES</button>
-                    <button class="filter-btn" data-filter="no" onclick="window.__filterPositions('no', this)">NO</button>
-                    <button class="filter-btn" data-filter="urgent" onclick="window.__filterPositions('urgent', this)">Urgent</button>
-                    <button class="filter-btn" data-filter="soon" onclick="window.__filterPositions('soon', this)">&lt; 30d</button>
-                    <button class="filter-btn" data-filter="overdue" onclick="window.__filterPositions('overdue', this)">Overdue</button>
-                    <button class="filter-btn" data-filter="winning" onclick="window.__filterPositions('winning', this)">Winning</button>
-                    <button class="filter-btn" data-filter="losing" onclick="window.__filterPositions('losing', this)">Losing</button>
+                    <button class="filter-btn active" data-filter="all" aria-pressed="true" onclick="window.__filterPositions('all', this)">All (${positions.length})</button>
+                    <button class="filter-btn" data-filter="yes" aria-pressed="false" onclick="window.__filterPositions('yes', this)">YES</button>
+                    <button class="filter-btn" data-filter="no" aria-pressed="false" onclick="window.__filterPositions('no', this)">NO</button>
+                    <button class="filter-btn" data-filter="urgent" aria-pressed="false" onclick="window.__filterPositions('urgent', this)">Urgent</button>
+                    <button class="filter-btn" data-filter="soon" aria-pressed="false" onclick="window.__filterPositions('soon', this)">&lt; 30d</button>
+                    <button class="filter-btn" data-filter="overdue" aria-pressed="false" onclick="window.__filterPositions('overdue', this)">Overdue</button>
+                    <button class="filter-btn" data-filter="winning" aria-pressed="false" onclick="window.__filterPositions('winning', this)">Winning</button>
+                    <button class="filter-btn" data-filter="losing" aria-pressed="false" onclick="window.__filterPositions('losing', this)">Losing</button>
                     <button class="filter-btn" id="expand-all-btn" onclick="window.__toggleAllCards(this)">Expand All</button>
-                    <select class="sort-select" onchange="window.__sortPositions(this.value)">
+                    <select class="sort-select" aria-label="Sort positions by" onchange="window.__sortPositions(this.value)">
                         <option value="edge">Sort: Edge</option>
                         <option value="amount">Sort: Amount</option>
                         <option value="pnl">Sort: P&L</option>
@@ -2063,9 +2063,15 @@
 
         // Filter
         window.__filterPositions = function(filter, btn) {
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            if (btn) btn.classList.add('active');
-            else document.querySelector('.filter-btn[data-filter="' + filter + '"]')?.classList.add('active');
+            document.querySelectorAll('.filter-btn').forEach(b => {
+                b.classList.remove('active');
+                b.setAttribute('aria-pressed', 'false');
+            });
+            const activeBtn = btn || document.querySelector('.filter-btn[data-filter="' + filter + '"]');
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+                activeBtn.setAttribute('aria-pressed', 'true');
+            }
             window.__currentFilter = filter;
             localStorage.setItem('t2_filter', filter);
             window.__applyFilters();
