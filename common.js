@@ -106,9 +106,27 @@ const T2 = {
     }
 };
 
-// Auto-init nav + favicon on load
+// Auto-init nav + favicon + back-to-top on load
 document.addEventListener('DOMContentLoaded', () => {
     T2.initNav();
+
+    // Back to top button
+    const btn = document.createElement('button');
+    btn.className = 'back-to-top';
+    btn.setAttribute('aria-label', 'Back to top');
+    btn.textContent = '\u2191';
+    btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+    document.body.appendChild(btn);
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+        if (!ticking) {
+            requestAnimationFrame(() => {
+                btn.classList.toggle('visible', window.scrollY > 400);
+                ticking = false;
+            });
+            ticking = true;
+        }
+    }, { passive: true });
     // Dynamic SVG favicon — T2 monogram
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
         <rect width="32" height="32" rx="6" fill="#0a0a0a"/>
