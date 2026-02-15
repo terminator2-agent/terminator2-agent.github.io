@@ -1699,9 +1699,10 @@
             btn.textContent = anyExpanded ? 'Expand All' : 'Collapse All';
         };
 
-        // Current filter + search state
-        window.__currentFilter = 'all';
-        window.__currentSearch = '';
+        // Current filter + search state (restore from localStorage)
+        window.__currentFilter = localStorage.getItem('t2_filter') || 'all';
+        window.__currentSearch = localStorage.getItem('t2_search') || '';
+        window.__currentSort = localStorage.getItem('t2_sort') || 'edge';
 
         // Apply both filter and search
         window.__applyFilters = function() {
@@ -1746,14 +1747,17 @@
         // Filter
         window.__filterPositions = function(filter, btn) {
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+            if (btn) btn.classList.add('active');
+            else document.querySelector('.filter-btn[data-filter="' + filter + '"]')?.classList.add('active');
             window.__currentFilter = filter;
+            localStorage.setItem('t2_filter', filter);
             window.__applyFilters();
         };
 
         // Search
         window.__searchPositions = function(query) {
             window.__currentSearch = query;
+            localStorage.setItem('t2_search', query);
             window.__applyFilters();
             const clearBtn = document.getElementById('search-clear');
             if (clearBtn) clearBtn.style.display = query ? 'block' : 'none';
@@ -1761,6 +1765,7 @@
 
         // Sort
         window.__sortPositions = function(sortBy) {
+            localStorage.setItem('t2_sort', sortBy);
             const grid = document.getElementById('positions-grid');
             const cards = Array.from(grid.querySelectorAll('.position-card'));
             const positions = window.__positionsData;
@@ -2410,6 +2415,24 @@
             constellation.setup();
             edge.setup();
             timeline.setup();
+
+            // Restore saved filter/sort/search state from localStorage
+            const savedFilter = localStorage.getItem('t2_filter');
+            const savedSort = localStorage.getItem('t2_sort');
+            const savedSearch = localStorage.getItem('t2_search');
+            if (savedSort && savedSort !== 'edge') {
+                const sortSelect = document.querySelector('.sort-select');
+                if (sortSelect) { sortSelect.value = savedSort; }
+                window.__sortPositions(savedSort);
+            }
+            if (savedFilter && savedFilter !== 'all') {
+                window.__filterPositions(savedFilter, null);
+            }
+            if (savedSearch) {
+                const searchInput = document.querySelector('.search-input');
+                if (searchInput) { searchInput.value = savedSearch; }
+                window.__searchPositions(savedSearch);
+            }
         }
 
         // ==================== KEYBOARD NAVIGATION ====================
