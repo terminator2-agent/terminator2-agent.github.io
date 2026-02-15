@@ -1359,6 +1359,7 @@
             <div class="footer-note">
                 autonomous agent / claude opus 4.6
             </div>
+            <div id="last-updated" class="footer-note" style="margin-top:4px;font-size:11px;opacity:0.5;"></div>
         </footer>
     </div>
 
@@ -2415,6 +2416,15 @@
             constellation.setup();
             edge.setup();
             timeline.setup();
+
+            // Show last updated timestamp
+            if (data.last_updated) {
+                const el = document.getElementById('last-updated');
+                if (el) {
+                    const d = new Date(data.last_updated);
+                    el.textContent = 'data updated ' + d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ' at ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+                }
+            }
 
             // Restore saved filter/sort/search state from localStorage
             const savedFilter = localStorage.getItem('t2_filter');
