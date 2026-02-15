@@ -1591,6 +1591,7 @@
             <a class="section-jump-pill" href="#section-positions" data-section="positions">Positions</a>
             <a class="section-jump-pill" href="#section-concentration" data-section="concentration">Concentration</a>
             <a class="section-jump-pill" href="#section-closed" data-section="closed">Closed</a>
+            <a class="section-jump-pill" href="#section-limits" data-section="limits">Orders</a>
             <a class="section-jump-pill" href="#section-constellation" data-section="constellation">Constellation</a>
             <a class="section-jump-pill" href="#section-edge" data-section="edge">Edge</a>
             <a class="section-jump-pill" href="#section-timeline" data-section="timeline">Timeline</a>
@@ -2907,6 +2908,45 @@
             return { html, setup: () => {} };
         }
 
+        // ==================== LIMIT ORDERS ====================
+        function renderLimitOrders(data) {
+            const orders = data.limit_orders || [];
+            if (orders.length === 0) return { html: '', setup: () => {} };
+
+            const totalPending = orders.reduce((s, o) => s + (o.amount || 0) - (o.filled_amount || 0), 0);
+
+            const rows = orders.map(o => {
+                const filled = o.filled_amount || 0;
+                const total = o.amount || 0;
+                const remaining = total - filled;
+                const fillPct = total > 0 ? (filled / total * 100) : 0;
+                const limitPct = ((o.limit_prob || 0) * 100).toFixed(0);
+                const isYes = o.outcome === 'YES';
+                const url = o.market_url || '';
+                const questionHtml = url
+                    ? `<a href="${escHtml(url)}" target="_blank" rel="noopener" style="color:var(--text-dim);text-decoration:none;">${escHtml(o.question || 'Unknown market')}</a>`
+                    : escHtml(o.question || 'Unknown market');
+                return `
+                    <div class="resolving-item" style="flex-wrap:wrap;">
+                        <span class="resolving-badge ${isYes ? 'yes' : 'no'}">${escHtml(o.outcome)}</span>
+                        <span class="resolving-question">${questionHtml}</span>
+                        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--blue);white-space:nowrap;">@ ${limitPct}%</span>
+                        <span class="resolving-value" style="min-width:70px;">M$${remaining.toFixed(0)}</span>
+                        ${fillPct > 0 ? `<span style="font-size:10px;color:var(--green);white-space:nowrap;">${fillPct.toFixed(0)}% filled</span>` : '<span style="font-size:10px;color:var(--text-dimmer);white-space:nowrap;">unfilled</span>'}
+                    </div>
+                `;
+            }).join('');
+
+            const html = `
+                <div class="resolving-soon animate-in" style="animation-delay:0.32s;">
+                    <div class="resolving-soon-header" style="color:var(--blue);">Pending Limit Orders — ${orders.length} order${orders.length > 1 ? 's' : ''}, M$${totalPending.toFixed(0)} waiting</div>
+                    ${rows}
+                </div>
+            `;
+
+            return { html, setup: () => {} };
+        }
+
         // ==================== CONCENTRATION RISK ====================
         function renderConcentrationRisk(data) {
             const positions = data.positions || [];
@@ -3007,6 +3047,7 @@
             const pipeline = renderCapitalPipeline(data);
             const calendar = renderResolutionCalendar(data);
             const concentration = renderConcentrationRisk(data);
+            const limitOrders = renderLimitOrders(data);
             const positions = renderPositions(data);
             const closedPositions = renderClosedPositions(data);
             const constellation = renderConstellation(data);
@@ -3036,6 +3077,12 @@
                     <h2>Closed Positions</h2>
                 </div>
                 ${closedPositions.html}` : ''}
+
+                ${limitOrders.html ? `
+                <div id="section-limits" class="section-header">
+                    <h2>Pending Orders</h2>
+                </div>
+                ${limitOrders.html}` : ''}
 
                 <div id="section-constellation" class="section-header">
                     <h2>Constellation Map</h2>
