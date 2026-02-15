@@ -337,6 +337,16 @@
         .urgency.safe { background: var(--green-dim); color: var(--green); }
         .urgency.medium { background: rgba(255, 193, 7, 0.12); color: #ffc107; }
         .urgency.urgent { background: var(--red-dim); color: var(--red); }
+        .urgency.overdue {
+            background: rgba(156, 39, 176, 0.15);
+            color: #ce93d8;
+            border: 1px solid rgba(156, 39, 176, 0.3);
+            animation: pulse-overdue 3s ease-in-out infinite;
+        }
+        @keyframes pulse-overdue {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
 
         .win-prob {
             font-size: 11px;
@@ -1714,11 +1724,15 @@
         // ==================== RENDER RESOLVING SOON ====================
         function renderResolvingSoon(data) {
             const positions = data.positions || [];
+            // Include both upcoming (<=30d) and past-deadline (negative) positions
+            const overdue = positions
+                .filter(p => p.days_to_close !== null && p.days_to_close !== undefined && p.days_to_close < 0)
+                .sort((a, b) => a.days_to_close - b.days_to_close);
             const soon = positions
                 .filter(p => p.days_to_close !== null && p.days_to_close !== undefined && p.days_to_close <= 30 && p.days_to_close >= 0)
                 .sort((a, b) => a.days_to_close - b.days_to_close);
 
-            if (soon.length === 0) return { html: '', setup: () => {} };
+            if (soon.length === 0 && overdue.length === 0) return { html: '', setup: () => {} };
 
             const totalAtRisk = soon.reduce((s, p) => s + (p.amount || 0), 0);
             const totalPayout = soon.reduce((s, p) => s + (p.shares || p.amount || 0), 0);
@@ -1726,6 +1740,26 @@
                 const pCorrect = p.outcome === 'YES' ? (p.my_estimate || p.current_prob || 0.5) : (1 - (p.my_estimate || p.current_prob || 0.5));
                 return s + pCorrect * (p.shares || p.amount || 0);
             }, 0);
+            const overdueAmount = overdue.reduce((s, p) => s + (p.amount || 0), 0);
+
+            // Overdue items (past deadline, awaiting resolution)
+            const overdueItems = overdue.map((p) => {
+                const isYes = p.outcome === 'YES';
+                const daysOverdue = Math.abs(p.days_to_close);
+                const linkOpen = p.market_url ? `<a href="${escHtml(p.market_url)}" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit;display:contents;">` : '';
+                const linkClose = p.market_url ? `</a>` : '';
+                return `
+                    <div class="resolving-item" ${p.market_url ? 'style="cursor:pointer;"' : ''}>
+                        ${linkOpen}
+                        <span class="resolving-days" style="background:rgba(156,39,176,0.15);color:#ce93d8;border-color:rgba(156,39,176,0.3);" title="Closed ${daysOverdue}d ago, awaiting resolution">+${daysOverdue}d</span>
+                        <span class="resolving-badge ${isYes ? 'yes' : 'no'}">${p.outcome}</span>
+                        <span class="resolving-question">${escHtml(p.question)}</span>
+                        <span class="resolving-value">M$${p.amount}</span>
+                        <span style="font-size:10px;color:#ce93d8;font-family:'JetBrains Mono',monospace;">awaiting resolution</span>
+                        ${linkClose}
+                    </div>
+                `;
+            }).join('');
 
             const items = soon.map((p, i) => {
                 const isCritical = p.days_to_close <= 7;
@@ -1772,6 +1806,7 @@
             const html = `
                 <div class="resolving-soon animate-in" style="animation-delay:0.3s;">
                     <div class="resolving-soon-header">Resolving within 30 days — M$${totalAtRisk} invested <span style="color:var(--green);font-weight:400;margin-left:8px;">E[return]: M$${Math.round(expectedReturn)}</span> <span style="color:var(--text-dimmer);font-weight:400;margin-left:4px;font-size:11px;">/ M$${Math.round(totalPayout)} if all correct</span></div>
+                    ${overdueItems ? `<div style="margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid rgba(156,39,176,0.2);"><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#ce93d8;margin-bottom:6px;font-weight:500;">Awaiting Resolution — M$${Math.round(overdueAmount)} locked</div>${overdueItems}</div>` : ''}
                     ${waveBadges ? `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">${waveBadges}</div>` : ''}
                     ${items}
                 </div>
@@ -1825,10 +1860,17 @@
                 let urgencyClass = 'safe';
                 let urgencyLabel;
                 if (days !== null && days !== undefined) {
-                    if (days > 365) { urgencyLabel = Math.round(days / 365) + 'y'; urgencyClass = 'safe'; }
-                    else { urgencyLabel = days + 'd'; }
-                    if (days < 7) { urgencyClass = 'urgent'; }
-                    else if (days < 30) { urgencyClass = 'medium'; }
+                    if (days <= 0) {
+                        urgencyLabel = 'OVERDUE';
+                        urgencyClass = 'overdue';
+                    } else if (days > 365) {
+                        urgencyLabel = Math.round(days / 365) + 'y';
+                        urgencyClass = 'safe';
+                    } else {
+                        urgencyLabel = days + 'd';
+                        if (days < 7) { urgencyClass = 'urgent'; }
+                        else if (days < 30) { urgencyClass = 'medium'; }
+                    }
                 } else {
                     urgencyLabel = 'open';
                     urgencyClass = 'safe';
@@ -1880,7 +1922,7 @@
                         <div class="card-meta">
                             <span class="amount">M$${pos.amount}</span>
                             <span class="pnl-inline ${pnlClass}">${pnlSign}${pnl.toFixed(1)} (${pnlSign}${pnlPct.toFixed(0)}%)</span>
-                            <span class="urgency ${urgencyClass}">${urgencyLabel}</span>
+                            <span class="urgency ${urgencyClass}" ${urgencyClass === 'overdue' ? `title="Market closed ${Math.abs(days)}d ago — awaiting resolution"` : ''}>${urgencyLabel}</span>
                             <span class="win-prob ${winClass}" title="My estimated probability this bet pays out">${winPct}% conf</span>
                         </div>
                         <div class="prob-compare">
@@ -1915,6 +1957,7 @@
                     <button class="filter-btn" data-filter="no" onclick="window.__filterPositions('no', this)">NO</button>
                     <button class="filter-btn" data-filter="urgent" onclick="window.__filterPositions('urgent', this)">Urgent</button>
                     <button class="filter-btn" data-filter="soon" onclick="window.__filterPositions('soon', this)">&lt; 30d</button>
+                    <button class="filter-btn" data-filter="overdue" onclick="window.__filterPositions('overdue', this)">Overdue</button>
                     <button class="filter-btn" data-filter="winning" onclick="window.__filterPositions('winning', this)">Winning</button>
                     <button class="filter-btn" data-filter="losing" onclick="window.__filterPositions('losing', this)">Losing</button>
                     <button class="filter-btn" id="expand-all-btn" onclick="window.__toggleAllCards(this)">Expand All</button>
@@ -1989,6 +2032,7 @@
                 else if (filter === 'no') show = pos.outcome === 'NO';
                 else if (filter === 'urgent') show = pos.days_to_close !== null && pos.days_to_close < 7;
                 else if (filter === 'soon') show = pos.days_to_close !== null && pos.days_to_close <= 30 && pos.days_to_close >= 0;
+                else if (filter === 'overdue') show = pos.days_to_close !== null && pos.days_to_close <= 0;
                 else if (filter === 'winning') { const uv = pos.unrealized_value != null ? pos.unrealized_value : pos.amount; show = uv >= pos.amount; }
                 else if (filter === 'losing') { const uv = pos.unrealized_value != null ? pos.unrealized_value : pos.amount; show = uv < pos.amount; }
 
