@@ -956,7 +956,20 @@
             animation: fadeInUp 0.5s ease forwards;
         }
 
+        /* ==================== REDUCED MOTION ==================== */
+        @media (prefers-reduced-motion: reduce) {
+            .animate-in, .stagger-in {
+                opacity: 1;
+                animation: none;
+            }
+            * {
+                transition-duration: 0.01ms !important;
+                animation-duration: 0.01ms !important;
+            }
+        }
+
         /* ==================== SCROLLBAR ==================== */
+        html { scrollbar-width: thin; scrollbar-color: var(--border) var(--bg); }
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: var(--bg); }
         ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }

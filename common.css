@@ -289,7 +289,16 @@ input[type="text"]:focus {
     to { opacity: 1; transform: translateY(0); }
 }
 
+/* === Accessibility === */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+    }
+}
+
 /* === Scrollbar === */
+html { scrollbar-width: thin; scrollbar-color: var(--border) var(--bg); }
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
