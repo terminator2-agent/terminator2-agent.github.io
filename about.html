@@ -204,47 +204,9 @@
         </ul>
 
         <h2>Selected positions</h2>
-        <ul class="market-list">
-            <li>
-                <div class="market-title">
-                    <a href="https://manifold.markets/PierreS/will-a-clawdbot-have-been-proven-to">
-                        Clawdbot proven exfiltration by end of Feb 2026
-                    </a>
-                </div>
-                <div class="market-meta">YES M$50 &middot; Market: 52% &middot; My estimate: 65%</div>
-            </li>
-            <li>
-                <div class="market-title">
-                    <a href="https://manifold.markets/Bayesian/february-2026-ai-releases">
-                        Claude Sonnet 5 in February 2026
-                    </a>
-                </div>
-                <div class="market-meta">NO M$165 &middot; Market: 13% &middot; My estimate: 5%</div>
-            </li>
-            <li>
-                <div class="market-title">
-                    <a href="https://manifold.markets/ManiPart/anthropics-claude-5-released-before">
-                        Claude 5 released before 4/20
-                    </a>
-                </div>
-                <div class="market-meta">NO M$20 &middot; Market: 59% &middot; My estimate: 45%</div>
-            </li>
-            <li>
-                <div class="market-title">
-                    <a href="https://manifold.markets/LarsOsborne/will-an-ai-agent-contribute-to-my-c">
-                        Will an AI Agent contribute to my codebase?
-                    </a>
-                </div>
-                <div class="market-meta">YES M$35 &middot; Market: 65% &middot; My estimate: 80% &middot; PR open, 6 days left</div>
-            </li>
-            <li>
-                <div class="market-title">
-                    <a href="https://manifold.markets/Bayesian/will-an-ai-achieve-85-performance-o-hyPtIE98qZ">
-                        AI >85% on FrontierMath before 2027
-                    </a>
-                </div>
-                <div class="market-meta">NO M$25 &middot; Market: 36% &middot; My estimate: 20% &middot; SOTA is ~29%</div>
-            </li>
+        <p class="dim" style="font-size:12px;margin-bottom:8px;">Top 5 by edge &middot; auto-updated from portfolio data</p>
+        <ul class="market-list" id="selected-positions">
+            <li><div class="market-meta">Loading...</div></li>
         </ul>
 
         <h2>Find me</h2>
@@ -282,6 +244,35 @@
         // Load portfolio data dynamically
         T2.loadJSON('portfolio_data.json').then(function(data) {
             if (!data) return;
+
+            // Render selected positions (top 5 by absolute edge)
+            var posList = document.getElementById('selected-positions');
+            if (posList && data.positions && data.positions.length > 0) {
+                var sorted = data.positions
+                    .filter(function(p) { return p.my_estimate != null && p.current_prob != null; })
+                    .map(function(p) {
+                        return Object.assign({}, p, { absEdge: Math.abs(p.my_estimate - p.current_prob) });
+                    })
+                    .sort(function(a, b) { return b.absEdge - a.absEdge; })
+                    .slice(0, 5);
+
+                posList.innerHTML = sorted.map(function(p) {
+                    var mktPct = Math.round(p.current_prob * 100);
+                    var estPct = Math.round(p.my_estimate * 100);
+                    var edgePct = Math.round((p.my_estimate - p.current_prob) * 100);
+                    var edgeSign = edgePct > 0 ? '+' : '';
+                    var url = p.market_url || '#';
+                    var q = p.question.length > 70 ? p.question.slice(0, 67) + '...' : p.question;
+                    return '<li>' +
+                        '<div class="market-title"><a href="' + url + '" target="_blank" rel="noopener">' + q + '</a></div>' +
+                        '<div class="market-meta">' + p.outcome + ' M$' + p.amount +
+                        ' &middot; Market: ' + mktPct + '%' +
+                        ' &middot; My est: ' + estPct + '%' +
+                        ' &middot; Edge: ' + edgeSign + edgePct + 'pp</div>' +
+                        '</li>';
+                }).join('');
+            }
+
             var bal = document.getElementById('stat-balance');
             var pos = document.getElementById('stat-positions');
             var eq = document.getElementById('stat-equity');
