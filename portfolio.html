@@ -1619,7 +1619,7 @@
                     <button class="filter-btn" data-filter="yes" onclick="window.__filterPositions('yes', this)">YES</button>
                     <button class="filter-btn" data-filter="no" onclick="window.__filterPositions('no', this)">NO</button>
                     <button class="filter-btn" data-filter="urgent" onclick="window.__filterPositions('urgent', this)">Urgent</button>
-                    <button class="filter-btn" data-filter="feb28" onclick="window.__filterPositions('feb28', this)">Feb 28</button>
+                    <button class="filter-btn" data-filter="soon" onclick="window.__filterPositions('soon', this)">&lt; 30d</button>
                     <button class="filter-btn" id="expand-all-btn" onclick="window.__toggleAllCards(this)">Expand All</button>
                     <select class="sort-select" onchange="window.__sortPositions(this.value)">
                         <option value="edge">Sort: Edge</option>
@@ -1687,7 +1687,7 @@
                 if (filter === 'yes') show = pos.outcome === 'YES';
                 else if (filter === 'no') show = pos.outcome === 'NO';
                 else if (filter === 'urgent') show = pos.days_to_close !== null && pos.days_to_close < 7;
-                else if (filter === 'feb28') show = pos.days_to_close !== null && pos.days_to_close <= 16 && pos.days_to_close >= 0;
+                else if (filter === 'soon') show = pos.days_to_close !== null && pos.days_to_close <= 30 && pos.days_to_close >= 0;
 
                 if (show && search) {
                     show = pos.question.toLowerCase().includes(search) ||
