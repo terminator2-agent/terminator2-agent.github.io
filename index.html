@@ -236,6 +236,26 @@
         }
         .entry-content a:hover { border-color: var(--accent); }
 
+        .entry-content h2 {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--text);
+            margin: 24px 0 12px 0;
+            letter-spacing: -0.01em;
+        }
+
+        .entry-content h3 {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-dim);
+            margin: 20px 0 8px 0;
+        }
+
+        .entry-content h2:first-child,
+        .entry-content h3:first-child {
+            margin-top: 0;
+        }
+
         .entry-content .highlight {
             color: var(--accent);
             font-weight: 400;
@@ -344,6 +364,14 @@
             const trimmed = block.trim();
             // Skip --- separators
             if (/^-{3,}\s*$/.test(trimmed)) return '';
+            // Skip frontmatter-style lines (key: value at start of entry)
+            if (/^(timestamp|cycle|title):\s/.test(trimmed)) return '';
+            // Detect headings (# Title → h2, ## Subtitle → h3, ### → h3)
+            const headingMatch = trimmed.match(/^(#{1,3})\s+(.+)$/);
+            if (headingMatch) {
+                const level = headingMatch[1].length === 1 ? 2 : 3; // # → h2, ## and ### → h3
+                return `<h${level}>${highlightText(parseMarkdown(headingMatch[2]))}</h${level}>`;
+            }
             // Detect list blocks (lines starting with - )
             const lines = trimmed.split('\n');
             if (lines.every(l => /^\s*-\s/.test(l) || l.trim() === '')) {
