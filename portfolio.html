@@ -1456,12 +1456,14 @@
                     <button class="filter-btn" data-filter="yes" onclick="window.__filterPositions('yes', this)">YES</button>
                     <button class="filter-btn" data-filter="no" onclick="window.__filterPositions('no', this)">NO</button>
                     <button class="filter-btn" data-filter="urgent" onclick="window.__filterPositions('urgent', this)">Urgent</button>
+                    <button class="filter-btn" data-filter="feb28" onclick="window.__filterPositions('feb28', this)">Feb 28</button>
                     <button class="filter-btn" id="expand-all-btn" onclick="window.__toggleAllCards(this)">Expand All</button>
                     <select class="sort-select" onchange="window.__sortPositions(this.value)">
                         <option value="edge">Sort: Edge</option>
                         <option value="amount">Sort: Amount</option>
                         <option value="pnl">Sort: P&L</option>
                         <option value="days">Sort: Days to close</option>
+                        <option value="market">Sort: Market cluster</option>
                         <option value="name">Sort: Name</option>
                     </select>
                 </div>
@@ -1521,6 +1523,7 @@
                 if (filter === 'yes') show = pos.outcome === 'YES';
                 else if (filter === 'no') show = pos.outcome === 'NO';
                 else if (filter === 'urgent') show = pos.days_to_close !== null && pos.days_to_close < 7;
+                else if (filter === 'feb28') show = pos.days_to_close !== null && pos.days_to_close <= 16 && pos.days_to_close >= 0;
 
                 if (show && search) {
                     show = pos.question.toLowerCase().includes(search) ||
@@ -1583,6 +1586,12 @@
                         const da = pa.days_to_close == null ? 9999 : pa.days_to_close;
                         const db = pb.days_to_close == null ? 9999 : pb.days_to_close;
                         return da - db;
+                    case 'market':
+                        // Group by market_id, then by amount descending within each group
+                        const mktA = pa.market_id || '';
+                        const mktB = pb.market_id || '';
+                        if (mktA !== mktB) return mktA.localeCompare(mktB);
+                        return pb.amount - pa.amount;
                     case 'name':
                         return pa.question.localeCompare(pb.question);
                     default:
@@ -1590,7 +1599,40 @@
                 }
             });
 
+            // Remove any existing group headers
+            grid.querySelectorAll('.market-group-header').forEach(h => h.remove());
+
             cards.forEach(card => grid.appendChild(card));
+
+            // If sorting by market, insert group headers
+            if (sortBy === 'market') {
+                const positions = window.__positionsData;
+                let lastMarketId = null;
+                const sortedCards = Array.from(grid.querySelectorAll('.position-card'));
+                sortedCards.forEach(card => {
+                    const pos = positions[parseInt(card.dataset.idx)];
+                    const mktId = pos.market_id || '';
+                    if (mktId !== lastMarketId) {
+                        // Count positions and total amount in this market
+                        const sameMarket = sortedCards.filter(c => {
+                            const p = positions[parseInt(c.dataset.idx)];
+                            return (p.market_id || '') === mktId;
+                        });
+                        const totalAmt = sameMarket.reduce((s, c) => s + (positions[parseInt(c.dataset.idx)].amount || 0), 0);
+                        const count = sameMarket.length;
+
+                        if (count > 1) {
+                            const header = document.createElement('div');
+                            header.className = 'market-group-header';
+                            header.style.cssText = 'grid-column: 1 / -1; font-size: 12px; font-family: "JetBrains Mono", monospace; color: var(--accent); padding: 8px 0 4px; border-top: 1px solid var(--border); margin-top: 8px; display: flex; justify-content: space-between; align-items: center;';
+                            const label = pos.question.length > 50 ? pos.question.substring(0, 50) + '...' : pos.question;
+                            header.innerHTML = `<span>${count} positions in this market</span><span style="color:var(--text-dimmer)">M$${totalAmt} total</span>`;
+                            grid.insertBefore(header, card);
+                        }
+                        lastMarketId = mktId;
+                    }
+                });
+            }
         };
 
         // ==================== CONSTELLATION MAP ====================
