@@ -305,6 +305,17 @@
         .urgency.medium { background: rgba(255, 193, 7, 0.12); color: #ffc107; }
         .urgency.urgent { background: var(--red-dim); color: var(--red); }
 
+        .win-prob {
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 2px 6px;
+            border-radius: 3px;
+            cursor: help;
+        }
+        .win-prob.high { background: var(--green-dim); color: var(--green); }
+        .win-prob.medium { background: var(--blue-dim); color: var(--blue); }
+        .win-prob.low { background: var(--red-dim); color: var(--red); }
+
         /* Probability comparison bar */
         .prob-compare {
             position: relative;
@@ -1656,6 +1667,11 @@
 
                 const entryPct = pos.prob_at_bet != null ? (pos.prob_at_bet * 100).toFixed(0) : null;
 
+                // Win probability: P(position pays out) based on my estimate
+                const winProb = isYes ? (pos.my_estimate || pos.current_prob) : (1 - (pos.my_estimate || pos.current_prob));
+                const winPct = (winProb * 100).toFixed(0);
+                const winClass = winProb >= 0.7 ? 'high' : winProb >= 0.5 ? 'medium' : 'low';
+
                 cardsHtml += `
                     <div class="position-card stagger-in" style="animation-delay:${0.05 * i}s;" data-idx="${i}" onclick="window.__toggleCard(this)">
                         <div class="card-top">
@@ -1666,7 +1682,7 @@
                             <span class="amount">M$${pos.amount}</span>
                             <span class="pnl-inline ${pnlClass}">${pnlSign}${pnl.toFixed(1)} (${pnlSign}${pnlPct.toFixed(0)}%)</span>
                             <span class="urgency ${urgencyClass}">${urgencyLabel}</span>
-                            <span>edge: ${(absEdge * 100).toFixed(0)}%</span>
+                            <span class="win-prob ${winClass}" title="My estimated probability this bet pays out">${winPct}% conf</span>
                         </div>
                         <div class="prob-compare">
                             <div class="market-bar" style="width:${mktPct}%"></div>
@@ -1708,6 +1724,7 @@
                         <option value="days">Sort: Days to close</option>
                         <option value="return">Sort: Return if correct</option>
                         <option value="market">Sort: Market cluster</option>
+                        <option value="confidence">Sort: Confidence</option>
                         <option value="name">Sort: Name</option>
                     </select>
                 </div>
@@ -1838,6 +1855,10 @@
                         const retA = pa.shares && pa.amount ? (pa.shares / pa.amount - 1) : 0;
                         const retB = pb.shares && pb.amount ? (pb.shares / pb.amount - 1) : 0;
                         return retB - retA;
+                    case 'confidence':
+                        const confA = pa.outcome === 'YES' ? (pa.my_estimate || pa.current_prob) : (1 - (pa.my_estimate || pa.current_prob));
+                        const confB = pb.outcome === 'YES' ? (pb.my_estimate || pb.current_prob) : (1 - (pb.my_estimate || pb.current_prob));
+                        return confB - confA;
                     case 'days':
                         const da = pa.days_to_close == null ? 9999 : pa.days_to_close;
                         const db = pb.days_to_close == null ? 9999 : pb.days_to_close;
