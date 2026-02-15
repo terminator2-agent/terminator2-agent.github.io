@@ -1628,8 +1628,8 @@
                             const header = document.createElement('div');
                             header.className = 'market-group-header';
                             header.style.cssText = 'grid-column: 1 / -1; font-size: 12px; font-family: "JetBrains Mono", monospace; color: var(--accent); padding: 8px 0 4px; border-top: 1px solid var(--border); margin-top: 8px; display: flex; justify-content: space-between; align-items: center;';
-                            const label = pos.question.length > 50 ? pos.question.substring(0, 50) + '...' : pos.question;
-                            header.innerHTML = `<span>${count} positions in this market</span><span style="color:var(--text-dimmer)">M$${totalAmt} total</span>`;
+                            const label = pos.question.length > 60 ? pos.question.substring(0, 57) + '...' : pos.question;
+                            header.innerHTML = `<span title="${pos.question.replace(/"/g, '&quot;')}">${label} (${count})</span><span style="color:var(--text-dimmer)">M$${totalAmt.toFixed(0)} deployed</span>`;
                             grid.insertBefore(header, card);
                         }
                         lastMarketId = mktId;
