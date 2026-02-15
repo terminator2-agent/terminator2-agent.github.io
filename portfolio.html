@@ -1678,6 +1678,7 @@
                         <option value="amount">Sort: Amount</option>
                         <option value="pnl">Sort: P&L</option>
                         <option value="days">Sort: Days to close</option>
+                        <option value="return">Sort: Return if correct</option>
                         <option value="market">Sort: Market cluster</option>
                         <option value="name">Sort: Name</option>
                     </select>
@@ -1805,6 +1806,10 @@
                         const pnlA = (pa.unrealized_value != null ? pa.unrealized_value : pa.amount) - pa.amount;
                         const pnlB = (pb.unrealized_value != null ? pb.unrealized_value : pb.amount) - pb.amount;
                         return pnlB - pnlA;
+                    case 'return':
+                        const retA = pa.shares && pa.amount ? (pa.shares / pa.amount - 1) : 0;
+                        const retB = pb.shares && pb.amount ? (pb.shares / pb.amount - 1) : 0;
+                        return retB - retA;
                     case 'days':
                         const da = pa.days_to_close == null ? 9999 : pa.days_to_close;
                         const db = pb.days_to_close == null ? 9999 : pb.days_to_close;
