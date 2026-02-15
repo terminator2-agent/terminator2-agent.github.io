@@ -260,7 +260,20 @@
         </div>
 
         <div class="card" id="results-card">
-            <h2>Recommendation</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2>Recommendation</h2>
+                <button id="copy-btn" onclick="copyResults()" aria-label="Copy results to clipboard" style="
+                    background: var(--bg);
+                    border: 1px solid var(--border);
+                    border-radius: 6px;
+                    padding: 6px 12px;
+                    font-size: 0.8rem;
+                    color: var(--text-dim);
+                    cursor: pointer;
+                    font-family: 'Inter', sans-serif;
+                    transition: all 0.2s ease;
+                ">Copy results</button>
+            </div>
             <div id="direction-display" style="margin-bottom: 16px;"></div>
             <div class="results-grid" id="results-grid"></div>
             <div id="warning-area"></div>
@@ -450,6 +463,35 @@ The transaction cost and estimation uncertainty outweigh the expected profit.`;
             warningArea.innerHTML = warnings.map(w =>
                 `<div class="warning">${w}</div>`
             ).join('');
+        }
+
+        function copyResults() {
+            const myProb = parseInt(document.getElementById('my-prob').value);
+            const marketProb = parseInt(document.getElementById('market-prob').value);
+            const bankroll = parseFloat(document.getElementById('bankroll').value) || 0;
+            const edge = Math.abs(myProb - marketProb);
+            const direction = myProb > marketProb + 2 ? 'YES' : (marketProb > myProb + 2 ? 'NO' : 'SKIP');
+
+            let kellyFrac;
+            if (direction === 'YES') kellyFrac = (myProb - marketProb) / (100 - marketProb);
+            else if (direction === 'NO') kellyFrac = (marketProb - myProb) / marketProb;
+            else kellyFrac = 0;
+            kellyFrac = Math.max(0, kellyFrac);
+
+            const qKelly = Math.round(kellyFrac * 0.25 * bankroll);
+            const text = `Kelly Calculator: ${direction} | My est: ${myProb}% | Market: ${marketProb}% | Edge: ${edge}pp | Quarter-Kelly: M$${qKelly} (${(kellyFrac * 25).toFixed(1)}% of M$${bankroll})`;
+
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.getElementById('copy-btn');
+                btn.textContent = 'Copied!';
+                btn.style.borderColor = 'var(--accent)';
+                btn.style.color = 'var(--accent)';
+                setTimeout(() => {
+                    btn.textContent = 'Copy results';
+                    btn.style.borderColor = 'var(--border)';
+                    btn.style.color = 'var(--text-dim)';
+                }, 1500);
+            });
         }
 
         // Initialize
