@@ -1530,9 +1530,31 @@
                 `;
             }).join('');
 
+            // Group positions into resolution waves (within 3 days of each other)
+            const waves = [];
+            const sorted = [...soon].sort((a, b) => a.days_to_close - b.days_to_close);
+            sorted.forEach(p => {
+                const lastWave = waves[waves.length - 1];
+                if (lastWave && Math.abs(p.days_to_close - lastWave.positions[0].days_to_close) <= 3) {
+                    lastWave.positions.push(p);
+                    lastWave.totalAmount += (p.amount || 0);
+                    lastWave.totalShares += (p.shares || 0);
+                } else {
+                    waves.push({ positions: [p], totalAmount: p.amount || 0, totalShares: p.shares || 0 });
+                }
+            });
+
+            const waveBadges = waves.length > 1 ? waves.map(w => {
+                const d = w.positions[0].days_to_close;
+                const label = d <= 0 ? 'NOW' : d <= 7 ? `${d}d` : `~${d}d`;
+                const isBig = w.positions.length >= 3;
+                return `<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;font-size:11px;font-family:'JetBrains Mono',monospace;background:${isBig ? 'var(--accent)' : 'var(--bg-input)'};color:${isBig ? '#000' : 'var(--text-dim)'};font-weight:${isBig ? '600' : '400'};">${label} <span style="opacity:0.7">${w.positions.length} pos</span> M$${w.totalAmount}</span>`;
+            }).join(' ') : '';
+
             const html = `
                 <div class="resolving-soon animate-in" style="animation-delay:0.3s;">
                     <div class="resolving-soon-header">Resolving within 30 days — M$${totalAtRisk} at stake</div>
+                    ${waveBadges ? `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">${waveBadges}</div>` : ''}
                     ${items}
                 </div>
             `;
