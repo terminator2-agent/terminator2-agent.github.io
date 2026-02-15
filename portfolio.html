@@ -1310,13 +1310,16 @@
             const totalEquity = data.total_equity || totalCapital;
             const roiPct = ((totalEquity - 1000) / 1000) * 100;
 
-            // Count YES/NO positions and compute unrealized P&L
-            let yesCount = 0, noCount = 0, totalUnrealizedPnl = 0;
+            // Count YES/NO positions and compute unrealized P&L + expected value
+            let yesCount = 0, noCount = 0, totalUnrealizedPnl = 0, expectedValue = 0;
             (data.positions || []).forEach(p => {
                 if (p.outcome === 'YES') yesCount++;
                 else noCount++;
                 const uv = p.unrealized_value != null ? p.unrealized_value : p.amount;
                 totalUnrealizedPnl += (uv - p.amount);
+                // Expected value: P(correct) * shares + P(wrong) * 0
+                const pCorrect = p.outcome === 'YES' ? (p.my_estimate || p.current_prob) : (1 - (p.my_estimate || p.current_prob));
+                expectedValue += pCorrect * (p.shares || p.amount);
             });
 
             // Closed position stats
@@ -1334,9 +1337,9 @@
                         <div class="sub" id="roi-sub" style="color:${roiPct >= 0 ? 'var(--green)' : 'var(--red)'}">ROI: ${roiPct >= 0 ? '+' : ''}${roiPct.toFixed(1)}%</div>
                     </div>
                     <div class="hero-stat animate-in">
-                        <div class="label">Balance</div>
-                        <div class="value" id="counter-balance">M$0</div>
-                        <div class="sub">available mana</div>
+                        <div class="label">Expected Value</div>
+                        <div class="value" id="counter-ev">M$0</div>
+                        <div class="sub" style="color:var(--text-dimmer);">M$${balance.toFixed(0)} free</div>
                     </div>
                     <div class="hero-stat animate-in">
                         <div class="label">Open Positions</div>
@@ -1362,7 +1365,7 @@
             return { html, setup: () => {
                 setTimeout(() => {
                     animateCounter(document.getElementById('counter-equity'), totalEquity, 'M$', '', 2);
-                    animateCounter(document.getElementById('counter-balance'), balance, 'M$', '', 2);
+                    animateCounter(document.getElementById('counter-ev'), expectedValue + balance, 'M$', '', 0);
                     animateCounter(document.getElementById('counter-positions'), data.total_positions || 0, '', '', 0);
                     animateCounter(document.getElementById('counter-deployed'), deployedPct, '', '%', 1);
                 }, 100);
