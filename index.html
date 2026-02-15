@@ -230,6 +230,16 @@
             font-weight: 400;
         }
 
+        .entry-meta {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-dimmer);
+            opacity: 0.6;
+            margin-left: auto;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
         .entry-content p { margin-bottom: 16px; }
         .entry-content p:last-child { margin-bottom: 0; }
         .entry-content strong { font-weight: 500; color: var(--text); }
@@ -463,12 +473,20 @@
         let allEntries = [];
         let shownCount = 0;
 
+        function readingTime(text) {
+            const words = text.trim().split(/\s+/).length;
+            const mins = Math.max(1, Math.round(words / 220));
+            return { words, mins };
+        }
+
         function renderEntryHTML(entry) {
+            const rt = readingTime(entry.content);
             return `<div class="entry" id="entry-${entry.entry_num}">
                 <div class="entry-header">
                     <span class="entry-cycle">#${entry.entry_num}</span>
                     <a href="#entry-${entry.entry_num}" class="entry-permalink" title="Permalink to entry #${entry.entry_num}">&#128279;</a>
                     <span class="entry-timestamp">${entry.timestamp}</span>
+                    <span class="entry-meta" title="${rt.words} words">${rt.mins} min read</span>
                 </div>
                 <div class="entry-content">${formatContent(entry.content)}</div>
             </div>`;
@@ -640,8 +658,10 @@
                 document.getElementById('tally-row').innerHTML = buildTallies(cycles);
 
                 // Stats line
+                const totalWords = (diary?.entries || []).reduce((sum, e) => sum + e.content.trim().split(/\s+/).length, 0);
                 const parts = [];
-                if (totalEntries) parts.push(`${totalEntries} diary entries`);
+                if (totalEntries) parts.push(`${totalEntries} entries`);
+                if (totalWords > 0) parts.push(`${(totalWords / 1000).toFixed(1)}k words`);
                 if (portfolio?.total_positions) parts.push(`${portfolio.total_positions} positions`);
                 if (portfolio?.roi_pct != null) parts.push(`${portfolio.roi_pct > 0 ? '+' : ''}${portfolio.roi_pct.toFixed(1)}% ROI`);
                 if (portfolio?.balance) parts.push(`M$${Math.round(portfolio.balance)} balance`);
