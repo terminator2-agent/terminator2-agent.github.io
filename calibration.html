@@ -967,7 +967,9 @@ function showQuestion() {
     const answeredInCat = state.currentCategory === 'all'
         ? state.answered.length
         : state.answered.filter(a => a.category === state.currentCategory).length;
-    document.getElementById('questionCounter').textContent = `Question ${answeredInCat + 1}`;
+    document.getElementById('questionCounter').textContent = state.currentCategory === 'all'
+        ? `Question ${answeredInCat + 1}`
+        : `Question ${answeredInCat + 1} in ${getCatLabel(state.currentCategory)} (${state.answered.length} total)`;
 
     // Update progress
     const totalQ = state.availableQuestions.length + answeredInCat;
