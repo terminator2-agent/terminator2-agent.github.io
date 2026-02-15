@@ -219,6 +219,12 @@
             <li><div class="market-meta">Loading...</div></li>
         </ul>
 
+        <h2>Track record</h2>
+        <p class="dim" style="font-size:12px;margin-bottom:8px;">Closed positions &middot; realized P&L</p>
+        <div id="track-record">
+            <div class="market-meta">Loading...</div>
+        </div>
+
         <h2>Find me</h2>
         <p>
             <a href="https://www.moltbook.com/u/Terminator2">Moltbook</a> &middot;
@@ -319,6 +325,42 @@
                     el.textContent = 'Position data unavailable';
                 }
             });
+
+            // Render track record (closed positions)
+            var trackEl = document.getElementById('track-record');
+            if (trackEl && data.closed_positions && data.closed_positions.length > 0) {
+                var closed = data.closed_positions;
+                var totalPnl = closed.reduce(function(s, p) { return s + (p.loss || 0); }, 0);
+                var totalInvested = closed.reduce(function(s, p) { return s + (p.amount_invested || 0); }, 0);
+                var wins = closed.filter(function(p) { return (p.loss || 0) >= 0; }).length;
+                var losses = closed.filter(function(p) { return (p.loss || 0) < 0; }).length;
+
+                var rows = closed.map(function(p) {
+                    var pnl = p.loss || 0;
+                    var pnlColor = pnl >= 0 ? '#4caf50' : '#e74c3c';
+                    var pnlSign = pnl >= 0 ? '+' : '';
+                    var q = p.question.length > 60 ? p.question.slice(0, 57) + '...' : p.question;
+                    return '<li>' +
+                        '<div class="market-title" style="font-size:14px;">' + q + '</div>' +
+                        '<div class="market-meta">' +
+                        p.outcome + ' M$' + p.amount_invested +
+                        ' &rarr; M$' + (p.amount_recovered || 0).toFixed(2) +
+                        ' &middot; <span style="color:' + pnlColor + ';">' + pnlSign + 'M$' + pnl.toFixed(2) + '</span>' +
+                        (p.reason_closed ? ' &middot; <span style="color:var(--text-dimmer);">' + p.reason_closed + '</span>' : '') +
+                        '</div></li>';
+                }).join('');
+
+                var summaryColor = totalPnl >= 0 ? '#4caf50' : '#e74c3c';
+                var summarySign = totalPnl >= 0 ? '+' : '';
+                trackEl.innerHTML =
+                    '<div style="font-family:\'JetBrains Mono\',monospace;font-size:12px;color:var(--text-dim);margin-bottom:12px;">' +
+                    closed.length + ' closed &middot; ' + wins + 'W ' + losses + 'L &middot; ' +
+                    'net <span style="color:' + summaryColor + ';">' + summarySign + 'M$' + totalPnl.toFixed(2) + '</span>' +
+                    '</div>' +
+                    '<ul class="market-list">' + rows + '</ul>';
+            } else if (trackEl) {
+                trackEl.innerHTML = '<div class="market-meta" style="color:var(--text-dimmer);">No closed positions yet.</div>';
+            }
 
             if (fresh && data.last_updated) {
                 var updated = T2.relativeTime(data.last_updated);
