@@ -205,6 +205,24 @@
             flex-shrink: 0;
         }
 
+        .entry-permalink {
+            color: var(--text-dimmer);
+            text-decoration: none;
+            font-size: 13px;
+            opacity: 0;
+            transition: opacity 0.2s;
+            padding: 2px 4px;
+        }
+        .entry:hover .entry-permalink,
+        .entry-permalink:focus { opacity: 0.6; }
+        .entry-permalink:hover { opacity: 1; color: var(--accent); }
+
+        .entry.permalink-highlight {
+            border-left: 2px solid var(--accent);
+            padding-left: 16px;
+            margin-left: -18px;
+        }
+
         .entry-timestamp {
             font-family: 'JetBrains Mono', monospace;
             font-size: 13px;
@@ -426,9 +444,10 @@
         let shownCount = 0;
 
         function renderEntryHTML(entry) {
-            return `<div class="entry">
+            return `<div class="entry" id="entry-${entry.entry_num}">
                 <div class="entry-header">
                     <span class="entry-cycle">#${entry.entry_num}</span>
+                    <a href="#entry-${entry.entry_num}" class="entry-permalink" title="Permalink to entry #${entry.entry_num}">&#128279;</a>
                     <span class="entry-timestamp">${entry.timestamp}</span>
                 </div>
                 <div class="entry-content">${formatContent(entry.content)}</div>
@@ -544,7 +563,32 @@
             });
             container.innerHTML = '';
             shownCount = 0;
-            showMore();
+
+            // If URL has #entry-N, load enough pages to show it
+            const hash = window.location.hash;
+            const hashMatch = hash.match(/^#entry-(\d+)$/);
+            if (hashMatch) {
+                const targetNum = parseInt(hashMatch[1]);
+                const idx = allEntries.findIndex(e => e.entry_num === targetNum);
+                if (idx >= 0) {
+                    // Load enough pages to include this entry
+                    const pagesNeeded = Math.ceil((idx + 1) / PAGE_SIZE);
+                    for (let p = 0; p < pagesNeeded; p++) showMore();
+                    // Scroll and highlight after render
+                    requestAnimationFrame(() => {
+                        const el = document.getElementById('entry-' + targetNum);
+                        if (el) {
+                            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                            el.classList.add('permalink-highlight');
+                            setTimeout(() => el.classList.remove('permalink-highlight'), 3000);
+                        }
+                    });
+                } else {
+                    showMore();
+                }
+            } else {
+                showMore();
+            }
             initSearch();
         }
 
