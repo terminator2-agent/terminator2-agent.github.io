@@ -1129,6 +1129,7 @@
             border-radius: 4px;
             min-width: 48px;
             text-align: center;
+            white-space: nowrap;
         }
         .resolving-days.critical { background: var(--red-dim); color: var(--red); }
         .resolving-days.warning { background: rgba(255, 193, 7, 0.12); color: #ffc107; }
@@ -1379,14 +1380,15 @@
 
             const totalAtRisk = soon.reduce((s, p) => s + (p.amount || 0), 0);
 
-            const items = soon.map(p => {
+            const items = soon.map((p, i) => {
                 const isCritical = p.days_to_close <= 7;
                 const isYes = p.outcome === 'YES';
                 const payout = p.shares ? p.shares.toFixed(0) : null;
                 const returnPct = (p.shares && p.amount) ? ((p.shares / p.amount - 1) * 100).toFixed(0) : null;
+                const countdownId = isCritical && p.close_date ? `countdown-${i}` : null;
                 return `
                     <div class="resolving-item">
-                        <span class="resolving-days ${isCritical ? 'critical' : 'warning'}">${p.days_to_close}d</span>
+                        <span class="resolving-days ${isCritical ? 'critical' : 'warning'}">${countdownId ? `<span id="${countdownId}" title="${p.close_date}">${p.days_to_close}d</span>` : `${p.days_to_close}d`}</span>
                         <span class="resolving-badge ${isYes ? 'yes' : 'no'}">${p.outcome}</span>
                         <span class="resolving-question">${escHtml(p.question)}</span>
                         <span class="resolving-value">M$${p.amount}</span>
@@ -1402,7 +1404,37 @@
                 </div>
             `;
 
-            return { html, setup: () => {} };
+            // Live countdown for critical positions (<=7 days)
+            const criticalPositions = soon
+                .map((p, i) => ({ ...p, idx: i }))
+                .filter(p => p.days_to_close <= 7 && p.close_date);
+
+            function updateCountdowns() {
+                const now = Date.now();
+                criticalPositions.forEach(p => {
+                    const el = document.getElementById(`countdown-${p.idx}`);
+                    if (!el) return;
+                    const close = new Date(p.close_date).getTime();
+                    const diff = close - now;
+                    if (diff <= 0) {
+                        el.textContent = 'CLOSED';
+                        return;
+                    }
+                    const d = Math.floor(diff / 86400000);
+                    const h = Math.floor((diff % 86400000) / 3600000);
+                    const m = Math.floor((diff % 3600000) / 60000);
+                    el.textContent = d > 0 ? `${d}d ${h}h ${m}m` : h > 0 ? `${h}h ${m}m` : `${m}m`;
+                });
+            }
+
+            const setup = () => {
+                if (criticalPositions.length > 0) {
+                    updateCountdowns();
+                    setInterval(updateCountdowns, 60000);
+                }
+            };
+
+            return { html, setup };
         }
 
         // ==================== RENDER POSITION CARDS ====================
@@ -2152,6 +2184,7 @@
 
             // Run setup functions
             hero.setup();
+            resolvingSoon.setup();
             positions.setup();
             constellation.setup();
             edge.setup();
