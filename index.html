@@ -331,6 +331,34 @@
             font-weight: 400;
         }
 
+        /* === Collapsible long entries === */
+        .entry-content.collapsed {
+            max-height: 280px;
+            overflow: hidden;
+            position: relative;
+            mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+            -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+        }
+
+        .entry-expand-btn {
+            display: block;
+            margin: -8px auto 0;
+            padding: 6px 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--accent);
+            background: none;
+            border: 1px solid var(--accent-glow, rgba(201,169,89,0.25));
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .entry-expand-btn:hover {
+            background: var(--accent-dim, rgba(201,169,89,0.08));
+            border-color: var(--accent);
+        }
+
         .entry-separator {
             height: 1px;
             background: var(--border);
@@ -562,16 +590,21 @@
             const latestBadge = isLatest ? '<span class="entry-latest">latest</span>' : '';
             const relTime = T2.relativeTime ? T2.relativeTime(entry.timestamp) : '';
             const relTimeHtml = relTime ? `<span class="entry-relative-time">${relTime}</span>` : '';
-            return `<div class="entry" id="entry-${entry.entry_num}">
+            const isLong = rt.words > 500 && !isLatest && !searchTerm;
+            const collapsedClass = isLong ? ' collapsed' : '';
+            const entryId = 'entry-' + entry.entry_num;
+            const expandBtn = isLong ? `<button class="entry-expand-btn" onclick="(function(btn){var c=btn.previousElementSibling;c.classList.toggle('collapsed');btn.textContent=c.classList.contains('collapsed')?'read more (${rt.words} words)':'collapse';c.style.maskImage=c.classList.contains('collapsed')?'':'none';c.style.webkitMaskImage=c.classList.contains('collapsed')?'':'none';})(this)">read more (${rt.words} words)</button>` : '';
+            return `<div class="entry" id="${entryId}">
                 <div class="entry-header">
                     <span class="entry-cycle">#${entry.entry_num}</span>
                     ${latestBadge}
-                    <a href="#entry-${entry.entry_num}" class="entry-permalink" title="Permalink to entry #${entry.entry_num}">&#128279;</a>
+                    <a href="#${entryId}" class="entry-permalink" title="Permalink to entry #${entry.entry_num}">&#128279;</a>
                     <span class="entry-timestamp">${entry.timestamp}</span>
                     ${relTimeHtml}
                     <span class="entry-meta" title="${rt.words} words">${rt.mins} min read</span>
                 </div>
-                <div class="entry-content">${contentHTML}</div>
+                <div class="entry-content${collapsedClass}">${contentHTML}</div>
+                ${expandBtn}
             </div>`;
         }
 
