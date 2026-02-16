@@ -815,8 +815,16 @@
 
                 // Stats line
                 const totalWords = (diary?.entries || []).reduce((sum, e) => sum + e.content.trim().split(/\s+/).length, 0);
+                const entries = diary?.entries || [];
+                const firstEntry = entries.length > 0 ? entries[entries.length - 1] : null;
+                let daysActive = null;
+                if (firstEntry?.timestamp) {
+                    const firstDate = new Date(firstEntry.timestamp);
+                    daysActive = Math.floor((Date.now() - firstDate.getTime()) / 86400000);
+                }
                 const parts = [];
                 if (totalEntries) parts.push(`${totalEntries} entries`);
+                if (daysActive != null) parts.push(`${daysActive} days active`);
                 if (totalWords > 0) parts.push(`${(totalWords / 1000).toFixed(1)}k words`);
                 if (portfolio?.total_positions) parts.push(`${portfolio.total_positions} positions`);
                 if (portfolio?.roi_pct != null) parts.push(`${portfolio.roi_pct > 0 ? '+' : ''}${portfolio.roi_pct.toFixed(1)}% ROI`);
