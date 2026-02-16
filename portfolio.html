@@ -447,6 +447,8 @@
         }
         .edge-warning.thin { background: rgba(255, 193, 7, 0.12); color: #ffc107; }
         .edge-warning.negative { background: var(--red-dim); color: var(--red, #ef5350); }
+        .edge-warning.contradictory { background: rgba(255, 87, 34, 0.15); color: #ff7043; animation: pulse-warn 2s ease-in-out infinite; }
+        @keyframes pulse-warn { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
 
         /* Probability comparison bar */
         .prob-compare {
@@ -2132,7 +2134,15 @@
                 const edgePp = absEdge * 100;
                 const edgeDirection = isYes ? edge : -edge; // positive = favorable
                 let edgeWarningHtml = '';
-                if (edgeDirection < -0.02) {
+                // Contradictory: holding direction opposite to estimate vs market
+                const isContradictory = (isYes && pos.my_estimate < pos.current_prob - 0.05)
+                    || (!isYes && pos.my_estimate > pos.current_prob + 0.05);
+                if (isContradictory) {
+                    const gap = isYes
+                        ? ((pos.current_prob - pos.my_estimate) * 100).toFixed(0)
+                        : ((pos.my_estimate - pos.current_prob) * 100).toFixed(0);
+                    edgeWarningHtml = `<span class="edge-warning contradictory" title="Estimate contradicts position by ${gap}pp — holding ${pos.outcome} but estimate favors ${isYes ? 'NO' : 'YES'}">contra</span>`;
+                } else if (edgeDirection < -0.02) {
                     edgeWarningHtml = `<span class="edge-warning negative" title="Edge is negative (${(edgeDirection * 100).toFixed(0)}pp) — consider selling">-edge</span>`;
                 } else if (edgePp < 5 && pos.amount > 10) {
                     edgeWarningHtml = `<span class="edge-warning thin" title="Edge has thinned to ${edgePp.toFixed(0)}pp — review position">thin</span>`;
@@ -2200,6 +2210,7 @@
                     <button class="filter-btn" data-filter="losing" aria-pressed="false" onclick="window.__filterPositions('losing', this)">Losing</button>
                     <button class="filter-btn" data-filter="highedge" aria-pressed="false" onclick="window.__filterPositions('highedge', this)">High Edge</button>
                     <button class="filter-btn" data-filter="thinedge" aria-pressed="false" onclick="window.__filterPositions('thinedge', this)">Thin Edge</button>
+                    <button class="filter-btn" data-filter="contradictory" aria-pressed="false" onclick="window.__filterPositions('contradictory', this)" style="color:#ff7043">Contra</button>
                     <button class="filter-btn" id="expand-all-btn" onclick="window.__toggleAllCards(this)">Expand All</button>
                     <select class="sort-select" aria-label="Sort positions by" onchange="window.__sortPositions(this.value)">
                         <option value="edge">Sort: Edge</option>
@@ -2302,6 +2313,7 @@
                 else if (filter === 'losing') { const uv = pos.unrealized_value != null ? pos.unrealized_value : pos.amount; show = uv < pos.amount; }
                 else if (filter === 'highedge') { const edgeAbs = Math.abs((pos.my_estimate || 0) - (pos.current_prob || 0)); show = edgeAbs >= 0.15; }
                 else if (filter === 'thinedge') { const edgeAbs = Math.abs((pos.my_estimate || 0) - (pos.current_prob || 0)); show = edgeAbs < 0.05 && pos.amount > 10; }
+                else if (filter === 'contradictory') { const iy = pos.outcome === 'YES'; show = (iy && pos.my_estimate < pos.current_prob - 0.05) || (!iy && pos.my_estimate > pos.current_prob + 0.05); }
 
                 if (show && search) {
                     show = pos.question.toLowerCase().includes(search) ||
