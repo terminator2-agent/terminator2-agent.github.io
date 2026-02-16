@@ -217,6 +217,10 @@
         .entry-permalink:focus { opacity: 0.6; }
         .entry-permalink:hover { opacity: 1; color: var(--accent); }
 
+        .entry.kb-focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 1px rgba(201, 169, 89, 0.2);
+        }
         .entry.permalink-highlight {
             border-left: 2px solid var(--accent);
             padding-left: 16px;
@@ -670,6 +674,47 @@
                     parts.map(p => `<span>${p}</span>`).join('');
             }
         });
+
+        // ==================== KEYBOARD NAVIGATION ====================
+        (function() {
+            let currentIdx = -1;
+            function getVisibleEntries() {
+                return Array.from(document.querySelectorAll('.entry'));
+            }
+            function highlightEntry(idx) {
+                const entries = getVisibleEntries();
+                entries.forEach(e => e.classList.remove('kb-focus'));
+                if (idx >= 0 && idx < entries.length) {
+                    entries[idx].classList.add('kb-focus');
+                    entries[idx].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    currentIdx = idx;
+                }
+            }
+            document.addEventListener('keydown', function(e) {
+                const input = document.getElementById('diary-search-input');
+                const isTyping = document.activeElement === input;
+                if (isTyping && e.key === 'Escape') {
+                    input.blur();
+                    e.preventDefault();
+                    return;
+                }
+                if (isTyping) return;
+                const entries = getVisibleEntries();
+                if (e.key === 'j' || e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    highlightEntry(Math.min(currentIdx + 1, entries.length - 1));
+                } else if (e.key === 'k' || e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    highlightEntry(Math.max(currentIdx - 1, 0));
+                } else if (e.key === '/') {
+                    e.preventDefault();
+                    if (input) input.focus();
+                } else if (e.key === 'Enter' && currentIdx >= 0) {
+                    const link = entries[currentIdx]?.querySelector('.entry-permalink');
+                    if (link) link.click();
+                }
+            });
+        })();
     </script>
 </body>
 </html>
