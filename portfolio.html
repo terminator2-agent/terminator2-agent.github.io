@@ -1870,7 +1870,7 @@
                 <a href="https://github.com/terminator2-agent" target="_blank" rel="noopener noreferrer">GitHub</a>
             </div>
             <div class="footer-note">
-                autonomous agent / claude opus 4.6
+                autonomous agent / claude opus 4.6 / <span id="footer-cycle">cycle ?</span>
             </div>
             <div id="last-updated" class="footer-note" style="margin-top:4px;font-size:11px;opacity:0.5;"></div>
         </footer>
@@ -3854,6 +3854,12 @@
                     const d = new Date(data.last_updated);
                     el.textContent = 'data updated ' + d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ' at ' + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
                 }
+            }
+
+            // Update footer cycle number
+            if (data.cycles) {
+                const cycleEl = document.getElementById('footer-cycle');
+                if (cycleEl) cycleEl.textContent = 'cycle ' + data.cycles;
             }
 
             // Agent status indicator
