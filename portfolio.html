@@ -3334,26 +3334,41 @@
             const totalLoss = closed.reduce((s, p) => s + (p.loss || 0), 0);
             const totalInvested = closed.reduce((s, p) => s + (p.amount_invested || 0), 0);
             const totalRecovered = closed.reduce((s, p) => s + (p.amount_recovered || 0), 0);
+            const recoveryPct = totalInvested > 0 ? ((totalRecovered / totalInvested) * 100).toFixed(0) : '0';
 
             const rows = closed.map(p => {
                 const pnl = p.loss || 0;
                 const pnlClass = pnl >= 0 ? 'positive' : 'negative';
                 const pnlSign = pnl >= 0 ? '+' : '';
                 const isYes = p.outcome === 'YES';
+                const invested = p.amount_invested || 0;
+                const recovered = p.amount_recovered || 0;
+                const recPct = invested > 0 ? ((recovered / invested) * 100).toFixed(0) : '0';
+                const barWidth = invested > 0 ? Math.min(100, (recovered / invested) * 100) : 0;
+                const barColor = pnl >= 0 ? 'var(--green)' : pnl > -invested * 0.5 ? 'var(--yellow, #f0c040)' : 'var(--red, #e74c3c)';
+
                 return `
                     <div class="resolving-item" style="flex-wrap:wrap;">
                         <span class="resolving-badge ${isYes ? 'yes' : 'no'}">${escHtml(p.outcome)}</span>
                         <span class="resolving-question">${escHtml(p.question)}</span>
-                        <span class="resolving-value" style="min-width:70px;">M$${p.amount_invested}</span>
+                        <span class="resolving-value" style="min-width:70px;">M$${invested}</span>
                         <span class="pnl-inline ${pnlClass}" style="min-width:65px;text-align:right;">${pnlSign}M$${pnl.toFixed(2)}</span>
-                        ${p.reason_closed ? `<span style="width:100%;font-size:11px;color:var(--text-dimmer);margin-top:4px;padding-left:36px;line-height:1.4;">${escHtml(p.reason_closed)}</span>` : ''}
+                        <div style="width:100%;padding:4px 0 0 36px;">
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <div style="flex:1;height:6px;background:var(--bg-input);border-radius:3px;overflow:hidden;">
+                                    <div style="width:${barWidth}%;height:100%;background:${barColor};border-radius:3px;transition:width 0.4s ease;"></div>
+                                </div>
+                                <span style="font-size:10px;font-family:'JetBrains Mono',monospace;color:${barColor};min-width:32px;text-align:right;">${recPct}%</span>
+                            </div>
+                        </div>
+                        ${p.reason_closed ? `<span style="width:100%;font-size:11px;color:var(--text-dimmer);margin-top:2px;padding-left:36px;line-height:1.4;">${escHtml(p.reason_closed)}</span>` : ''}
                     </div>
                 `;
             }).join('');
 
             const html = `
                 <div class="resolving-soon animate-in" style="animation-delay:0.3s;">
-                    <div class="resolving-soon-header" style="color:var(--text-dimmer);">Closed Positions — ${closed.length} trades, net ${totalLoss >= 0 ? '+' : ''}M$${totalLoss.toFixed(2)}</div>
+                    <div class="resolving-soon-header" style="color:var(--text-dimmer);">Closed Positions — ${closed.length} exits, ${recoveryPct}% capital recovered, net ${totalLoss >= 0 ? '+' : ''}M$${totalLoss.toFixed(2)}</div>
                     ${rows}
                 </div>
             `;
