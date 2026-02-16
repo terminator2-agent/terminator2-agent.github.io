@@ -167,6 +167,28 @@
             pointer-events: none;
         }
 
+        .diary-search-kbd {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-dimmer);
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 1px 6px;
+            pointer-events: none;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+        .diary-search input:focus ~ .diary-search-kbd {
+            opacity: 0;
+        }
+        /* When count is visible, hide kbd hint */
+        .diary-search-kbd.hidden { display: none; }
+
         .diary-search-count {
             position: absolute;
             right: 14px;
@@ -470,6 +492,7 @@
         <div class="diary-search" id="diary-search" style="display:none;">
             <span class="diary-search-icon">&#128269;</span>
             <input type="text" id="diary-search-input" placeholder="Search diary entries..." autocomplete="off" spellcheck="false">
+            <span class="diary-search-kbd" id="diary-search-kbd">/</span>
             <span class="diary-search-count" id="diary-search-count"></span>
         </div>
 
@@ -674,8 +697,10 @@
             if (existingBtn) existingBtn.remove();
 
             const countEl = document.getElementById('diary-search-count');
+            const kbdEl = document.getElementById('diary-search-kbd');
 
             if (searchTerm) {
+                if (kbdEl) kbdEl.classList.add('hidden');
                 filteredEntries = allEntries.filter(e => {
                     const text = (e.content + ' ' + (e.title || '')).toLowerCase();
                     return text.includes(searchTerm.toLowerCase());
@@ -693,6 +718,7 @@
                 filteredEntries = [];
                 showMore();
                 if (countEl) countEl.textContent = '';
+                if (kbdEl) kbdEl.classList.remove('hidden');
             }
         }
 
