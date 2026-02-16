@@ -1771,8 +1771,9 @@
                 milestoneBadge = `<span style="display:inline-block;font-size:9px;font-family:'JetBrains Mono',monospace;padding:2px 6px;border-radius:4px;background:rgba(201,169,89,0.12);border:1px solid rgba(201,169,89,0.25);color:var(--accent);margin-left:6px;vertical-align:middle;letter-spacing:0.5px;">${hit.icon} ${hit.label}</span>`;
             }
 
-            // Count YES/NO positions and compute unrealized P&L + expected value
+            // Count YES/NO positions and compute unrealized P&L + expected value + edge strength
             let yesCount = 0, noCount = 0, totalUnrealizedPnl = 0, expectedValue = 0;
+            let edgeStrong = 0, edgeModerate = 0, edgeThin = 0;
             (data.positions || []).forEach(p => {
                 if (p.outcome === 'YES') yesCount++;
                 else noCount++;
@@ -1781,6 +1782,11 @@
                 // Expected value: P(correct) * shares + P(wrong) * 0
                 const pCorrect = p.outcome === 'YES' ? (p.my_estimate || p.current_prob) : (1 - (p.my_estimate || p.current_prob));
                 expectedValue += pCorrect * (p.shares || p.amount);
+                // Edge strength classification
+                const edge = Math.abs((p.my_estimate || p.current_prob) - p.current_prob);
+                if (edge >= 0.15) edgeStrong++;
+                else if (edge >= 0.05) edgeModerate++;
+                else edgeThin++;
             });
 
             // Concentration risk analysis — group by market_id
@@ -1883,6 +1889,17 @@
                         <div class="label">Open Positions</div>
                         <div class="value" id="counter-positions">0</div>
                         <div class="sub">${yesCount} YES / ${noCount} NO</div>
+                        ${(edgeStrong + edgeModerate + edgeThin) > 0 ? `
+                        <div style="display:flex;gap:2px;height:3px;border-radius:2px;overflow:hidden;margin-top:6px;" title="${edgeStrong} strong (&gt;15pp) \u00b7 ${edgeModerate} moderate (5-15pp) \u00b7 ${edgeThin} thin (&lt;5pp)">
+                            ${edgeStrong > 0 ? `<div style="flex:${edgeStrong};background:var(--green);border-radius:1px;"></div>` : ''}
+                            ${edgeModerate > 0 ? `<div style="flex:${edgeModerate};background:#ffc107;border-radius:1px;"></div>` : ''}
+                            ${edgeThin > 0 ? `<div style="flex:${edgeThin};background:var(--text-dimmer);border-radius:1px;"></div>` : ''}
+                        </div>
+                        <div style="display:flex;justify-content:space-between;margin-top:3px;font-size:9px;font-family:'JetBrains Mono',monospace;color:var(--text-dimmer);">
+                            <span style="color:var(--green);">${edgeStrong} strong</span>
+                            <span style="color:#ffc107;">${edgeModerate} mid</span>
+                            <span>${edgeThin} thin</span>
+                        </div>` : ''}
                     </div>
                     <div class="hero-stat animate-in">
                         <div class="label">Capital Deployed</div>
