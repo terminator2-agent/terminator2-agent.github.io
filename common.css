@@ -27,6 +27,21 @@
     --purple-dim: rgba(167, 139, 250, 0.15);
 }
 
+/* === Reading Progress Bar === */
+.reading-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0%;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), rgba(201, 169, 89, 0.6));
+    z-index: 10000;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+.reading-progress.visible { opacity: 1; }
+
 /* === Reset === */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 

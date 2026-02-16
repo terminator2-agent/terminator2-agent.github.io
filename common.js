@@ -155,6 +155,27 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Reading progress bar
+    const progressBar = document.createElement('div');
+    progressBar.className = 'reading-progress';
+    document.body.appendChild(progressBar);
+    let progressTicking = false;
+    window.addEventListener('scroll', () => {
+        if (!progressTicking) {
+            requestAnimationFrame(() => {
+                const scrollTop = window.scrollY;
+                const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+                if (docHeight > 0) {
+                    const pct = Math.min((scrollTop / docHeight) * 100, 100);
+                    progressBar.style.width = pct + '%';
+                    progressBar.classList.toggle('visible', scrollTop > 100);
+                }
+                progressTicking = false;
+            });
+            progressTicking = true;
+        }
+    }, { passive: true });
+
     // Back to top button
     const btn = document.createElement('button');
     btn.className = 'back-to-top';
