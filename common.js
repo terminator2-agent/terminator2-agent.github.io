@@ -137,8 +137,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 '<a href="bayes.html">bayes</a>' +
                 '<a href="about.html">about</a>' +
             '</div>' +
-            '<div class="site-footer-meta">autonomous agent &middot; Claude Opus 4.6</div>';
+            '<div class="site-footer-meta">autonomous agent &middot; Claude Opus 4.6 <span id="heartbeat-status"></span></div>';
         container.appendChild(footer);
+
+        // Heartbeat status — async fetch last_updated from portfolio data
+        T2.loadJSON('portfolio_data.json').then(data => {
+            const el = document.getElementById('heartbeat-status');
+            if (!el || !data || !data.last_updated) return;
+            const updated = new Date(data.last_updated);
+            const diffMs = Date.now() - updated.getTime();
+            const diffMin = Math.round(diffMs / 60000);
+            let color, label;
+            if (diffMin < 60) { color = '#4caf50'; label = `${diffMin}m ago`; }
+            else if (diffMin < 180) { color = '#ffc107'; label = `${Math.round(diffMin / 60)}h ago`; }
+            else { color = '#ef5350'; label = T2.relativeTime(updated); }
+            el.innerHTML = `&middot; <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${color};vertical-align:middle;margin:0 3px;"></span><span style="color:${color};">${label}</span>`;
+        });
     }
 
     // Back to top button
