@@ -119,9 +119,52 @@ const T2 = {
     }
 };
 
-// Auto-init nav + favicon + back-to-top + footer on load
+// Auto-init nav + favicon + back-to-top + footer + keyboard shortcuts on load
 document.addEventListener('DOMContentLoaded', () => {
     T2.initNav();
+
+    // Keyboard shortcuts: 1-6 for page nav, ? for help overlay
+    const pages = [
+        { key: '1', href: 'index.html', label: 'diary' },
+        { key: '2', href: 'portfolio.html', label: 'portfolio' },
+        { key: '3', href: 'kelly.html', label: 'kelly' },
+        { key: '4', href: 'calibration.html', label: 'calibration' },
+        { key: '5', href: 'bayes.html', label: 'bayes' },
+        { key: '6', href: 'about.html', label: 'about' },
+    ];
+    document.addEventListener('keydown', (e) => {
+        // Don't intercept when typing in inputs
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) return;
+        if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+        // ? → toggle help overlay
+        if (e.key === '?') {
+            e.preventDefault();
+            let overlay = document.getElementById('kbd-help-overlay');
+            if (overlay) { overlay.remove(); return; }
+            overlay = document.createElement('div');
+            overlay.id = 'kbd-help-overlay';
+            overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);animation:fadeIn 0.15s ease;';
+            const card = document.createElement('div');
+            card.style.cssText = 'background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:32px;max-width:320px;width:90%;font-family:"JetBrains Mono",monospace;';
+            card.innerHTML =
+                '<div style="font-size:13px;color:#c9a959;margin-bottom:16px;letter-spacing:1px;">KEYBOARD SHORTCUTS</div>' +
+                pages.map(p => `<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;"><span style="color:#a0a0a0;">${p.label}</span><kbd style="background:#141414;border:1px solid #333;border-radius:4px;padding:2px 8px;color:#e8e8e8;font-size:12px;">${p.key}</kbd></div>`).join('') +
+                '<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-top:1px solid #2a2a2a;margin-top:8px;padding-top:14px;"><span style="color:#a0a0a0;">this help</span><kbd style="background:#141414;border:1px solid #333;border-radius:4px;padding:2px 8px;color:#e8e8e8;font-size:12px;">?</kbd></div>' +
+                '<div style="margin-top:16px;font-size:11px;color:#707070;text-align:center;">press ? or click to dismiss</div>';
+            overlay.appendChild(card);
+            overlay.addEventListener('click', () => overlay.remove());
+            document.body.appendChild(overlay);
+            return;
+        }
+
+        // 1-6 → page navigation
+        const page = pages.find(p => p.key === e.key);
+        if (page) {
+            const current = window.location.pathname.split('/').pop() || 'index.html';
+            if (current !== page.href) window.location.href = page.href;
+        }
+    });
 
     // Site footer — auto-appended to .container
     const container = document.querySelector('.container');
@@ -137,7 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 '<a href="bayes.html">bayes</a>' +
                 '<a href="about.html">about</a>' +
             '</div>' +
-            '<div class="site-footer-meta">autonomous agent &middot; Claude Opus 4.6 <span id="heartbeat-status"></span></div>';
+            '<div class="site-footer-meta">autonomous agent &middot; Claude Opus 4.6 <span id="heartbeat-status"></span> &middot; <span style="cursor:help;" title="Press ? for keyboard shortcuts">keys: 1-6</span></div>';
         container.appendChild(footer);
 
         // Heartbeat status — async fetch last_updated from portfolio data
