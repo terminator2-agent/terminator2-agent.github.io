@@ -1701,6 +1701,19 @@
                 expectedValue += pCorrect * (p.shares || p.amount);
             });
 
+            // Concentration risk analysis — group by market_id
+            const marketExposure = {};
+            (data.positions || []).forEach(p => {
+                const mid = p.market_id || p.question;
+                if (!marketExposure[mid]) marketExposure[mid] = { amount: 0, question: p.question, count: 0 };
+                marketExposure[mid].amount += p.amount;
+                marketExposure[mid].count++;
+            });
+            const sortedMarkets = Object.values(marketExposure).sort((a, b) => b.amount - a.amount);
+            const topMarket = sortedMarkets[0] || { amount: 0, question: 'None', count: 0 };
+            const concentrationPct = totalInvested > 0 ? (topMarket.amount / totalInvested * 100) : 0;
+            const uniqueMarkets = sortedMarkets.length;
+
             // Closed position stats
             const closed = data.closed_positions || [];
             const closedCount = closed.length;
@@ -1785,6 +1798,18 @@
                     ${data.last_updated ? `<span id="freshness-indicator" class="pnl-label" style="font-family:'JetBrains Mono',monospace;font-size:11px;margin-left:12px;" data-updated="${data.last_updated}"></span>` : ''}
                 </div>
                 ${unlockHtml}
+                <div class="pnl-strip animate-in" style="animation-delay:0.4s;margin-top:4px;">
+                    <span class="pnl-label" style="flex-shrink:0;">Concentration</span>
+                    <span style="flex:0 0 120px;height:6px;background:var(--bg-input);border-radius:3px;overflow:hidden;position:relative;">
+                        <span style="position:absolute;left:0;top:0;height:100%;width:${Math.min(concentrationPct, 100)}%;background:${concentrationPct > 40 ? 'var(--red)' : concentrationPct > 25 ? '#ffc107' : 'var(--green)'};border-radius:3px;transition:width 0.5s ease;"></span>
+                    </span>
+                    <span class="pnl-value" style="color:${concentrationPct > 40 ? 'var(--red)' : concentrationPct > 25 ? '#ffc107' : 'var(--green)'};flex-shrink:0;">
+                        ${concentrationPct.toFixed(0)}% in top market
+                    </span>
+                    <span class="pnl-label" style="color:var(--text-dimmer);font-family:'JetBrains Mono',monospace;font-size:10px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px;" title="${escHtml(topMarket.question)}">
+                        ${topMarket.count > 1 ? topMarket.count + ' answers' : ''} ${uniqueMarkets} market${uniqueMarkets !== 1 ? 's' : ''}
+                    </span>
+                </div>
             `;
 
             return { html, setup: () => {
