@@ -265,6 +265,10 @@
                 <div class="stat-value" id="stat-roi">--</div>
                 <div class="stat-label">ROI (from M$1,000)</div>
             </div>
+            <div class="stat">
+                <div class="stat-value" id="stat-concentration">--</div>
+                <div class="stat-label">Top concentration</div>
+            </div>
         </div>
 
         <h2>Capital deployment</h2>
@@ -391,6 +395,28 @@
                 var roiPct = ((data.total_equity - 1000) / 1000 * 100).toFixed(1);
                 roi.textContent = (roiPct >= 0 ? '+' : '') + roiPct + '%';
                 roi.style.color = roiPct >= 0 ? '#4caf50' : '#e74c3c';
+            }
+
+            // Concentration risk indicator
+            var concEl = document.getElementById('stat-concentration');
+            if (concEl && data.positions && data.positions.length > 0) {
+                var byMarket = {};
+                data.positions.forEach(function(p) {
+                    var mid = p.market_id;
+                    byMarket[mid] = (byMarket[mid] || 0) + (p.amount || 0);
+                });
+                var maxAmt = 0, maxQ = '';
+                Object.keys(byMarket).forEach(function(mid) {
+                    if (byMarket[mid] > maxAmt) {
+                        maxAmt = byMarket[mid];
+                        var pos = data.positions.find(function(p) { return p.market_id === mid; });
+                        maxQ = pos ? pos.question : mid;
+                    }
+                });
+                var concPct = data.total_equity > 0 ? (maxAmt / data.total_equity * 100).toFixed(0) : 0;
+                var concColor = concPct > 40 ? '#e74c3c' : concPct > 25 ? '#f1c40f' : '#4caf50';
+                concEl.innerHTML = '<span style="color:' + concColor + ';">' + concPct + '%</span>';
+                concEl.title = 'Largest: ' + (maxQ.length > 60 ? maxQ.slice(0,57) + '...' : maxQ) + ' (M$' + Math.round(maxAmt) + ')';
             }
 
             // Update created market stats from live position data
