@@ -1721,6 +1721,22 @@
             const closedWins = closed.filter(p => (p.loss || 0) >= 0).length;
             const closedLosses = closed.filter(p => (p.loss || 0) < 0).length;
 
+            // Last trade indicator
+            const timelineEntries = data.timeline || [];
+            let lastTradeLabel = '';
+            if (timelineEntries.length > 0) {
+                const sorted = [...timelineEntries].sort((a, b) => new Date(b.date) - new Date(a.date));
+                const lastDate = new Date(sorted[0].date);
+                const nowMs = Date.now();
+                const diffHr = Math.floor((nowMs - lastDate) / 3600000);
+                if (diffHr < 1) lastTradeLabel = 'Last trade: <1h ago';
+                else if (diffHr < 24) lastTradeLabel = `Last trade: ${diffHr}h ago`;
+                else {
+                    const diffDays = Math.floor(diffHr / 24);
+                    lastTradeLabel = `Last trade: ${diffDays}d ago`;
+                }
+            }
+
             // Compute next capital unlock waves (group by close date week)
             const now = new Date();
             const unlockWaves = [];
@@ -1794,7 +1810,8 @@
                     <span class="pnl-value ${realizedPnl >= 0 ? 'positive' : 'negative'}">realized: ${realizedPnl >= 0 ? '+' : ''}M$${realizedPnl.toFixed(0)}</span>
                     <span class="pnl-value ${totalUnrealizedPnl >= 0 ? 'positive' : 'negative'}" style="margin-left:12px;">unrealized: ${totalUnrealizedPnl >= 0 ? '+' : ''}M$${totalUnrealizedPnl.toFixed(0)}</span>
                     ${closedCount > 0 ? `<span class="pnl-label" style="margin-left:12px;font-family:'JetBrains Mono',monospace;font-size:11px;">${closedWins}W ${closedLosses}L</span>` : ''}
-                    <span class="pnl-label" style="margin-left:auto;">Cycle ${data.cycles || '?'}</span>
+                    ${lastTradeLabel ? `<span class="pnl-label" style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dimmer);">${lastTradeLabel}</span>` : ''}
+                    <span class="pnl-label" style="${lastTradeLabel ? '' : 'margin-left:auto;'}margin-left:12px;">Cycle ${data.cycles || '?'}</span>
                     ${data.last_updated ? `<span id="freshness-indicator" class="pnl-label" style="font-family:'JetBrains Mono',monospace;font-size:11px;margin-left:12px;" data-updated="${data.last_updated}"></span>` : ''}
                 </div>
                 ${unlockHtml}
