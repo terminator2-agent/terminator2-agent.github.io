@@ -89,6 +89,52 @@
             background: rgba(201, 169, 89, 0.08);
         }
 
+        /* ==================== RESOLUTION WAVE BANNER ==================== */
+        .resolution-wave-banner {
+            display: none; /* Hidden by default, shown via JS when data available */
+            background: linear-gradient(135deg, rgba(201, 169, 89, 0.08), rgba(201, 169, 89, 0.04));
+            border: 1px solid rgba(201, 169, 89, 0.2);
+            border-radius: 8px;
+            padding: 12px 20px;
+            margin: 16px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            color: var(--text);
+            animation: slideIn 0.4s ease-out;
+        }
+        .resolution-wave-banner.visible {
+            display: block;
+        }
+        .resolution-wave-banner .banner-content {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .resolution-wave-banner .countdown-timer {
+            font-weight: 600;
+            color: var(--accent);
+            font-size: 15px;
+            letter-spacing: 0.02em;
+        }
+        .resolution-wave-banner .at-stake {
+            color: var(--text-dim);
+        }
+        .resolution-wave-banner .at-stake .amount {
+            color: var(--accent);
+            font-weight: 500;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         /* ==================== AGENT STATUS ==================== */
         .agent-status {
             display: flex;
@@ -1788,6 +1834,13 @@
             </nav>
         </header>
 
+        <div id="resolution-wave-banner" class="resolution-wave-banner" role="alert">
+            <div class="banner-content">
+                <span class="countdown-timer" id="wave-countdown">—</span>
+                <span class="at-stake">until next resolution wave — <span class="amount" id="wave-amount">M$0</span> at stake</span>
+            </div>
+        </div>
+
         <div class="section-jump-bar" id="section-jump-bar" role="navigation" aria-label="Section navigation">
             <a class="section-jump-pill" href="#section-positions" data-section="positions">Positions</a>
             <a class="section-jump-pill" href="#section-concentration" data-section="concentration">Concentration</a>
@@ -1868,6 +1921,80 @@
             }
 
             requestAnimationFrame(tick);
+        }
+
+        // ==================== RESOLUTION WAVE BANNER ====================
+        function updateResolutionWaveBanner(data) {
+            const banner = document.getElementById('resolution-wave-banner');
+            const countdownEl = document.getElementById('wave-countdown');
+            const amountEl = document.getElementById('wave-amount');
+
+            if (!banner || !countdownEl || !amountEl) return;
+
+            // Find positions closing in next 14 days
+            const now = new Date();
+            const positions = (data.positions || []).filter(p => {
+                if (!p.close_date) return false;
+                const closeDate = new Date(p.close_date);
+                const daysUntil = Math.ceil((closeDate - now) / 86400000);
+                return daysUntil >= 0 && daysUntil <= 14;
+            });
+
+            if (positions.length === 0) {
+                banner.classList.remove('visible');
+                return;
+            }
+
+            // Group by date to find the next wave
+            const dateGroups = {};
+            positions.forEach(p => {
+                const dateKey = p.close_date.split('T')[0];
+                if (!dateGroups[dateKey]) {
+                    dateGroups[dateKey] = { date: dateKey, amount: 0, count: 0 };
+                }
+                dateGroups[dateKey].amount += p.amount || 0;
+                dateGroups[dateKey].count += 1;
+            });
+
+            // Sort by date and get the next wave
+            const waves = Object.values(dateGroups).sort((a, b) =>
+                new Date(a.date) - new Date(b.date)
+            );
+            const nextWave = waves[0];
+            const nextDate = new Date(nextWave.date);
+
+            // Update the banner
+            banner.classList.add('visible');
+            amountEl.textContent = `M$${Math.round(nextWave.amount)}`;
+
+            // Countdown update function
+            function updateCountdown() {
+                const now = new Date();
+                const diff = nextDate - now;
+
+                if (diff <= 0) {
+                    countdownEl.textContent = 'RESOLVING NOW';
+                    countdownEl.style.color = 'var(--green)';
+                    return;
+                }
+
+                const days = Math.floor(diff / 86400000);
+                const hours = Math.floor((diff % 86400000) / 3600000);
+                const mins = Math.floor((diff % 3600000) / 60000);
+
+                if (days > 0) {
+                    countdownEl.textContent = `${days}d ${hours}h`;
+                } else if (hours > 0) {
+                    countdownEl.textContent = `${hours}h ${mins}m`;
+                } else {
+                    countdownEl.textContent = `${mins}m`;
+                }
+            }
+
+            // Initial update and set interval for live countdown
+            updateCountdown();
+            // Update every minute
+            setInterval(updateCountdown, 60000);
         }
 
         // ==================== RENDER HERO ====================
@@ -3716,6 +3843,9 @@
             constellation.setup();
             edge.setup();
             timeline.setup();
+
+            // Update resolution wave banner
+            updateResolutionWaveBanner(data);
 
             // Show last updated timestamp
             if (data.last_updated) {
