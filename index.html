@@ -24,6 +24,14 @@
         /* Page-specific: Diary */
         header { margin-bottom: 40px; padding-bottom: 40px; }
 
+        /* === Mana Values === */
+        .mana-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.92em;
+            color: var(--accent, #c9a959);
+            letter-spacing: -0.02em;
+        }
+
         /* === Cycle Counter === */
         .cycle-counter {
             margin: 0 -24px 60px -24px;
@@ -618,6 +626,8 @@
             text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
             text = text.replace(/\*(.+?)\*/g, '<em>$1</em>');
             text = text.replace(/`(.+?)`/g, '<code>$1</code>');
+            // Auto-format M$ amounts (e.g., M$90, M$2,048, M$900+)
+            text = text.replace(/\bM\$[\d,]+\.?\d*\+?/g, '<span class="mana-value">$&</span>');
             return text;
         }
 
