@@ -1386,9 +1386,49 @@
             height: 16px;
         }
 
+        /* Mobile section dropdown (replaces hidden jump bar) */
+        .mobile-section-nav {
+            display: none;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 8px 16px;
+            border-bottom: 1px solid var(--border);
+        }
+        .mobile-section-nav select {
+            width: 100%;
+            padding: 8px 12px;
+            background: var(--bg-input);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23888'%3E%3Cpath d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            cursor: pointer;
+        }
+        .mobile-section-nav select:focus {
+            outline: none;
+            border-color: var(--gold);
+        }
+
         @media (max-width: 480px) {
             .section-jump-bar {
                 display: none;
+            }
+            .mobile-section-nav {
+                display: none;
+            }
+            .mobile-section-nav.visible {
+                display: block;
             }
 
             .hero {
@@ -1851,6 +1891,21 @@
             <a class="section-jump-pill" href="#section-constellation" data-section="constellation">Constellation</a>
             <a class="section-jump-pill" href="#section-edge" data-section="edge">Edge</a>
             <a class="section-jump-pill" href="#section-timeline" data-section="timeline">Timeline</a>
+        </div>
+
+        <div class="mobile-section-nav" id="mobile-section-nav" aria-label="Section navigation">
+            <select id="mobile-section-select" onchange="if(this.value){document.getElementById(this.value).scrollIntoView({behavior:'smooth',block:'start'});this.blur();}">
+                <option value="">Jump to section...</option>
+                <option value="section-positions">Positions</option>
+                <option value="section-categories">Categories</option>
+                <option value="section-concentration">Concentration</option>
+                <option value="section-resolved">Resolved</option>
+                <option value="section-closed">Closed</option>
+                <option value="section-limits">Orders</option>
+                <option value="section-constellation">Constellation</option>
+                <option value="section-edge">Edge</option>
+                <option value="section-timeline">Timeline</option>
+            </select>
         </div>
 
         <div id="app">
@@ -4132,10 +4187,13 @@
             let heroBottom = 0;
             const observer = new IntersectionObserver(entries => {
                 entries.forEach(entry => {
+                    const mobileNav = document.getElementById('mobile-section-nav');
                     if (!entry.isIntersecting) {
                         jumpBar.classList.add('visible');
+                        if (mobileNav) mobileNav.classList.add('visible');
                     } else {
                         jumpBar.classList.remove('visible');
+                        if (mobileNav) mobileNav.classList.remove('visible');
                     }
                 });
             }, { threshold: 0, rootMargin: '-50px 0px 0px 0px' });
@@ -4185,6 +4243,11 @@
                             const href = p.getAttribute('href').slice(1);
                             p.classList.toggle('active', href === activeId);
                         });
+                        // Sync mobile dropdown
+                        const mobileSelect = document.getElementById('mobile-section-select');
+                        if (mobileSelect && activeId) {
+                            mobileSelect.value = activeId;
+                        }
                         ticking = false;
                     });
                     ticking = true;
