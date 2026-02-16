@@ -1997,6 +1997,32 @@
                     </span>
                 </div>
                 ${(() => {
+                    // Portfolio pulse — colored dots showing position health at a glance
+                    const ps = data.positions || [];
+                    if (ps.length === 0) return '';
+                    let favorable = 0, adverse = 0, flat = 0, overdue = 0;
+                    const dots = ps.map(p => {
+                        const isYes = p.outcome === 'YES';
+                        const d = p.days_to_close;
+                        if (d != null && d <= 0) { overdue++; return '<span title="' + escHtml(p.question).substring(0, 50) + ' (overdue)" style="width:8px;height:8px;border-radius:50%;background:#ce93d8;flex-shrink:0;"></span>'; }
+                        const edge = (p.my_estimate || p.current_prob) - p.current_prob;
+                        const edgeDir = isYes ? edge : -edge;
+                        if (edgeDir > 0.10) { favorable++; return '<span title="' + escHtml(p.question).substring(0, 50) + ' (+' + (edgeDir * 100).toFixed(0) + 'pp edge)" style="width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0;"></span>'; }
+                        if (edgeDir > 0.02) { favorable++; return '<span title="' + escHtml(p.question).substring(0, 50) + ' (+' + (edgeDir * 100).toFixed(0) + 'pp edge)" style="width:8px;height:8px;border-radius:50%;background:rgba(76,175,80,0.5);flex-shrink:0;"></span>'; }
+                        if (edgeDir < -0.05) { adverse++; return '<span title="' + escHtml(p.question).substring(0, 50) + ' (' + (edgeDir * 100).toFixed(0) + 'pp edge)" style="width:8px;height:8px;border-radius:50%;background:var(--red, #e74c3c);flex-shrink:0;"></span>'; }
+                        flat++; return '<span title="' + escHtml(p.question).substring(0, 50) + ' (flat)" style="width:8px;height:8px;border-radius:50%;background:var(--text-dimmer);opacity:0.4;flex-shrink:0;"></span>';
+                    }).join('');
+                    return '<div class="pnl-strip animate-in" style="animation-delay:0.42s;margin-top:4px;">' +
+                        '<span class="pnl-label" style="flex-shrink:0;">Pulse</span>' +
+                        '<span style="display:flex;gap:3px;flex-wrap:wrap;align-items:center;">' + dots + '</span>' +
+                        '<span class="pnl-label" style="margin-left:auto;font-family:\'JetBrains Mono\',monospace;font-size:10px;color:var(--text-dimmer);white-space:nowrap;">' +
+                        '<span style="color:var(--green);">' + favorable + '</span> / ' +
+                        '<span style="color:var(--text-dimmer);">' + flat + '</span> / ' +
+                        '<span style="color:var(--red, #e74c3c);">' + adverse + '</span>' +
+                        (overdue > 0 ? ' / <span style="color:#ce93d8;">' + overdue + '</span>' : '') +
+                        '</span></div>';
+                })()}
+                ${(() => {
                     if (!stats || !stats.lifetime) return '';
                     const lt = stats.lifetime;
                     const os = stats.open_position_summary || {};
