@@ -1703,7 +1703,7 @@
         }
 
         // ==================== RENDER HERO ====================
-        function renderHero(data) {
+        function renderHero(data, stats) {
             const totalInvested = data.total_invested || 0;
             const balance = data.balance || 0;
             const totalCapital = totalInvested + balance;
@@ -1862,6 +1862,23 @@
                         ${topMarket.count > 1 ? topMarket.count + ' answers' : ''} ${uniqueMarkets} market${uniqueMarkets !== 1 ? 's' : ''}
                     </span>
                 </div>
+                ${(() => {
+                    if (!stats || !stats.lifetime) return '';
+                    const lt = stats.lifetime;
+                    const os = stats.open_position_summary || {};
+                    const resolved = lt.resolved || 0;
+                    const wins = Math.round(resolved * (lt.win_rate || 0));
+                    const losses = resolved - wins;
+                    const avgEdge = os.avg_edge != null ? (os.avg_edge * 100).toFixed(1) : null;
+                    const atRisk30 = os.capital_at_risk_30d || 0;
+                    return '<div class="pnl-strip animate-in" style="animation-delay:0.45s;margin-top:4px;">' +
+                        '<span class="pnl-label" style="flex-shrink:0;">Track Record</span>' +
+                        '<span class="pnl-value" style="flex-shrink:0;">' + lt.total_bets + ' bets</span>' +
+                        '<span class="pnl-label" style="margin-left:12px;font-family:\'JetBrains Mono\',monospace;font-size:11px;color:' + (wins >= losses ? 'var(--green)' : 'var(--red)') + ';">' + wins + 'W ' + losses + 'L' + (resolved > 0 ? ' (' + Math.round(lt.win_rate * 100) + '%)' : '') + '</span>' +
+                        (avgEdge ? '<span class="pnl-label" style="margin-left:12px;font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--text-dimmer);">avg edge: ' + avgEdge + 'pp</span>' : '') +
+                        (atRisk30 > 0 ? '<span class="pnl-label" style="margin-left:auto;font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--accent);">M$' + atRisk30 + ' resolving &lt;30d</span>' : '') +
+                    '</div>';
+                })()}
             `;
 
             return { html, setup: () => {
@@ -3304,7 +3321,7 @@
                 });
             }
 
-            const hero = renderHero(data);
+            const hero = renderHero(data, stats);
             const resolvingSoon = renderResolvingSoon(data);
             const movers = renderMovers(data, stats);
             const pipeline = renderCapitalPipeline(data);
