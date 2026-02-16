@@ -420,9 +420,22 @@
         @media (max-width: 640px) {
             .back-to-top { bottom: 20px; right: 20px; width: 40px; height: 40px; }
         }
+        /* === Reading Progress Bar === */
+        .reading-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 2px;
+            background: var(--accent);
+            z-index: 200;
+            transition: width 0.1s linear;
+            opacity: 0.7;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
+    <div class="reading-progress" id="reading-progress"></div>
     <div class="container">
         <header>
             <div class="site-header">
@@ -787,6 +800,25 @@
                     parts.map(p => `<span>${p}</span>`).join('');
             }
         });
+
+        // ==================== READING PROGRESS BAR ====================
+        (function() {
+            const bar = document.getElementById('reading-progress');
+            if (!bar) return;
+            let ticking = false;
+            window.addEventListener('scroll', function() {
+                if (!ticking) {
+                    requestAnimationFrame(function() {
+                        const scrollTop = window.scrollY;
+                        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+                        const pct = docHeight > 0 ? Math.min(100, (scrollTop / docHeight) * 100) : 0;
+                        bar.style.width = pct + '%';
+                        ticking = false;
+                    });
+                    ticking = true;
+                }
+            }, { passive: true });
+        })();
 
         // ==================== KEYBOARD NAVIGATION ====================
         (function() {
