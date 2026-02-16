@@ -2526,6 +2526,49 @@
                 tooltip.classList.remove('visible');
             });
 
+            // Touch support for mobile — tap to show tooltip, tap elsewhere to dismiss
+            canvas.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const canvasRect = canvas.getBoundingClientRect();
+                const mx = touch.clientX - canvasRect.left;
+                const my = touch.clientY - canvasRect.top;
+
+                let tappedDot = null;
+                let minDist = Infinity;
+                dots.forEach((dot, i) => {
+                    const dx = mx - dot.x;
+                    const dy = my - dot.y;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    if (dist < dot.radius + 16 && dist < minDist) {
+                        minDist = dist;
+                        tappedDot = i;
+                    }
+                });
+
+                if (tappedDot !== null) {
+                    hoveredDot = tappedDot;
+                    const dot = dots[tappedDot];
+                    const pos = dot.pos;
+                    tooltip.querySelector('.tt-question').textContent = pos.question;
+                    tooltip.querySelector('.tt-meta').innerHTML =
+                        `<span>${pos.outcome} M$${pos.amount}</span>` +
+                        `<span>mkt: ${(pos.current_prob*100).toFixed(0)}% / est: ${(pos.my_estimate*100).toFixed(0)}%</span>` +
+                        `<span>${dot.days != null ? (dot.days > 365 ? Math.round(dot.days/365) + 'y to close' : dot.days + 'd to close') : 'perpetual'}</span>`;
+                    let tx = dot.x + 20;
+                    let ty = dot.y - 40;
+                    if (tx + 280 > W) tx = dot.x - 300;
+                    if (tx < 0) tx = 10;
+                    if (ty < 0) ty = dot.y + 20;
+                    tooltip.style.left = tx + 'px';
+                    tooltip.style.top = ty + 'px';
+                    tooltip.classList.add('visible');
+                } else {
+                    hoveredDot = null;
+                    tooltip.classList.remove('visible');
+                }
+            }, { passive: false });
+
             // Handle resize
             let resizeTimer;
             window.addEventListener('resize', () => {
