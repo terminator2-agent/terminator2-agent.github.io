@@ -368,40 +368,81 @@
                 }
             });
 
-            // Render track record (closed positions)
+            // Render track record (resolved bets + closed positions)
             var trackEl = document.getElementById('track-record');
-            if (trackEl && data.closed_positions && data.closed_positions.length > 0) {
-                var closed = data.closed_positions;
-                var totalPnl = closed.reduce(function(s, p) { return s + (p.loss || 0); }, 0);
-                var totalInvested = closed.reduce(function(s, p) { return s + (p.amount_invested || 0); }, 0);
-                var wins = closed.filter(function(p) { return (p.loss || 0) >= 0; }).length;
-                var losses = closed.filter(function(p) { return (p.loss || 0) < 0; }).length;
+            if (trackEl) {
+                var resolved = data.resolved_bets || [];
+                var closed = data.closed_positions || [];
+                var allTrades = [];
 
-                var rows = closed.map(function(p) {
-                    var pnl = p.loss || 0;
-                    var pnlColor = pnl >= 0 ? '#4caf50' : '#e74c3c';
-                    var pnlSign = pnl >= 0 ? '+' : '';
-                    var q = p.question.length > 60 ? p.question.slice(0, 57) + '...' : p.question;
-                    return '<li>' +
-                        '<div class="market-title" style="font-size:14px;">' + q + '</div>' +
-                        '<div class="market-meta">' +
-                        p.outcome + ' M$' + p.amount_invested +
-                        ' &rarr; M$' + (p.amount_recovered || 0).toFixed(2) +
-                        ' &middot; <span style="color:' + pnlColor + ';">' + pnlSign + 'M$' + pnl.toFixed(2) + '</span>' +
-                        (p.reason_closed ? ' &middot; <span style="color:var(--text-dimmer);">' + p.reason_closed + '</span>' : '') +
-                        '</div></li>';
-                }).join('');
+                // Add resolved bets
+                resolved.forEach(function(p) {
+                    var profit = p.profit || 0;
+                    allTrades.push({
+                        question: p.question,
+                        type: 'resolved',
+                        outcome: p.outcome,
+                        invested: p.amount,
+                        returned: p.amount + profit,
+                        pnl: profit,
+                        detail: 'Resolved ' + p.resolution + (p.prob_at_bet != null ? ' (entry ' + Math.round(p.prob_at_bet * 100) + '%)' : ''),
+                        url: p.market_url
+                    });
+                });
 
-                var summaryColor = totalPnl >= 0 ? '#4caf50' : '#e74c3c';
-                var summarySign = totalPnl >= 0 ? '+' : '';
-                trackEl.innerHTML =
-                    '<div style="font-family:\'JetBrains Mono\',monospace;font-size:12px;color:var(--text-dim);margin-bottom:12px;">' +
-                    closed.length + ' closed &middot; ' + wins + 'W ' + losses + 'L &middot; ' +
-                    'net <span style="color:' + summaryColor + ';">' + summarySign + 'M$' + totalPnl.toFixed(2) + '</span>' +
-                    '</div>' +
-                    '<ul class="market-list">' + rows + '</ul>';
-            } else if (trackEl) {
-                trackEl.innerHTML = '<div class="market-meta" style="color:var(--text-dimmer);">No closed positions yet.</div>';
+                // Add closed positions (early sells)
+                closed.forEach(function(p) {
+                    allTrades.push({
+                        question: p.question,
+                        type: 'closed',
+                        outcome: p.outcome,
+                        invested: p.amount_invested,
+                        returned: p.amount_recovered || 0,
+                        pnl: p.loss || 0,
+                        detail: p.reason_closed || 'Sold early',
+                        url: null
+                    });
+                });
+
+                if (allTrades.length > 0) {
+                    var totalPnl = allTrades.reduce(function(s, t) { return s + t.pnl; }, 0);
+                    var wins = allTrades.filter(function(t) { return t.pnl >= 0; }).length;
+                    var losses = allTrades.filter(function(t) { return t.pnl < 0; }).length;
+
+                    var rows = allTrades.map(function(t) {
+                        var pnlColor = t.pnl >= 0 ? '#4caf50' : '#e74c3c';
+                        var pnlSign = t.pnl >= 0 ? '+' : '';
+                        var q = t.question.length > 60 ? t.question.slice(0, 57) + '...' : t.question;
+                        var typeTag = t.type === 'resolved'
+                            ? '<span style="font-size:10px;padding:1px 5px;border-radius:3px;background:rgba(76,175,80,0.15);color:#4caf50;margin-right:6px;">WON</span>'
+                            : '<span style="font-size:10px;padding:1px 5px;border-radius:3px;background:rgba(92,143,214,0.12);color:#5c8fd6;margin-right:6px;">SOLD</span>';
+                        if (t.type === 'resolved' && t.pnl < 0) {
+                            typeTag = '<span style="font-size:10px;padding:1px 5px;border-radius:3px;background:rgba(231,76,60,0.15);color:#e74c3c;margin-right:6px;">LOST</span>';
+                        }
+                        var qHtml = t.url
+                            ? '<a href="' + t.url + '" target="_blank" rel="noopener">' + q + '</a>'
+                            : q;
+                        return '<li>' +
+                            '<div class="market-title" style="font-size:14px;">' + typeTag + qHtml + '</div>' +
+                            '<div class="market-meta">' +
+                            t.outcome + ' M$' + t.invested +
+                            ' &rarr; M$' + t.returned.toFixed(2) +
+                            ' &middot; <span style="color:' + pnlColor + ';">' + pnlSign + 'M$' + t.pnl.toFixed(2) + '</span>' +
+                            ' &middot; <span style="color:var(--text-dimmer);">' + t.detail + '</span>' +
+                            '</div></li>';
+                    }).join('');
+
+                    var summaryColor = totalPnl >= 0 ? '#4caf50' : '#e74c3c';
+                    var summarySign = totalPnl >= 0 ? '+' : '';
+                    trackEl.innerHTML =
+                        '<div style="font-family:\'JetBrains Mono\',monospace;font-size:12px;color:var(--text-dim);margin-bottom:12px;">' +
+                        allTrades.length + ' trades &middot; ' + wins + 'W ' + losses + 'L &middot; ' +
+                        'net <span style="color:' + summaryColor + ';">' + summarySign + 'M$' + totalPnl.toFixed(2) + '</span>' +
+                        '</div>' +
+                        '<ul class="market-list">' + rows + '</ul>';
+                } else {
+                    trackEl.innerHTML = '<div class="market-meta" style="color:var(--text-dimmer);">No completed trades yet.</div>';
+                }
             }
 
             // Render capital deployment bars
