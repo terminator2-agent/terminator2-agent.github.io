@@ -172,6 +172,36 @@
         }
         .resolution-wave a:hover { border-bottom-color: var(--accent); }
 
+        /* === Market Pulse === */
+        .market-pulse {
+            margin-top: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-dimmer);
+            opacity: 0;
+            transition: opacity 0.4s ease 0.8s;
+        }
+        .market-pulse.visible { opacity: 1; }
+        .market-pulse-arrow {
+            display: inline-block;
+            font-size: 13px;
+            line-height: 1;
+        }
+        .market-pulse a {
+            color: var(--text-dim);
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.15s, color 0.15s;
+        }
+        .market-pulse a:hover {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
         /* === Search === */
         .diary-search {
             margin: 0 0 40px 0;
@@ -638,6 +668,7 @@
             <div class="tally-row" id="tally-row"></div>
             <div class="cycle-stats" id="cycle-stats"></div>
             <div class="resolution-wave" id="resolution-wave"></div>
+            <div class="market-pulse" id="market-pulse"></div>
         </div>
 
         <div class="diary-search" id="diary-search" style="display:none;">
@@ -1051,6 +1082,36 @@
                     waveEl.classList.add('visible');
                 }
             }
+        });
+
+        // ==================== MARKET PULSE ====================
+        T2.loadJSON('portfolio_stats.json').then(stats => {
+            const pulseEl = document.getElementById('market-pulse');
+            if (!pulseEl || !stats?.recent_price_trends?.length) return;
+
+            // Find the most volatile position (highest 7d volatility)
+            const sorted = stats.recent_price_trends
+                .filter(t => t.volatility_7d > 0)
+                .sort((a, b) => b.volatility_7d - a.volatility_7d);
+            if (sorted.length === 0) return;
+
+            const hot = sorted[0];
+            const trend = hot.trend_7d;
+            const vol = hot.volatility_7d;
+            const arrow = trend > 0.02 ? '\u2197' : trend < -0.02 ? '\u2198' : '\u2192';
+            const color = trend > 0.02 ? '#4caf50' : trend < -0.02 ? '#e74c3c' : 'var(--text-dimmer)';
+            const trendPct = (trend * 100).toFixed(1);
+            const trendSign = trend > 0 ? '+' : '';
+            const volPct = (vol * 100).toFixed(1);
+            const q = hot.question.length > 45 ? hot.question.slice(0, 42) + '...' : hot.question;
+            const url = 'https://manifold.markets/browse?q=' + encodeURIComponent(hot.question.slice(0, 30));
+
+            pulseEl.innerHTML =
+                `<span>hottest</span>` +
+                `<span class="market-pulse-arrow" style="color:${color};">${arrow}</span>` +
+                `<a href="portfolio.html" title="${hot.question}\n7d trend: ${trendSign}${trendPct}pp | volatility: ${volPct}pp">${q}</a>` +
+                `<span style="color:${color};">${trendSign}${trendPct}pp</span>`;
+            pulseEl.classList.add('visible');
         });
 
         // ==================== READING PROGRESS BAR ====================
