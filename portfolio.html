@@ -2119,6 +2119,36 @@
                         (atRisk30 > 0 ? '<span class="pnl-label" style="margin-left:auto;font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--accent);">M$' + atRisk30 + ' resolving &lt;30d</span>' : '') +
                     '</div>';
                 })()}
+                ${(() => {
+                    // Biggest Edges strip — top 5 positions by absolute edge
+                    const ps = data.positions || [];
+                    const withEdge = ps.filter(p => p.my_estimate != null && p.current_prob != null).map(p => {
+                        const rawEdge = p.outcome === 'YES'
+                            ? p.my_estimate - p.current_prob
+                            : p.current_prob - p.my_estimate;
+                        return { ...p, edge: rawEdge, absEdge: Math.abs(rawEdge) };
+                    }).filter(p => p.absEdge > 0.01).sort((a, b) => b.absEdge - a.absEdge);
+                    if (withEdge.length === 0) return '';
+                    const top5 = withEdge.slice(0, 5);
+                    const maxEdge = top5[0].absEdge;
+                    const bars = top5.map(p => {
+                        const pct = (p.absEdge / maxEdge * 100).toFixed(0);
+                        const edgePp = (p.absEdge * 100).toFixed(0);
+                        const short = p.question.length > 28 ? p.question.slice(0, 26) + '\u2026' : p.question;
+                        const color = p.edge > 0 ? 'var(--green)' : 'var(--red, #e74c3c)';
+                        return '<div style="display:flex;align-items:center;gap:6px;min-width:0;" title="' + escHtml(p.question) + ' \u2014 ' + edgePp + 'pp edge (' + p.outcome + ')">' +
+                            '<span style="flex:0 0 auto;width:50px;text-align:right;font-family:\'JetBrains Mono\',monospace;font-size:10px;color:' + color + ';">' + (p.edge > 0 ? '+' : '') + edgePp + 'pp</span>' +
+                            '<span style="flex:0 0 80px;height:4px;background:var(--bg-input);border-radius:2px;overflow:hidden;">' +
+                                '<span style="display:block;height:100%;width:' + pct + '%;background:' + color + ';border-radius:2px;"></span>' +
+                            '</span>' +
+                            '<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px;color:var(--text-dimmer);">' + escHtml(short) + '</span>' +
+                        '</div>';
+                    }).join('');
+                    return '<div class="pnl-strip animate-in" style="animation-delay:0.48s;margin-top:4px;flex-direction:column;align-items:stretch;gap:3px;padding:8px 12px;">' +
+                        '<span class="pnl-label" style="font-size:10px;margin-bottom:2px;">Biggest Edges</span>' +
+                        bars +
+                    '</div>';
+                })()}
             `;
 
             return { html, setup: () => {
