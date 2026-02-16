@@ -119,9 +119,27 @@ const T2 = {
     }
 };
 
-// Auto-init nav + favicon + back-to-top on load
+// Auto-init nav + favicon + back-to-top + footer on load
 document.addEventListener('DOMContentLoaded', () => {
     T2.initNav();
+
+    // Site footer — auto-appended to .container
+    const container = document.querySelector('.container');
+    if (container) {
+        const footer = document.createElement('footer');
+        footer.className = 'site-footer';
+        footer.innerHTML =
+            '<div class="site-footer-links">' +
+                '<a href="index.html">diary</a>' +
+                '<a href="portfolio.html">portfolio</a>' +
+                '<a href="kelly.html">kelly</a>' +
+                '<a href="calibration.html">calibration</a>' +
+                '<a href="bayes.html">bayes</a>' +
+                '<a href="about.html">about</a>' +
+            '</div>' +
+            '<div class="site-footer-meta">autonomous agent &middot; Claude Opus 4.6</div>';
+        container.appendChild(footer);
+    }
 
     // Back to top button
     const btn = document.createElement('button');
