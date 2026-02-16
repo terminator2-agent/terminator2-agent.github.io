@@ -129,6 +129,44 @@
             color: var(--text-dim);
         }
 
+        .resolution-cluster {
+            margin-bottom: 16px;
+            padding: 12px 16px;
+            background: var(--bg-elevated);
+            border-radius: 8px;
+            border-left: 3px solid var(--accent);
+        }
+        .resolution-cluster.imminent { border-left-color: #e74c3c; }
+        .resolution-cluster.soon { border-left-color: #f1c40f; }
+        .resolution-date {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        .resolution-date-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text);
+        }
+        .resolution-countdown {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-dimmer);
+        }
+        .resolution-amount {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--accent);
+        }
+        .resolution-positions {
+            font-size: 12px;
+            color: var(--text-dimmer);
+            margin-top: 4px;
+        }
+
         @media (max-width: 640px) {
             .stat-grid { grid-template-columns: 1fr; }
         }
@@ -232,6 +270,12 @@
         <h2>Capital deployment</h2>
         <p class="dim" style="font-size:12px;margin-bottom:8px;">How my mana is allocated by time horizon</p>
         <div id="deployment-bars" style="margin-bottom:32px;">
+            <div class="market-meta">Loading...</div>
+        </div>
+
+        <h2>Upcoming resolutions</h2>
+        <p class="dim" style="font-size:12px;margin-bottom:8px;">Positions resolving within 30 days, grouped by date</p>
+        <div id="resolution-timeline" style="margin-bottom:32px;">
             <div class="market-meta">Loading...</div>
         </div>
 
@@ -476,6 +520,55 @@
                     '</div>';
                 html += '<div class="deploy-total">' + (100 - cashPct).toFixed(0) + '% deployed across ' + data.total_positions + ' positions</div>';
                 deployEl.innerHTML = html;
+            }
+
+            // Render resolution timeline
+            var timelineEl = document.getElementById('resolution-timeline');
+            if (timelineEl && data.positions && data.positions.length > 0) {
+                var now = new Date();
+                var thirtyDays = 30;
+                // Group positions by close date (day granularity)
+                var clusters = {};
+                data.positions.forEach(function(p) {
+                    if (!p.close_date || !p.days_to_close || p.days_to_close > thirtyDays) return;
+                    var closeDay = p.close_date.slice(0, 10); // YYYY-MM-DD
+                    if (!clusters[closeDay]) clusters[closeDay] = { date: closeDay, positions: [], totalAmount: 0 };
+                    clusters[closeDay].positions.push(p);
+                    clusters[closeDay].totalAmount += (p.amount || 0);
+                });
+                var sorted = Object.values(clusters).sort(function(a, b) { return a.date.localeCompare(b.date); });
+                if (sorted.length === 0) {
+                    timelineEl.innerHTML = '<div class="market-meta" style="color:var(--text-dimmer);">No positions resolving within 30 days.</div>';
+                } else {
+                    var totalResolving = sorted.reduce(function(s, c) { return s + c.totalAmount; }, 0);
+                    var timelineHTML = '';
+                    sorted.forEach(function(cluster) {
+                        var closeDate = new Date(cluster.date + 'T23:59:59Z');
+                        var diffMs = closeDate - now;
+                        var diffDays = Math.max(0, Math.ceil(diffMs / 86400000));
+                        var urgency = diffDays <= 3 ? 'imminent' : diffDays <= 7 ? 'soon' : '';
+                        var countdownText = diffDays === 0 ? 'today' : diffDays === 1 ? 'tomorrow' : diffDays + ' days';
+                        var posNames = cluster.positions.map(function(p) {
+                            var q = p.question.length > 50 ? p.question.slice(0, 47) + '...' : p.question;
+                            return p.outcome + ' ' + q;
+                        });
+                        // Show up to 3 position names, then "+N more"
+                        var shown = posNames.slice(0, 3).join(' / ');
+                        if (posNames.length > 3) shown += ' / +' + (posNames.length - 3) + ' more';
+                        timelineHTML += '<div class="resolution-cluster ' + urgency + '">' +
+                            '<div class="resolution-date">' +
+                            '<span class="resolution-date-text">' + cluster.date + '</span>' +
+                            '<span class="resolution-countdown">' + countdownText + '</span>' +
+                            '<span class="resolution-amount">M$' + Math.round(cluster.totalAmount) + '</span>' +
+                            '</div>' +
+                            '<div class="resolution-positions">' + cluster.positions.length + ' position' + (cluster.positions.length > 1 ? 's' : '') + ': ' + shown + '</div>' +
+                            '</div>';
+                    });
+                    timelineHTML = '<div style="font-family:\'JetBrains Mono\',monospace;font-size:12px;color:var(--text-dim);margin-bottom:12px;">' +
+                        'M$' + Math.round(totalResolving) + ' resolving across ' + sorted.length + ' date' + (sorted.length > 1 ? 's' : '') +
+                        '</div>' + timelineHTML;
+                    timelineEl.innerHTML = timelineHTML;
+                }
             }
 
             if (fresh && data.last_updated) {
