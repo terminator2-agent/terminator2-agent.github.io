@@ -2381,6 +2381,19 @@
                 const countdownId = isCritical && p.close_date ? `countdown-${i}` : null;
                 const linkOpen = p.market_url ? `<a href="${escHtml(p.market_url)}" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit;display:contents;">` : '';
                 const linkClose = p.market_url ? `</a>` : '';
+                // Edge indicator: how far market is from my estimate
+                let edgeHtml = '';
+                if (p.my_estimate != null && p.current_prob != null) {
+                    const edge = isYes
+                        ? (p.my_estimate - p.current_prob)
+                        : (p.current_prob - p.my_estimate);
+                    const edgePct = Math.round(edge * 100);
+                    if (edgePct > 0) {
+                        const intensity = Math.min(1, edge / 0.4);
+                        const color = edgePct >= 30 ? '#4caf50' : edgePct >= 15 ? '#8bc34a' : '#c9a959';
+                        edgeHtml = `<span style="font-size:10px;font-family:'JetBrains Mono',monospace;color:${color};opacity:${0.5 + intensity * 0.5};white-space:nowrap;" title="Edge: my estimate vs market">${edgePct}pp</span>`;
+                    }
+                }
                 return `
                     <div class="resolving-item" ${p.market_url ? 'style="cursor:pointer;"' : ''}>
                         ${linkOpen}
@@ -2389,6 +2402,7 @@
                         <span class="resolving-question">${escHtml(p.question)}</span>
                         <span class="resolving-value">M$${p.amount}</span>
                         ${payout ? `<span class="pnl-inline positive" style="font-size:11px;" title="Payout if correct">+${returnPct}%</span>` : ''}
+                        ${edgeHtml}
                         ${linkClose}
                     </div>
                 `;
