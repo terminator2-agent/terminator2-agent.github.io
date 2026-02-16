@@ -3155,17 +3155,39 @@
 
             const totalPending = orders.reduce((s, o) => s + (o.amount || 0) - (o.filled_amount || 0), 0);
 
+            // Build a lookup of current probabilities from open positions
+            const probLookup = {};
+            (data.positions || []).forEach(p => {
+                if (p.market_id && p.current_prob != null) probLookup[p.market_id] = p.current_prob;
+            });
+
             const rows = orders.map(o => {
                 const filled = o.filled_amount || 0;
                 const total = o.amount || 0;
                 const remaining = total - filled;
                 const fillPct = total > 0 ? (filled / total * 100) : 0;
-                const limitPct = ((o.limit_prob || 0) * 100).toFixed(0);
+                const limitProb = o.limit_prob || 0;
+                const limitPct = (limitProb * 100).toFixed(0);
                 const isYes = o.outcome === 'YES';
                 const url = o.market_url || '';
                 const questionHtml = url
                     ? `<a href="${escHtml(url)}" target="_blank" rel="noopener" style="color:var(--text-dim);text-decoration:none;">${escHtml(o.question || 'Unknown market')}</a>`
                     : escHtml(o.question || 'Unknown market');
+
+                // Distance to fill: how far is market price from limit price?
+                const currentProb = probLookup[o.market_id];
+                let distanceHtml = '';
+                if (currentProb != null) {
+                    const currentPct = (currentProb * 100).toFixed(0);
+                    // For NO orders, fills when market rises to limit; for YES, fills when market drops to limit
+                    const distPp = Math.abs(currentProb - limitProb) * 100;
+                    const isClose = distPp < 5;
+                    const isFar = distPp > 20;
+                    const distColor = isClose ? 'var(--green)' : isFar ? 'var(--text-dimmer)' : '#ffc107';
+                    const distLabel = isClose ? 'near' : isFar ? 'far' : 'watching';
+                    distanceHtml = `<span style="font-size:10px;color:${distColor};white-space:nowrap;" title="Market at ${currentPct}%, limit at ${limitPct}% — ${distPp.toFixed(0)}pp away">${distPp.toFixed(0)}pp ${distLabel}</span>`;
+                }
+
                 return `
                     <div class="resolving-item" style="flex-wrap:wrap;">
                         <span class="resolving-badge ${isYes ? 'yes' : 'no'}">${escHtml(o.outcome)}</span>
@@ -3173,6 +3195,7 @@
                         <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--blue);white-space:nowrap;">@ ${limitPct}%</span>
                         <span class="resolving-value" style="min-width:70px;">M$${remaining.toFixed(0)}</span>
                         ${fillPct > 0 ? `<span style="font-size:10px;color:var(--green);white-space:nowrap;">${fillPct.toFixed(0)}% filled</span>` : '<span style="font-size:10px;color:var(--text-dimmer);white-space:nowrap;">unfilled</span>'}
+                        ${distanceHtml}
                     </div>
                 `;
             }).join('');
