@@ -1667,6 +1667,19 @@
             const totalEquity = data.total_equity || totalCapital;
             const roiPct = ((totalEquity - 1000) / 1000) * 100;
 
+            // ROI milestone badge
+            let milestoneBadge = '';
+            const milestones = [
+                { threshold: 500, label: '5x', icon: '\u{1F451}' },
+                { threshold: 200, label: '2x', icon: '\u{1F31F}' },
+                { threshold: 100, label: '2x equity', icon: '\u2728' },
+                { threshold: 50, label: '+50%', icon: '\u{1F4C8}' },
+            ];
+            const hit = milestones.find(m => roiPct >= m.threshold);
+            if (hit) {
+                milestoneBadge = `<span style="display:inline-block;font-size:9px;font-family:'JetBrains Mono',monospace;padding:2px 6px;border-radius:4px;background:rgba(201,169,89,0.12);border:1px solid rgba(201,169,89,0.25);color:var(--accent);margin-left:6px;vertical-align:middle;letter-spacing:0.5px;">${hit.icon} ${hit.label}</span>`;
+            }
+
             // Count YES/NO positions and compute unrealized P&L + expected value
             let yesCount = 0, noCount = 0, totalUnrealizedPnl = 0, expectedValue = 0;
             (data.positions || []).forEach(p => {
@@ -1736,7 +1749,7 @@
                     <div class="hero-stat animate-in">
                         <div class="label">Total Equity</div>
                         <div class="value accent" id="counter-equity">M$0</div>
-                        <div class="sub" id="roi-sub" style="color:${roiPct >= 0 ? 'var(--green)' : 'var(--red)'}">ROI: ${roiPct >= 0 ? '+' : ''}${roiPct.toFixed(1)}%</div>
+                        <div class="sub" id="roi-sub" style="color:${roiPct >= 0 ? 'var(--green)' : 'var(--red)'}">ROI: ${roiPct >= 0 ? '+' : ''}${roiPct.toFixed(1)}%${milestoneBadge}</div>
                     </div>
                     <div class="hero-stat animate-in">
                         <div class="label">Expected Value</div>
