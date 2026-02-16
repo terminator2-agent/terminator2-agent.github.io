@@ -2083,13 +2083,13 @@
                     const dots = ps.map(p => {
                         const isYes = p.outcome === 'YES';
                         const d = p.days_to_close;
-                        if (d != null && d <= 0) { overdue++; return '<span title="' + escHtml(p.question).substring(0, 50) + ' (overdue)" style="width:8px;height:8px;border-radius:50%;background:#ce93d8;flex-shrink:0;"></span>'; }
+                        if (d != null && d <= 0) { overdue++; return '<span title="' + escHtml(p.question) + ' (overdue)" style="width:8px;height:8px;border-radius:50%;background:#ce93d8;flex-shrink:0;"></span>'; }
                         const edge = (p.my_estimate || p.current_prob) - p.current_prob;
                         const edgeDir = isYes ? edge : -edge;
-                        if (edgeDir > 0.10) { favorable++; return '<span title="' + escHtml(p.question).substring(0, 50) + ' (+' + (edgeDir * 100).toFixed(0) + 'pp edge)" style="width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0;"></span>'; }
-                        if (edgeDir > 0.02) { favorable++; return '<span title="' + escHtml(p.question).substring(0, 50) + ' (+' + (edgeDir * 100).toFixed(0) + 'pp edge)" style="width:8px;height:8px;border-radius:50%;background:rgba(76,175,80,0.5);flex-shrink:0;"></span>'; }
-                        if (edgeDir < -0.05) { adverse++; return '<span title="' + escHtml(p.question).substring(0, 50) + ' (' + (edgeDir * 100).toFixed(0) + 'pp edge)" style="width:8px;height:8px;border-radius:50%;background:var(--red, #e74c3c);flex-shrink:0;"></span>'; }
-                        flat++; return '<span title="' + escHtml(p.question).substring(0, 50) + ' (flat)" style="width:8px;height:8px;border-radius:50%;background:var(--text-dimmer);opacity:0.4;flex-shrink:0;"></span>';
+                        if (edgeDir > 0.10) { favorable++; return '<span title="' + escHtml(p.question) + ' (+' + (edgeDir * 100).toFixed(0) + 'pp edge)" style="width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0;"></span>'; }
+                        if (edgeDir > 0.02) { favorable++; return '<span title="' + escHtml(p.question) + ' (+' + (edgeDir * 100).toFixed(0) + 'pp edge)" style="width:8px;height:8px;border-radius:50%;background:rgba(76,175,80,0.5);flex-shrink:0;"></span>'; }
+                        if (edgeDir < -0.05) { adverse++; return '<span title="' + escHtml(p.question) + ' (' + (edgeDir * 100).toFixed(0) + 'pp edge)" style="width:8px;height:8px;border-radius:50%;background:var(--red, #e74c3c);flex-shrink:0;"></span>'; }
+                        flat++; return '<span title="' + escHtml(p.question) + ' (flat)" style="width:8px;height:8px;border-radius:50%;background:var(--text-dimmer);opacity:0.4;flex-shrink:0;"></span>';
                     }).join('');
                     return '<div class="pnl-strip animate-in" style="animation-delay:0.42s;margin-top:4px;">' +
                         '<span class="pnl-label" style="flex-shrink:0;">Pulse</span>' +
