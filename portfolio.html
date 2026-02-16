@@ -908,10 +908,37 @@
         .edge-value.positive { color: var(--accent); }
         .edge-value.negative { color: var(--blue); }
 
+        .edge-outcome-badge {
+            flex: 0 0 28px;
+            font-size: 9px;
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+            text-align: center;
+            padding: 2px 0;
+            border-radius: 3px;
+            letter-spacing: 0.5px;
+        }
+        .edge-outcome-badge.yes {
+            color: var(--green);
+            background: var(--green-dim);
+        }
+        .edge-outcome-badge.no {
+            color: var(--red, #ef5350);
+            background: rgba(239, 83, 80, 0.12);
+        }
+
+        .edge-amount {
+            flex: 0 0 50px;
+            text-align: right;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--text-dimmer);
+        }
+
         .edge-axis-labels {
             display: flex;
             justify-content: space-between;
-            padding: 0 212px 0 0;
+            padding: 0 110px 0 40px;
             font-size: 10px;
             font-family: 'JetBrains Mono', monospace;
             color: var(--text-dimmer);
@@ -1225,7 +1252,11 @@
             }
 
             .edge-axis-labels {
-                padding-right: 132px;
+                padding: 0 110px 0 40px;
+            }
+
+            .edge-amount {
+                display: none;
             }
 
             .search-wrap {
@@ -1332,7 +1363,16 @@
             }
 
             .edge-axis-labels {
-                padding-right: 92px;
+                padding: 0 60px 0 32px;
+            }
+
+            .edge-outcome-badge {
+                flex: 0 0 22px;
+                font-size: 8px;
+            }
+
+            .edge-amount {
+                display: none;
             }
 
             .timeline-node {
@@ -2848,14 +2888,20 @@
                     barStyle = `right:50%;width:${barWidthPct}%;`;
                 }
 
+                const isYes = item.outcome === 'YES';
+                const badgeClass = isYes ? 'yes' : 'no';
+                const amountLabel = item.amount ? `M$${item.amount}` : '';
+
                 rowsHtml += `
                     <div class="edge-row stagger-in" style="animation-delay:${0.03 * i}s;">
+                        <span class="edge-outcome-badge ${badgeClass}">${item.outcome}</span>
                         <div class="edge-label" title="${escHtml(item.question)}">${item.url ? `<a href="${escHtml(item.url)}" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none;" onmouseover="this.style.color='var(--accent)'" onmouseout="this.style.color='inherit'">${escHtml(item.question)}</a>` : escHtml(item.question)}</div>
                         <div class="edge-bar-container">
                             <div class="edge-center-line"></div>
                             <div class="edge-bar ${isPositive ? 'positive' : 'negative'}" style="${barStyle}"></div>
                         </div>
                         <div class="edge-value ${isPositive ? 'positive' : 'negative'}">${sign}${absPct.toFixed(0)}%</div>
+                        <div class="edge-amount">${amountLabel}</div>
                     </div>
                 `;
             });
