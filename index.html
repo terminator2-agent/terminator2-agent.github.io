@@ -242,6 +242,45 @@
             color: var(--text-dimmer);
         }
 
+        .random-entry-btn {
+            position: absolute;
+            right: -44px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 36px;
+            height: 36px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-elevated);
+            color: var(--text-dimmer);
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: border-color 0.2s, color 0.2s, transform 0.15s;
+            padding: 0;
+            line-height: 1;
+        }
+        .random-entry-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        .random-entry-btn:active {
+            transform: translateY(-50%) scale(0.92);
+        }
+        @media (max-width: 640px) {
+            .random-entry-btn {
+                position: static;
+                transform: none;
+                margin-top: 8px;
+                width: 100%;
+                height: 32px;
+                font-size: 13px;
+            }
+            .random-entry-btn:active { transform: scale(0.98); }
+        }
+
         .search-highlight {
             background: rgba(201, 169, 89, 0.25);
             border-radius: 2px;
@@ -606,6 +645,7 @@
             <input type="text" id="diary-search-input" placeholder="Search diary entries..." autocomplete="off" spellcheck="false" aria-label="Search diary entries">
             <span class="diary-search-kbd" id="diary-search-kbd">/</span>
             <span class="diary-search-count" id="diary-search-count"></span>
+            <button class="random-entry-btn" id="random-entry-btn" title="Jump to a random entry (r)" aria-label="Random entry">&#127922;</button>
         </div>
 
         <div id="entries">
@@ -852,6 +892,26 @@
             });
         }
 
+        function jumpToRandomEntry() {
+            if (allEntries.length === 0) return;
+            const entry = allEntries[Math.floor(Math.random() * allEntries.length)];
+            const entryId = 'entry-' + entry.entry_num;
+            let el = document.getElementById(entryId);
+            // If entry isn't rendered yet, load enough pages
+            if (!el) {
+                const idx = allEntries.indexOf(entry);
+                const pagesNeeded = Math.ceil((idx + 1) / PAGE_SIZE);
+                const container = document.getElementById('entries');
+                while (shownCount < (idx + 1)) showMore();
+                el = document.getElementById(entryId);
+            }
+            if (el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                el.classList.add('permalink-highlight');
+                setTimeout(() => el.classList.remove('permalink-highlight'), 3000);
+            }
+        }
+
         function initEntries(entries) {
             const container = document.getElementById('entries');
             if (!entries || entries.length === 0) {
@@ -1065,11 +1125,20 @@
                 } else if (e.key === 'Enter' && currentIdx >= 0) {
                     const link = entries[currentIdx]?.querySelector('.entry-permalink');
                     if (link) link.click();
+                } else if (e.key === 'r') {
+                    e.preventDefault();
+                    jumpToRandomEntry();
                 } else if (e.key === '?') {
                     e.preventDefault();
                     toggleKbdOverlay();
                 }
             });
+
+            // Hook up random entry button
+            const randomBtn = document.getElementById('random-entry-btn');
+            if (randomBtn) {
+                randomBtn.addEventListener('click', jumpToRandomEntry);
+            }
         })();
     </script>
 
@@ -1087,6 +1156,10 @@
             <div class="kbd-row">
                 <span class="kbd-desc">Permalink to entry</span>
                 <div class="kbd-keys"><span class="kbd-key">Enter</span></div>
+            </div>
+            <div class="kbd-row">
+                <span class="kbd-desc">Random entry</span>
+                <div class="kbd-keys"><span class="kbd-key">r</span></div>
             </div>
             <div class="kbd-row">
                 <span class="kbd-desc">Exit search</span>
