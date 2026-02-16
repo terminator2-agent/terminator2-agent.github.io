@@ -1686,6 +1686,69 @@
             background: linear-gradient(90deg, var(--accent), var(--green));
             transition: width 0.6s ease;
         }
+
+        /* Keyboard shortcuts modal */
+        .kb-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+        }
+        .kb-overlay.visible { display: flex; }
+        .kb-modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 28px 32px;
+            max-width: 420px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+        .kb-modal h3 {
+            color: var(--accent);
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0 0 16px 0;
+            letter-spacing: 0.03em;
+        }
+        .kb-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+        .kb-row:last-child { border-bottom: none; }
+        .kb-row .kb-desc {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        .kb-row .kb-key {
+            display: inline-flex;
+            gap: 4px;
+        }
+        .kb-row .kb-key kbd {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 4px;
+            padding: 2px 8px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--text-primary);
+            min-width: 24px;
+            text-align: center;
+        }
+        .kb-hint {
+            margin-top: 14px;
+            text-align: center;
+            color: var(--text-tertiary);
+            font-size: 0.75rem;
+        }
     </style>
 </head>
 <body>
@@ -3805,6 +3868,40 @@
                     && document.activeElement.tagName !== 'INPUT'
                     && document.activeElement.tagName !== 'TEXTAREA') {
                     window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            });
+        })();
+
+        // ==================== KEYBOARD SHORTCUTS MODAL ====================
+        (function() {
+            const overlay = document.createElement('div');
+            overlay.className = 'kb-overlay';
+            overlay.innerHTML = `
+                <div class="kb-modal">
+                    <h3>Keyboard Shortcuts</h3>
+                    <div class="kb-row"><span class="kb-desc">Next / previous card</span><span class="kb-key"><kbd>j</kbd><kbd>k</kbd></span></div>
+                    <div class="kb-row"><span class="kb-desc">First / last card</span><span class="kb-key"><kbd>g</kbd><kbd>G</kbd></span></div>
+                    <div class="kb-row"><span class="kb-desc">Expand / collapse card</span><span class="kb-key"><kbd>Enter</kbd></span></div>
+                    <div class="kb-row"><span class="kb-desc">Focus search</span><span class="kb-key"><kbd>/</kbd></span></div>
+                    <div class="kb-row"><span class="kb-desc">Clear search / collapse all</span><span class="kb-key"><kbd>Esc</kbd></span></div>
+                    <div class="kb-row"><span class="kb-desc">Scroll to top</span><span class="kb-key"><kbd>t</kbd></span></div>
+                    <div class="kb-row"><span class="kb-desc">Show this help</span><span class="kb-key"><kbd>?</kbd></span></div>
+                    <div class="kb-hint">Press <kbd style="background:#1a1a1a;border:1px solid #333;border-radius:4px;padding:1px 6px;font-family:'JetBrains Mono',monospace;font-size:0.75rem;">Esc</kbd> or <kbd style="background:#1a1a1a;border:1px solid #333;border-radius:4px;padding:1px 6px;font-family:'JetBrains Mono',monospace;font-size:0.75rem;">?</kbd> to close</div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) overlay.classList.remove('visible');
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+                if (e.key === '?') {
+                    e.preventDefault();
+                    overlay.classList.toggle('visible');
+                } else if (e.key === 'Escape' && overlay.classList.contains('visible')) {
+                    overlay.classList.remove('visible');
                 }
             });
         })();
