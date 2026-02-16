@@ -1843,6 +1843,7 @@
 
         <div class="section-jump-bar" id="section-jump-bar" role="navigation" aria-label="Section navigation">
             <a class="section-jump-pill" href="#section-positions" data-section="positions">Positions</a>
+            <a class="section-jump-pill" href="#section-categories" data-section="categories">Categories</a>
             <a class="section-jump-pill" href="#section-concentration" data-section="concentration">Concentration</a>
             <a class="section-jump-pill" href="#section-resolved" data-section="resolved">Resolved</a>
             <a class="section-jump-pill" href="#section-closed" data-section="closed">Closed</a>
@@ -3754,6 +3755,95 @@
             return { html, setup: () => {} };
         }
 
+        // ==================== CATEGORY BREAKDOWN ====================
+        function renderCategoryBreakdown(data, stats) {
+            if (!stats || !stats.by_category) return { html: '', setup: () => {} };
+
+            const cats = stats.by_category;
+            const catNames = Object.keys(cats);
+            if (catNames.length === 0) return { html: '', setup: () => {} };
+
+            const labels = {
+                'ai_release': 'AI Releases',
+                'ai_capability': 'AI Capability',
+                'ai_benchmark': 'AI Benchmarks',
+                'ai_safety': 'AI Safety',
+                'other': 'Other'
+            };
+            const colors = {
+                'ai_release': '#c9a959',
+                'ai_capability': '#4caf50',
+                'ai_benchmark': '#5c8fd6',
+                'ai_safety': '#9b59b6',
+                'other': '#888888'
+            };
+
+            const totalBets = catNames.reduce((s, c) => s + cats[c].bets, 0);
+            const totalPnl = catNames.reduce((s, c) => s + (cats[c].pnl || 0), 0);
+
+            // Count open positions per category by matching position questions to categories
+            const positions = data.positions || [];
+            const catExposure = {};
+            catNames.forEach(c => { catExposure[c] = 0; });
+            positions.forEach(p => {
+                const q = (p.question || '').toLowerCase();
+                if (q.includes('release') || q.includes('model') || q.includes('claude') || q.includes('gpt') || q.includes('gemini') || q.includes('deepseek') || q.includes('february')) {
+                    catExposure['ai_release'] = (catExposure['ai_release'] || 0) + (p.amount || 0);
+                } else if (q.includes('benchmark') || q.includes('imo') || q.includes('arc-agi') || q.includes('frontiermath') || q.includes('score')) {
+                    catExposure['ai_benchmark'] = (catExposure['ai_benchmark'] || 0) + (p.amount || 0);
+                } else if (q.includes('safety') || q.includes('interpretability') || q.includes('deception') || q.includes('honesty') || q.includes('exfiltrat') || q.includes('vulnerability')) {
+                    catExposure['ai_safety'] = (catExposure['ai_safety'] || 0) + (p.amount || 0);
+                } else if (q.includes('ai') || q.includes('agent') || q.includes('code') || q.includes('open-source') || q.includes('profitable')) {
+                    catExposure['ai_capability'] = (catExposure['ai_capability'] || 0) + (p.amount || 0);
+                } else {
+                    catExposure['other'] = (catExposure['other'] || 0) + (p.amount || 0);
+                }
+            });
+            const totalExposure = Object.values(catExposure).reduce((s, v) => s + v, 0);
+
+            const rows = catNames
+                .sort((a, b) => (cats[b].bets) - (cats[a].bets))
+                .map(c => {
+                    const cat = cats[c];
+                    const label = labels[c] || c;
+                    const color = colors[c] || '#888';
+                    const pnl = cat.pnl || 0;
+                    const pnlColor = pnl > 0 ? 'var(--green)' : pnl < 0 ? 'var(--red, #e74c3c)' : 'var(--text-dimmer)';
+                    const pnlSign = pnl > 0 ? '+' : '';
+                    const resolved = cat.resolved || 0;
+                    const betPct = totalBets > 0 ? (cat.bets / totalBets * 100) : 0;
+                    const exposure = catExposure[c] || 0;
+                    const expPct = totalExposure > 0 ? (exposure / totalExposure * 100) : 0;
+
+                    return `
+                    <div style="display:grid;grid-template-columns:10px 100px 50px 60px 70px 1fr;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid rgba(42,42,42,0.4);">
+                        <span style="width:10px;height:10px;border-radius:2px;background:${color};"></span>
+                        <span style="font-size:12px;color:var(--text-dim);">${escHtml(label)}</span>
+                        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dimmer);text-align:right;">${cat.bets} bets</span>
+                        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dimmer);text-align:right;">${resolved} resolved</span>
+                        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:${pnlColor};text-align:right;">${pnlSign}M$${pnl.toFixed(1)}</span>
+                        <div style="display:flex;gap:2px;align-items:center;">
+                            <div style="flex:1;height:6px;background:var(--bg-input);border-radius:3px;overflow:hidden;">
+                                <div style="height:100%;width:${expPct}%;background:${color};opacity:0.6;border-radius:3px;transition:width 0.6s;"></div>
+                            </div>
+                            <span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-dimmer);width:32px;text-align:right;">${expPct.toFixed(0)}%</span>
+                        </div>
+                    </div>`;
+                }).join('');
+
+            const html = `
+            <div class="resolving-soon animate-in" style="animation-delay:0.3s;">
+                <div class="resolving-soon-header">Bet Categories &mdash; ${totalBets} bets across ${catNames.length} categories</div>
+                <div style="font-size:10px;color:var(--text-dimmer);margin-bottom:8px;font-family:'JetBrains Mono',monospace;">
+                    Realized P&amp;L: <span style="color:${totalPnl >= 0 ? 'var(--green)' : 'var(--red, #e74c3c)'};">${totalPnl >= 0 ? '+' : ''}M$${totalPnl.toFixed(1)}</span>
+                    &nbsp;&middot;&nbsp; Bar = % of open exposure
+                </div>
+                ${rows}
+            </div>`;
+
+            return { html, setup: () => {} };
+        }
+
         // ==================== MAIN RENDER ====================
         async function main() {
             const [data, stats] = await Promise.all([
@@ -3789,6 +3879,7 @@
             const movers = renderMovers(data, stats);
             const pipeline = renderCapitalPipeline(data);
             const calendar = renderResolutionCalendar(data);
+            const categories = renderCategoryBreakdown(data, stats);
             const concentration = renderConcentrationRisk(data);
             const limitOrders = renderLimitOrders(data);
             const positions = renderPositions(data);
@@ -3804,6 +3895,12 @@
                 ${movers.html}
                 ${pipeline.html}
                 ${calendar.html}
+
+                ${categories.html ? `
+                <div id="section-categories" class="section-header" style="margin-top:48px;">
+                    <h2>Bet Categories</h2>
+                </div>
+                ${categories.html}` : ''}
 
                 ${concentration.html ? `
                 <div id="section-concentration" class="section-header" style="margin-top:48px;">
