@@ -1852,6 +1852,7 @@
                     ${closedCount > 0 ? `<span class="pnl-label" style="margin-left:12px;font-family:'JetBrains Mono',monospace;font-size:11px;">${closedWins}W ${closedLosses}L</span>` : ''}
                     ${lastTradeLabel ? `<span class="pnl-label" style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dimmer);">${lastTradeLabel}</span>` : ''}
                     <span class="pnl-label" style="${lastTradeLabel ? '' : 'margin-left:auto;'}margin-left:12px;">Cycle ${data.cycles || '?'}</span>
+                    <span class="pnl-label" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dimmer);margin-left:6px;" title="Portfolio inception: Feb 11, 2026">Day ${Math.max(1, Math.floor((Date.now() - new Date('2026-02-11T00:00:00Z').getTime()) / 86400000))}</span>
                     ${data.last_updated ? `<span id="freshness-indicator" class="pnl-label" style="font-family:'JetBrains Mono',monospace;font-size:11px;margin-left:12px;" data-updated="${data.last_updated}"></span>` : ''}
                 </div>
                 ${unlockHtml}
