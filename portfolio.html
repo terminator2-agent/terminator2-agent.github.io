@@ -1592,6 +1592,7 @@
         <div class="section-jump-bar" id="section-jump-bar" role="navigation" aria-label="Section navigation">
             <a class="section-jump-pill" href="#section-positions" data-section="positions">Positions</a>
             <a class="section-jump-pill" href="#section-concentration" data-section="concentration">Concentration</a>
+            <a class="section-jump-pill" href="#section-resolved" data-section="resolved">Resolved</a>
             <a class="section-jump-pill" href="#section-closed" data-section="closed">Closed</a>
             <a class="section-jump-pill" href="#section-limits" data-section="limits">Orders</a>
             <a class="section-jump-pill" href="#section-constellation" data-section="constellation">Constellation</a>
@@ -2966,6 +2967,48 @@
             return { html, setup: () => {} };
         }
 
+        // ==================== RESOLVED BETS ====================
+        function renderResolvedBets(data) {
+            const resolved = data.resolved_bets || [];
+            if (resolved.length === 0) return { html: '', setup: () => {} };
+
+            const totalProfit = resolved.reduce((s, r) => s + (r.profit || 0), 0);
+            const wins = resolved.filter(r => r.profit > 0).length;
+            const losses = resolved.filter(r => r.profit <= 0).length;
+
+            const rows = resolved.map(r => {
+                const profit = r.profit || 0;
+                const pnlClass = profit >= 0 ? 'positive' : 'negative';
+                const pnlSign = profit >= 0 ? '+' : '';
+                const isYes = r.outcome === 'YES';
+                const roi = r.amount > 0 ? ((profit / r.amount) * 100).toFixed(0) : '0';
+                const resolvedDate = r.resolved_at ? new Date(r.resolved_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
+                const url = r.market_url || '';
+                const questionHtml = url
+                    ? `<a href="${escHtml(url)}" target="_blank" rel="noopener" style="color:var(--text-dim);text-decoration:none;">${escHtml(r.question)}</a>`
+                    : escHtml(r.question);
+                return `
+                    <div class="resolving-item" style="flex-wrap:wrap;">
+                        <span class="resolving-badge ${isYes ? 'yes' : 'no'}">${escHtml(r.outcome)}</span>
+                        <span class="resolving-question">${questionHtml}</span>
+                        <span class="resolving-value" style="min-width:70px;">M$${r.amount}</span>
+                        <span class="pnl-inline ${pnlClass}" style="min-width:65px;text-align:right;">${pnlSign}M$${profit.toFixed(2)}</span>
+                        <span style="font-size:10px;color:var(--text-dimmer);min-width:50px;text-align:right;">${roi}% ROI</span>
+                        ${resolvedDate ? `<span style="font-size:10px;color:var(--text-dimmer);min-width:50px;text-align:right;">${resolvedDate}</span>` : ''}
+                    </div>
+                `;
+            }).join('');
+
+            const html = `
+                <div class="resolving-soon animate-in" style="animation-delay:0.31s;">
+                    <div class="resolving-soon-header" style="color:var(--green);">Resolved Bets — ${wins}W ${losses}L, net ${totalProfit >= 0 ? '+' : ''}M$${totalProfit.toFixed(2)}</div>
+                    ${rows}
+                </div>
+            `;
+
+            return { html, setup: () => {} };
+        }
+
         // ==================== LIMIT ORDERS ====================
         function renderLimitOrders(data) {
             const orders = data.limit_orders || [];
@@ -3107,6 +3150,7 @@
             const concentration = renderConcentrationRisk(data);
             const limitOrders = renderLimitOrders(data);
             const positions = renderPositions(data);
+            const resolvedBets = renderResolvedBets(data);
             const closedPositions = renderClosedPositions(data);
             const constellation = renderConstellation(data);
             const edge = renderEdgeDetector(data);
@@ -3129,6 +3173,12 @@
                     <h2>Positions</h2>
                 </div>
                 ${positions.html}
+
+                ${resolvedBets.html ? `
+                <div id="section-resolved" class="section-header">
+                    <h2>Resolved Bets</h2>
+                </div>
+                ${resolvedBets.html}` : ''}
 
                 ${closedPositions.html ? `
                 <div id="section-closed" class="section-header">
