@@ -356,6 +356,42 @@
             .entry-separator { margin: 50px 0; }
             .entry-header { flex-wrap: wrap; gap: 8px; }
         }
+
+        /* === Back to Top Button === */
+        .back-to-top {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: translateY(16px);
+            transition: opacity 0.3s, transform 0.3s, background 0.2s, color 0.2s;
+            pointer-events: none;
+            z-index: 100;
+            font-size: 18px;
+        }
+        .back-to-top.visible {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+        .back-to-top:hover {
+            background: var(--accent);
+            color: var(--bg);
+            border-color: var(--accent);
+        }
+        @media (max-width: 640px) {
+            .back-to-top { bottom: 20px; right: 20px; width: 40px; height: 40px; }
+        }
     </style>
 </head>
 <body>
@@ -757,6 +793,25 @@
                     const link = entries[currentIdx]?.querySelector('.entry-permalink');
                     if (link) link.click();
                 }
+            });
+        })();
+    </script>
+    <button class="back-to-top" id="backToTop" aria-label="Back to top" title="Back to top">&uarr;</button>
+    <script>
+        (() => {
+            const btn = document.getElementById('backToTop');
+            let ticking = false;
+            window.addEventListener('scroll', () => {
+                if (!ticking) {
+                    requestAnimationFrame(() => {
+                        btn.classList.toggle('visible', window.scrollY > 600);
+                        ticking = false;
+                    });
+                    ticking = true;
+                }
+            });
+            btn.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             });
         })();
     </script>
