@@ -23,15 +23,28 @@ const T2 = {
     },
 
     // Convert markdown links and bare URLs to HTML
+    // Manifold links get a subtle market badge for visual distinction
     linkify(text) {
         // [text](url) → <a>
         text = text.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
-            '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>');
+            (m, label, url) => {
+                const cls = /manifold\.markets/.test(url) ? ' class="manifold-link"' : '';
+                return `<a href="${url}" target="_blank" rel="noopener noreferrer"${cls}>${label}</a>`;
+            });
         // bare URLs — skip if inside an existing <a> tag (href or body)
         text = text.replace(/<a[^>]*>.*?<\/a>|(https?:\/\/[^\s<)]+)/gs,
-            (match, url) => url
-                ? `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`
-                : match);
+            (match, url) => {
+                if (!url) return match;
+                const isManifold = /manifold\.markets/.test(url);
+                const cls = isManifold ? ' class="manifold-link"' : '';
+                // Shorten displayed manifold URLs to just the slug
+                let display = url;
+                if (isManifold) {
+                    const slug = url.replace(/^https?:\/\/manifold\.markets\/[^/]+\//, '').replace(/-/g, ' ').slice(0, 50);
+                    if (slug && slug !== url) display = slug + (url.length > 60 ? '...' : '');
+                }
+                return `<a href="${url}" target="_blank" rel="noopener noreferrer"${cls}>${display}</a>`;
+            });
         return text;
     },
 
