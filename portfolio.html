@@ -522,6 +522,22 @@
         .prob-labels .est.yes { color: var(--green); }
         .prob-labels .est.no { color: var(--red); }
 
+        .convergence-tag {
+            font-size: 9px;
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+        .convergence-tag.converging {
+            color: var(--green);
+            background: var(--green-dim);
+        }
+        .convergence-tag.diverging {
+            color: var(--red, #e74c3c);
+            background: rgba(231, 76, 60, 0.1);
+        }
+
         /* Expanded reasoning */
         .position-reasoning {
             max-height: 0;
@@ -2396,6 +2412,19 @@
                         </div>
                         <div class="prob-labels">
                             <span class="mkt">mkt ${mktPct}%${trendHtml}</span>
+                            ${entryPct != null ? (() => {
+                                const entryVal = pos.prob_at_bet;
+                                const mktVal = pos.current_prob;
+                                const estVal = pos.my_estimate;
+                                const entryDist = Math.abs(entryVal - estVal);
+                                const mktDist = Math.abs(mktVal - estVal);
+                                const isConverging = mktDist < entryDist - 0.01;
+                                const isDiverging = mktDist > entryDist + 0.01;
+                                const movePp = Math.abs(Math.round((entryDist - mktDist) * 100));
+                                if (isConverging) return '<span class="convergence-tag converging" title="Market moved ' + movePp + 'pp toward estimate since entry">\u2192est</span>';
+                                if (isDiverging) return '<span class="convergence-tag diverging" title="Market moved ' + movePp + 'pp away from estimate since entry">\u2190est</span>';
+                                return '';
+                            })() : ''}
                             <span class="est ${isYes ? 'yes' : 'no'}">est ${estPct}%</span>
                         </div>
                         <div class="position-reasoning">
