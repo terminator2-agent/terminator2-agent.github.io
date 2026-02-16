@@ -1174,6 +1174,25 @@
             }
         }
 
+        /* ==================== PRINT ==================== */
+        @media print {
+            body { background: #fff; color: #111; }
+            .section-jump-bar, .search-wrap, .filter-bar, .kbd-help, .expand-hint,
+            .copy-url-btn, #theme-toggle, .nav-links { display: none !important; }
+            .container { max-width: 100%; padding: 0; }
+            .position-card { break-inside: avoid; border: 1px solid #ccc; background: #fafafa; }
+            .position-card .position-reasoning { display: block !important; max-height: none !important; }
+            .prob-compare { background: #eee; }
+            .market-bar { background: #999; }
+            .hero-stat .value { color: #111; }
+            .hero-stat .label { color: #555; }
+            .pnl-strip { border-color: #ccc; }
+            .pnl-value.positive { color: #2e7d32; }
+            .pnl-value.negative { color: #c62828; }
+            h1 { font-size: 20px; }
+            a { color: #333; }
+        }
+
         /* ==================== SCROLLBAR ==================== */
         html { scrollbar-width: thin; scrollbar-color: var(--border) var(--bg); }
         ::-webkit-scrollbar { width: 8px; height: 8px; }
