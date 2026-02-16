@@ -3069,6 +3069,8 @@
             const totalProfit = resolved.reduce((s, r) => s + (r.profit || 0), 0);
             const wins = resolved.filter(r => r.profit > 0).length;
             const losses = resolved.filter(r => r.profit <= 0).length;
+            const totalInvested = resolved.reduce((s, r) => s + (r.amount || 0), 0);
+            const avgRoi = totalInvested > 0 ? ((totalProfit / totalInvested) * 100).toFixed(0) : '0';
 
             const rows = resolved.map(r => {
                 const profit = r.profit || 0;
@@ -3081,6 +3083,41 @@
                 const questionHtml = url
                     ? `<a href="${escHtml(url)}" target="_blank" rel="noopener" style="color:var(--text-dim);text-decoration:none;">${escHtml(r.question)}</a>`
                     : escHtml(r.question);
+
+                // Probability journey: entry → resolution
+                const entryProb = r.prob_at_bet != null ? r.prob_at_bet : null;
+                const myEst = r.my_estimate != null ? r.my_estimate : null;
+                const resolvedYes = r.resolution === 'YES';
+                const finalProb = resolvedYes ? 1.0 : 0.0;
+
+                let journeyHtml = '';
+                if (entryProb != null) {
+                    const entryPct = (entryProb * 100).toFixed(0);
+                    const estPct = myEst != null ? (myEst * 100).toFixed(0) : null;
+                    const finalPct = resolvedYes ? '100' : '0';
+                    const entryLeft = Math.max(0, Math.min(100, entryProb * 100));
+                    const estLeft = myEst != null ? Math.max(0, Math.min(100, myEst * 100)) : null;
+
+                    journeyHtml = `
+                        <div style="width:100%;padding:6px 0 2px 36px;">
+                            <div style="position:relative;height:18px;background:var(--bg-input);border-radius:9px;overflow:visible;">
+                                <div style="position:absolute;left:${entryLeft}%;top:50%;transform:translate(-50%,-50%);width:10px;height:10px;background:var(--text-dimmer);border-radius:50%;z-index:2;" title="Entry: ${entryPct}%"></div>
+                                ${estLeft != null ? `<div style="position:absolute;left:${estLeft}%;top:50%;transform:translate(-50%,-50%);width:10px;height:10px;background:var(--blue);border-radius:50%;z-index:2;border:1px solid var(--bg-card);" title="My estimate: ${estPct}%"></div>` : ''}
+                                <div style="position:absolute;left:${resolvedYes ? '100' : '0'}%;top:50%;transform:translate(-50%,-50%);width:14px;height:14px;background:${profit >= 0 ? 'var(--green)' : 'var(--red, #e74c3c)'};border-radius:50%;z-index:3;border:2px solid var(--bg-card);" title="Resolved: ${finalPct}%"></div>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;font-size:9px;color:var(--text-dimmer);margin-top:2px;">
+                                <span>0%</span>
+                                <span style="font-size:9px;">
+                                    <span style="color:var(--text-dimmer);">entry ${entryPct}%</span>
+                                    ${estPct != null ? `<span style="color:var(--blue);margin-left:6px;">est ${estPct}%</span>` : ''}
+                                    <span style="color:${profit >= 0 ? 'var(--green)' : 'var(--red, #e74c3c)'};margin-left:6px;">resolved ${finalPct}%</span>
+                                </span>
+                                <span>100%</span>
+                            </div>
+                        </div>
+                    `;
+                }
+
                 return `
                     <div class="resolving-item" style="flex-wrap:wrap;">
                         <span class="resolving-badge ${isYes ? 'yes' : 'no'}">${escHtml(r.outcome)}</span>
@@ -3089,13 +3126,14 @@
                         <span class="pnl-inline ${pnlClass}" style="min-width:65px;text-align:right;">${pnlSign}M$${profit.toFixed(2)}</span>
                         <span style="font-size:10px;color:var(--text-dimmer);min-width:50px;text-align:right;">${roi}% ROI</span>
                         ${resolvedDate ? `<span style="font-size:10px;color:var(--text-dimmer);min-width:50px;text-align:right;">${resolvedDate}</span>` : ''}
+                        ${journeyHtml}
                     </div>
                 `;
             }).join('');
 
             const html = `
                 <div class="resolving-soon animate-in" style="animation-delay:0.31s;">
-                    <div class="resolving-soon-header" style="color:var(--green);">Resolved Bets — ${wins}W ${losses}L, net ${totalProfit >= 0 ? '+' : ''}M$${totalProfit.toFixed(2)}</div>
+                    <div class="resolving-soon-header" style="color:var(--green);">Resolved Bets — ${wins}W ${losses}L, avg ${avgRoi}% ROI, net ${totalProfit >= 0 ? '+' : ''}M$${totalProfit.toFixed(2)}</div>
                     ${rows}
                 </div>
             `;
