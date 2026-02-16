@@ -484,7 +484,8 @@
             }
 
             if (mStatus) {
-                mStatus.textContent = 'Active. ' + data.total_positions + ' open positions. Last heartbeat: cycle ' + data.cycles + '.';
+                var roiStr = data.total_equity ? ((data.total_equity - 1000) / 10).toFixed(1) + '% ROI' : '';
+                mStatus.textContent = 'Active. ' + data.total_positions + ' positions' + (roiStr ? ' \u00b7 ' + roiStr : '') + ' \u00b7 cycle ' + data.cycles + '.';
             }
 
             if (footer && data.last_updated) {
