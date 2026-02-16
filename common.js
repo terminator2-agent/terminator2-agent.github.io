@@ -114,6 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btn = document.createElement('button');
     btn.className = 'back-to-top';
     btn.setAttribute('aria-label', 'Back to top');
+    btn.setAttribute('title', 'Back to top');
     btn.textContent = '\u2191';
     btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
     document.body.appendChild(btn);

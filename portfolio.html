@@ -1624,6 +1624,14 @@
     (function() {
         'use strict';
 
+        // ==================== UTILS (must be defined before templates) ====================
+        function escHtml(str) {
+            if (!str) return '';
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
         // ==================== DATA LOADING ====================
         async function loadData() {
             try {
@@ -2773,14 +2781,6 @@
             `;
 
             return { html, setup: () => {} };
-        }
-
-        // ==================== UTILS ====================
-        function escHtml(str) {
-            if (!str) return '';
-            const div = document.createElement('div');
-            div.textContent = str;
-            return div.innerHTML;
         }
 
         // ==================== CAPITAL PIPELINE ====================
