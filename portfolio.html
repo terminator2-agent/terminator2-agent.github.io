@@ -1847,6 +1847,31 @@
                         <div class="label">Capital Deployed</div>
                         <div class="value" id="counter-deployed">0%</div>
                         <div class="sub">M$${totalInvested.toFixed(0)} of M$${totalCapital.toFixed(0)}</div>
+                        ${(() => {
+                            let short30 = 0, med180 = 0, long180 = 0;
+                            (data.positions || []).forEach(p => {
+                                const d = p.days_to_close;
+                                const a = p.amount || 0;
+                                if (d != null && d <= 30) short30 += a;
+                                else if (d != null && d <= 180) med180 += a;
+                                else long180 += a;
+                            });
+                            const total = short30 + med180 + long180;
+                            if (total === 0) return '';
+                            const s = (short30 / total * 100).toFixed(0);
+                            const m = (med180 / total * 100).toFixed(0);
+                            const l = (long180 / total * 100).toFixed(0);
+                            return '<div style="display:flex;gap:2px;height:3px;border-radius:2px;overflow:hidden;margin-top:6px;" title="' + s + '% short (&lt;30d) \\u00b7 ' + m + '% medium (30-180d) \\u00b7 ' + l + '% long (180d+)">' +
+                                (short30 > 0 ? '<div style="flex:' + short30 + ';background:var(--accent);border-radius:1px;"></div>' : '') +
+                                (med180 > 0 ? '<div style="flex:' + med180 + ';background:var(--blue);border-radius:1px;"></div>' : '') +
+                                (long180 > 0 ? '<div style="flex:' + long180 + ';background:var(--text-dimmer);border-radius:1px;"></div>' : '') +
+                            '</div>' +
+                            '<div style="display:flex;justify-content:space-between;margin-top:3px;font-size:9px;font-family:\\u0027JetBrains Mono\\u0027,monospace;color:var(--text-dimmer);">' +
+                                '<span style="color:var(--accent);">' + s + '% &lt;30d</span>' +
+                                '<span style="color:var(--blue);">' + m + '% mid</span>' +
+                                '<span>' + l + '% long</span>' +
+                            '</div>';
+                        })()}
                     </div>
                 </div>
                 <div class="pnl-strip animate-in" style="animation-delay:0.25s;">
