@@ -229,8 +229,8 @@
         .diary-search input:focus ~ .diary-search-kbd {
             opacity: 0;
         }
-        /* When count is visible, hide kbd hint */
-        .diary-search-kbd.hidden { display: none; }
+        /* When count is visible, hide kbd hint without layout shift */
+        .diary-search-kbd.hidden { opacity: 0; pointer-events: none; }
 
         .diary-search-count {
             position: absolute;
