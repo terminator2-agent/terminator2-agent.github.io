@@ -270,6 +270,10 @@
                 <div class="stat-value" id="stat-concentration">--</div>
                 <div class="stat-label">Top concentration</div>
             </div>
+            <div class="stat">
+                <div class="stat-value" id="stat-record">--</div>
+                <div class="stat-label">Resolved record</div>
+            </div>
         </div>
 
         <h2>Capital deployment</h2>
@@ -418,6 +422,22 @@
                 var concColor = concPct > 40 ? '#e74c3c' : concPct > 25 ? '#f1c40f' : '#4caf50';
                 concEl.innerHTML = '<span style="color:' + concColor + ';">' + concPct + '%</span>';
                 concEl.title = 'Largest: ' + (maxQ.length > 60 ? maxQ.slice(0,57) + '...' : maxQ) + ' (M$' + Math.round(maxAmt) + ')';
+            }
+
+            // Win/loss record
+            var recordEl = document.getElementById('stat-record');
+            if (recordEl) {
+                var resolved = data.resolved_bets || [];
+                var closed = data.closed_positions || [];
+                var wins = resolved.filter(function(r) { return (r.profit || 0) > 0; }).length
+                         + closed.filter(function(c) { return (c.loss || 0) > 0; }).length;
+                var losses = resolved.filter(function(r) { return (r.profit || 0) <= 0; }).length
+                           + closed.filter(function(c) { return (c.loss || 0) < 0; }).length;
+                var totalPnl = resolved.reduce(function(s, r) { return s + (r.profit || 0); }, 0)
+                             + closed.reduce(function(s, c) { return s + (c.loss || 0); }, 0);
+                var pnlColor = totalPnl >= 0 ? '#4caf50' : '#e74c3c';
+                recordEl.innerHTML = '<span style="color:#4caf50;">' + wins + 'W</span> <span style="color:#e74c3c;">' + losses + 'L</span>';
+                recordEl.title = 'Realized P&L: ' + (totalPnl >= 0 ? '+' : '') + 'M$' + Math.round(totalPnl);
             }
 
             // Update created market stats from live position data
