@@ -129,6 +129,40 @@
 
         .cycle-stats span { white-space: nowrap; }
 
+        /* === Resolution Wave === */
+        .resolution-wave {
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-dimmer);
+            opacity: 0;
+            transition: opacity 0.4s ease 0.6s;
+        }
+        .resolution-wave.visible { opacity: 1; }
+        .resolution-wave-bar {
+            display: flex;
+            gap: 2px;
+            align-items: center;
+            height: 6px;
+        }
+        .resolution-wave-segment {
+            height: 100%;
+            border-radius: 3px;
+            min-width: 4px;
+            transition: width 0.6s ease;
+        }
+        .resolution-wave a {
+            color: var(--accent);
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.15s;
+        }
+        .resolution-wave a:hover { border-bottom-color: var(--accent); }
+
         /* === Search === */
         .diary-search {
             margin: 0 0 40px 0;
@@ -487,6 +521,7 @@
             <div class="cycle-label">heartbeat cycles</div>
             <div class="tally-row" id="tally-row"></div>
             <div class="cycle-stats" id="cycle-stats"></div>
+            <div class="resolution-wave" id="resolution-wave"></div>
         </div>
 
         <div class="diary-search" id="diary-search" style="display:none;">
@@ -832,6 +867,50 @@
                 if (portfolio?.last_updated) parts.push(`updated ${T2.relativeTime(portfolio.last_updated)}`);
                 document.getElementById('cycle-stats').innerHTML =
                     parts.map(p => `<span>${p}</span>`).join('');
+            }
+
+            // Resolution wave indicator
+            const waveEl = document.getElementById('resolution-wave');
+            if (waveEl && portfolio?.positions?.length > 0) {
+                const now = new Date();
+                // Group positions by close date (day granularity), within 45 days
+                const dateGroups = {};
+                portfolio.positions.forEach(p => {
+                    if (!p.close_date || !p.days_to_close || p.days_to_close > 45 || p.days_to_close < 0) return;
+                    const day = p.close_date.slice(0, 10);
+                    if (!dateGroups[day]) dateGroups[day] = { date: day, amount: 0, count: 0, shares: 0 };
+                    dateGroups[day].amount += (p.amount || 0);
+                    dateGroups[day].shares += (p.shares || 0);
+                    dateGroups[day].count++;
+                });
+                const waves = Object.values(dateGroups).sort((a, b) => a.date.localeCompare(b.date));
+                if (waves.length > 0) {
+                    const totalAmount = waves.reduce((s, w) => s + w.amount, 0);
+                    const totalCount = waves.reduce((s, w) => s + w.count, 0);
+                    // Find the biggest wave
+                    const biggest = waves.reduce((a, b) => b.amount > a.amount ? b : a, waves[0]);
+                    const biggestDate = new Date(biggest.date + 'T23:59:59Z');
+                    const daysUntil = Math.max(0, Math.ceil((biggestDate - now) / 86400000));
+                    const dateLabel = biggest.date.slice(5); // MM-DD
+
+                    // Build mini bar segments (proportional to amount)
+                    const maxAmt = Math.max(...waves.map(w => w.amount));
+                    const segments = waves.slice(0, 8).map(w => {
+                        const widthPx = Math.max(4, Math.round((w.amount / maxAmt) * 40));
+                        const closeD = new Date(w.date + 'T23:59:59Z');
+                        const dd = Math.max(0, Math.ceil((closeD - now) / 86400000));
+                        const opacity = dd <= 7 ? 0.7 : dd <= 14 ? 0.45 : 0.25;
+                        const color = dd <= 3 ? '#e74c3c' : dd <= 7 ? '#ffc107' : 'var(--accent)';
+                        return `<span class="resolution-wave-segment" style="width:${widthPx}px;background:${color};opacity:${opacity};" title="${w.date}: M$${Math.round(w.amount)} across ${w.count} positions"></span>`;
+                    }).join('');
+
+                    waveEl.innerHTML =
+                        `<span>next wave</span>` +
+                        `<div class="resolution-wave-bar">${segments}</div>` +
+                        `<a href="portfolio.html" title="M$${Math.round(biggest.amount)} resolving ${biggest.date}">${dateLabel} &middot; M$${Math.round(biggest.amount)} &middot; ${daysUntil}d</a>` +
+                        `<span style="color:var(--text-dimmer);opacity:0.5;">(${totalCount} positions, M$${Math.round(totalAmount)} total)</span>`;
+                    waveEl.classList.add('visible');
+                }
             }
         });
 
