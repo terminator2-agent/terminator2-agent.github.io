@@ -566,6 +566,9 @@
             color: var(--green);
             font-weight: 500;
         }
+        .position-reasoning .shares-payout.negative {
+            color: var(--red);
+        }
 
         .position-reasoning .shares-return {
             color: var(--text-dimmer);
@@ -2109,7 +2112,12 @@
                             <span class="est ${isYes ? 'yes' : 'no'}">est ${estPct}%</span>
                         </div>
                         <div class="position-reasoning">
-                            ${pos.shares ? `<div class="shares-detail"><span class="shares-label">Shares:</span> <span class="shares-value">${pos.shares.toFixed(1)}</span><span class="shares-sep">&middot;</span><span class="shares-label">Payout if correct:</span> <span class="shares-payout">M$${pos.shares.toFixed(0)}</span> <span class="shares-return">(${((pos.shares / pos.amount - 1) * 100).toFixed(0)}% return)</span></div>` : ''}
+                            ${pos.shares ? (() => {
+                                const ev = pos.shares * winProb - pos.amount;
+                                const evSign = ev >= 0 ? '+' : '';
+                                const evClass = ev >= 0 ? 'positive' : 'negative';
+                                return `<div class="shares-detail"><span class="shares-label">Shares:</span> <span class="shares-value">${pos.shares.toFixed(1)}</span><span class="shares-sep">&middot;</span><span class="shares-label">Payout if correct:</span> <span class="shares-payout">M$${pos.shares.toFixed(0)}</span> <span class="shares-return">(${((pos.shares / pos.amount - 1) * 100).toFixed(0)}% return)</span><span class="shares-sep">&middot;</span><span class="shares-label">EV:</span> <span class="shares-payout ${evClass}" title="Expected value = shares × P(win) − cost">${evSign}M$${ev.toFixed(1)}</span></div>`;
+                            })() : ''}
                             <div class="reasoning-text">
                                 ${pos.reasoning ? escHtml(pos.reasoning) : 'No reasoning recorded.'}
                                 ${pos.market_url ? `<br><a class="reasoning-link" href="${escHtml(pos.market_url)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">View on Manifold &rarr;</a>` : ''}
