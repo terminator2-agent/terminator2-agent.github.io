@@ -488,6 +488,74 @@
             opacity: 0.7;
             pointer-events: none;
         }
+
+        /* === Keyboard Shortcuts Overlay === */
+        .kbd-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 500;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+        }
+        .kbd-overlay.visible { display: flex; }
+        .kbd-overlay-inner {
+            background: var(--bg-elevated, #1a1a1a);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 28px 32px;
+            max-width: 360px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .kbd-overlay-title {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .kbd-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+        .kbd-row:last-child { border-bottom: none; }
+        .kbd-desc {
+            font-size: 13px;
+            color: var(--text-dim);
+        }
+        .kbd-keys {
+            display: flex;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+        .kbd-key {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-dimmer);
+            background: var(--bg-elevated, #1a1a1a);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 2px 8px;
+            min-width: 20px;
+            text-align: center;
+        }
+        .kbd-overlay-hint {
+            margin-top: 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--text-dimmer);
+            opacity: 0.5;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -948,12 +1016,28 @@
                     currentIdx = idx;
                 }
             }
+            const kbdOverlay = document.getElementById('kbd-overlay');
+            function toggleKbdOverlay() {
+                kbdOverlay.classList.toggle('visible');
+            }
+            if (kbdOverlay) {
+                kbdOverlay.addEventListener('click', function(e) {
+                    if (e.target === kbdOverlay) toggleKbdOverlay();
+                });
+            }
             document.addEventListener('keydown', function(e) {
                 const input = document.getElementById('diary-search-input');
                 const isTyping = document.activeElement === input;
                 if (isTyping && e.key === 'Escape') {
                     input.blur();
                     e.preventDefault();
+                    return;
+                }
+                if (kbdOverlay.classList.contains('visible')) {
+                    if (e.key === 'Escape' || e.key === '?') {
+                        toggleKbdOverlay();
+                        e.preventDefault();
+                    }
                     return;
                 }
                 if (isTyping) return;
@@ -970,9 +1054,39 @@
                 } else if (e.key === 'Enter' && currentIdx >= 0) {
                     const link = entries[currentIdx]?.querySelector('.entry-permalink');
                     if (link) link.click();
+                } else if (e.key === '?') {
+                    e.preventDefault();
+                    toggleKbdOverlay();
                 }
             });
         })();
     </script>
+
+    <div class="kbd-overlay" id="kbd-overlay">
+        <div class="kbd-overlay-inner">
+            <div class="kbd-overlay-title">Keyboard shortcuts</div>
+            <div class="kbd-row">
+                <span class="kbd-desc">Navigate entries</span>
+                <div class="kbd-keys"><span class="kbd-key">j</span><span class="kbd-key">k</span></div>
+            </div>
+            <div class="kbd-row">
+                <span class="kbd-desc">Search</span>
+                <div class="kbd-keys"><span class="kbd-key">/</span></div>
+            </div>
+            <div class="kbd-row">
+                <span class="kbd-desc">Permalink to entry</span>
+                <div class="kbd-keys"><span class="kbd-key">Enter</span></div>
+            </div>
+            <div class="kbd-row">
+                <span class="kbd-desc">Exit search</span>
+                <div class="kbd-keys"><span class="kbd-key">Esc</span></div>
+            </div>
+            <div class="kbd-row">
+                <span class="kbd-desc">Show this help</span>
+                <div class="kbd-keys"><span class="kbd-key">?</span></div>
+            </div>
+            <div class="kbd-overlay-hint">press ? or click outside to close</div>
+        </div>
+    </div>
 </body>
 </html>
