@@ -2912,17 +2912,32 @@
             if (!canvas) return;
             const ctx = canvas.getContext('2d');
 
-            // Set canvas size properly
-            const rect = canvas.parentElement.getBoundingClientRect();
-            const dpr = window.devicePixelRatio || 1;
-            canvas.width = rect.width * dpr;
-            canvas.height = 400 * dpr;
-            canvas.style.height = '400px';
-            ctx.scale(dpr, dpr);
+            function sizeCanvas() {
+                const rect = canvas.parentElement.getBoundingClientRect();
+                const dpr = window.devicePixelRatio || 1;
+                canvas.width = rect.width * dpr;
+                canvas.height = 400 * dpr;
+                canvas.style.height = '400px';
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
+                ctx.scale(dpr, dpr);
+                return rect.width;
+            }
 
-            const W = rect.width;
+            let W = sizeCanvas();
             const H = 400;
             const PAD = 50;
+
+            // Re-layout on resize
+            if (window.ResizeObserver) {
+                let resizeTimer;
+                new ResizeObserver(() => {
+                    clearTimeout(resizeTimer);
+                    resizeTimer = setTimeout(() => {
+                        W = sizeCanvas();
+                        relayout();
+                    }, 150);
+                }).observe(canvas.parentElement);
+            }
 
             // Compute positions on canvas
             // Cap days at 730 (2 years) for visualization to prevent extreme outliers from compressing everything
@@ -2930,6 +2945,7 @@
             const maxDays = Math.max(...positions.map(p => capDays(p.days_to_close || 365)), 1);
             const maxEdge = Math.max(...positions.map(p => Math.abs(p.my_estimate - p.current_prob)), 0.01);
             const maxAmount = Math.max(...positions.map(p => p.amount), 1);
+            const logMax = Math.log(maxDays + 1);
 
             // Precompute dot data
             const dots = positions.map((pos, i) => {
@@ -2938,15 +2954,20 @@
                 const edge = Math.abs(pos.my_estimate - pos.current_prob);
                 const isYes = pos.outcome === 'YES';
 
-                // Log scale for X (days)
                 const logDays = Math.log(Math.max(days, 1) + 1);
-                const logMax = Math.log(maxDays + 1);
                 const x = PAD + (logDays / logMax) * (W - 2 * PAD);
                 const y = H - PAD - (edge / maxEdge) * (H - 2 * PAD);
                 const radius = 4 + (pos.amount / maxAmount) * 16;
 
-                return { x, y, radius, isYes, edge, days: rawDays, amount: pos.amount, question: pos.question, idx: i, pos };
+                return { x, y, radius, isYes, edge, days: rawDays, amount: pos.amount, question: pos.question, idx: i, pos, logDays };
             });
+
+            function relayout() {
+                dots.forEach(dot => {
+                    dot.x = PAD + (dot.logDays / logMax) * (W - 2 * PAD);
+                });
+                particles.forEach(p => { p.x = Math.random() * W; });
+            }
 
             // Background particles
             const particles = [];
