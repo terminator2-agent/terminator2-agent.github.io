@@ -1751,12 +1751,15 @@
             const concentrationPct = totalInvested > 0 ? (topMarket.amount / totalInvested * 100) : 0;
             const uniqueMarkets = sortedMarkets.length;
 
-            // Closed position stats
+            // Closed position stats (early exits + resolved bets)
             const closed = data.closed_positions || [];
-            const closedCount = closed.length;
-            const realizedPnl = data.realized_pnl || closed.reduce((s, p) => s + (p.loss || 0), 0);
-            const closedWins = closed.filter(p => (p.loss || 0) >= 0).length;
-            const closedLosses = closed.filter(p => (p.loss || 0) < 0).length;
+            const resolved = data.resolved_bets || [];
+            const closedPnl = closed.reduce((s, p) => s + (p.loss || 0), 0);
+            const resolvedPnl = resolved.reduce((s, r) => s + (r.profit || 0), 0);
+            const realizedPnl = closedPnl + resolvedPnl;
+            const closedWins = closed.filter(p => (p.loss || 0) >= 0).length + resolved.filter(r => (r.profit || 0) > 0).length;
+            const closedLosses = closed.filter(p => (p.loss || 0) < 0).length + resolved.filter(r => (r.profit || 0) <= 0).length;
+            const closedCount = closed.length + resolved.length;
 
             // Last trade indicator
             const timelineEntries = data.timeline || [];
