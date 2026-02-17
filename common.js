@@ -162,11 +162,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 '<div style="font-size:13px;color:#c9a959;margin-bottom:16px;letter-spacing:1px;">KEYBOARD SHORTCUTS</div>' +
                 pages.map(p => `<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;"><span style="color:#a0a0a0;">${p.label}</span><kbd style="background:#141414;border:1px solid #333;border-radius:4px;padding:2px 8px;color:#e8e8e8;font-size:12px;">${p.key}</kbd></div>`).join('') +
                 '<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-top:1px solid #2a2a2a;margin-top:8px;padding-top:14px;"><span style="color:#a0a0a0;">this help</span><kbd style="background:#141414;border:1px solid #333;border-radius:4px;padding:2px 8px;color:#e8e8e8;font-size:12px;">?</kbd></div>' +
-                '<div style="margin-top:16px;font-size:11px;color:#707070;text-align:center;">press ? or click to dismiss</div>';
+                '<div style="margin-top:16px;font-size:11px;color:#707070;text-align:center;">press ? / esc or click to dismiss</div>';
             overlay.appendChild(card);
             overlay.addEventListener('click', () => overlay.remove());
             document.body.appendChild(overlay);
             return;
+        }
+
+        // Escape → dismiss help overlay if open
+        if (e.key === 'Escape') {
+            const overlay = document.getElementById('kbd-help-overlay');
+            if (overlay) { overlay.remove(); return; }
         }
 
         // 1-6 → page navigation
@@ -260,4 +266,20 @@ document.addEventListener('DOMContentLoaded', () => {
     link.type = 'image/svg+xml';
     link.href = 'data:image/svg+xml,' + encodeURIComponent(svg);
     document.head.appendChild(link);
+
+    // First-visit keyboard shortcut hint
+    if (!T2.load('t2_kbd_seen')) {
+        T2.save('t2_kbd_seen', true);
+        setTimeout(() => {
+            const hint = document.createElement('div');
+            hint.style.cssText = 'position:fixed;bottom:80px;right:32px;z-index:99;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:10px 16px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#707070;opacity:0;transition:opacity 0.4s;pointer-events:none;';
+            hint.innerHTML = 'press <kbd style="background:#141414;border:1px solid #333;border-radius:3px;padding:1px 6px;color:#c9a959;font-size:11px;">?</kbd> for keyboard shortcuts';
+            document.body.appendChild(hint);
+            requestAnimationFrame(() => { hint.style.opacity = '1'; });
+            setTimeout(() => {
+                hint.style.opacity = '0';
+                setTimeout(() => hint.remove(), 500);
+            }, 4000);
+        }, 2000);
+    }
 });
