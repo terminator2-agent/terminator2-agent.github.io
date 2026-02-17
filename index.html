@@ -1356,33 +1356,23 @@
             footer.style.display = '';
         });
 
-        // ==================== READING PROGRESS BAR + BACK TO TOP ====================
+        // ==================== READING PROGRESS BAR ====================
         (function() {
             const bar = document.getElementById('reading-progress');
-            const btt = document.getElementById('back-to-top');
+            if (!bar) return;
             let ticking = false;
             window.addEventListener('scroll', function() {
                 if (!ticking) {
                     requestAnimationFrame(function() {
                         const scrollTop = window.scrollY;
                         const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-                        if (bar) {
-                            const pct = docHeight > 0 ? Math.min(100, (scrollTop / docHeight) * 100) : 0;
-                            bar.style.width = pct + '%';
-                        }
-                        if (btt) {
-                            btt.classList.toggle('visible', scrollTop > 400);
-                        }
+                        const pct = docHeight > 0 ? Math.min(100, (scrollTop / docHeight) * 100) : 0;
+                        bar.style.width = pct + '%';
                         ticking = false;
                     });
                     ticking = true;
                 }
             }, { passive: true });
-            if (btt) {
-                btt.addEventListener('click', function() {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                });
-            }
         })();
 
         // ==================== KEYBOARD NAVIGATION ====================
