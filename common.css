@@ -318,6 +318,12 @@ input[type="text"]:focus {
     border-color: var(--accent);
 }
 
+input[type="number"]:focus-visible,
+input[type="text"]:focus-visible {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
 /* === Animations === */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
