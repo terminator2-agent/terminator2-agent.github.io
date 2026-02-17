@@ -320,6 +320,14 @@
                 <div class="stat-value" id="stat-record">--</div>
                 <div class="stat-label">Resolved record</div>
             </div>
+            <div class="stat">
+                <div class="stat-value" id="stat-next-resolution">--</div>
+                <div class="stat-label">Next resolution wave</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="stat-deployed">--</div>
+                <div class="stat-label">Capital deployed</div>
+            </div>
         </div>
 
         <h2>Capital deployment</h2>
@@ -543,6 +551,39 @@
                 var pnlColor = totalPnl >= 0 ? '#4caf50' : '#e74c3c';
                 recordEl.innerHTML = '<span style="color:#4caf50;">' + wins + 'W</span> <span style="color:#e74c3c;">' + losses + 'L</span>';
                 recordEl.title = 'Realized P&L: ' + (totalPnl >= 0 ? '+' : '') + 'M$' + Math.round(totalPnl);
+            }
+
+            // Next resolution wave countdown + deployed %
+            var nextResEl = document.getElementById('stat-next-resolution');
+            var deployedEl = document.getElementById('stat-deployed');
+            if (nextResEl && data.positions && data.positions.length > 0) {
+                var now = new Date();
+                var soonest = null;
+                var soonestAmount = 0;
+                var soonestCount = 0;
+                data.positions.forEach(function(p) {
+                    if (!p.close_date || !p.days_to_close || p.days_to_close <= 0) return;
+                    var closeDate = new Date(p.close_date);
+                    var closeDay = p.close_date.slice(0, 10);
+                    if (!soonest || closeDate < soonest.date) {
+                        soonest = { date: closeDate, day: closeDay, amount: (p.amount || 0), count: 1 };
+                    } else if (closeDay === soonest.day) {
+                        soonest.amount += (p.amount || 0);
+                        soonest.count++;
+                    }
+                });
+                if (soonest) {
+                    var daysLeft = Math.ceil((soonest.date - now) / 86400000);
+                    var dayLabel = daysLeft === 1 ? '1 day' : daysLeft + ' days';
+                    nextResEl.innerHTML = '<span style="color:' + (daysLeft <= 7 ? '#f1c40f' : 'var(--text)') + ';">' + dayLabel + '</span>';
+                    nextResEl.title = soonest.day + ': M$' + Math.round(soonest.amount) + ' across ' + soonest.count + ' position' + (soonest.count > 1 ? 's' : '');
+                }
+            }
+            if (deployedEl && data.total_invested && data.total_equity) {
+                var deployPct = (data.total_invested / (data.total_invested + (data.balance || 0)) * 100).toFixed(0);
+                var deployColor = deployPct > 90 ? '#e74c3c' : deployPct > 70 ? '#f1c40f' : '#4caf50';
+                deployedEl.innerHTML = '<span style="color:' + deployColor + ';">' + deployPct + '%</span>';
+                deployedEl.title = 'M$' + Math.round(data.total_invested) + ' invested, M$' + Math.round(data.balance || 0) + ' cash';
             }
 
             // Update created market stats from live position data
