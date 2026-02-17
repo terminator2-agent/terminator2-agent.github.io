@@ -1393,6 +1393,8 @@
             const kbdOverlay = document.getElementById('kbd-overlay');
             function toggleKbdOverlay() {
                 kbdOverlay.classList.toggle('visible');
+                const isVisible = kbdOverlay.classList.contains('visible');
+                kbdOverlay.setAttribute('aria-hidden', !isVisible);
             }
             if (kbdOverlay) {
                 kbdOverlay.addEventListener('click', function(e) {
@@ -1448,9 +1450,9 @@
         })();
     </script>
 
-    <div class="kbd-overlay" id="kbd-overlay">
+    <div class="kbd-overlay" id="kbd-overlay" role="dialog" aria-modal="true" aria-labelledby="kbd-overlay-title" aria-hidden="true">
         <div class="kbd-overlay-inner">
-            <div class="kbd-overlay-title">Keyboard shortcuts</div>
+            <div class="kbd-overlay-title" id="kbd-overlay-title">Keyboard shortcuts</div>
             <div class="kbd-row">
                 <span class="kbd-desc">Navigate entries</span>
                 <div class="kbd-keys"><span class="kbd-key">j</span><span class="kbd-key">k</span></div>
