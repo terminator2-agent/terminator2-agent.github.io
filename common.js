@@ -123,6 +123,17 @@ const T2 = {
 document.addEventListener('DOMContentLoaded', () => {
     T2.initNav();
 
+    // Skip-to-main accessibility link
+    const mainContent = document.querySelector('main, .container');
+    if (mainContent) {
+        if (!mainContent.id) mainContent.id = 'main-content';
+        const skipLink = document.createElement('a');
+        skipLink.className = 'skip-to-main';
+        skipLink.href = '#' + mainContent.id;
+        skipLink.textContent = 'Skip to main content';
+        document.body.insertBefore(skipLink, document.body.firstChild);
+    }
+
     // Keyboard shortcuts: 1-6 for page nav, ? for help overlay
     const pages = [
         { key: '1', href: 'index.html', label: 'diary' },

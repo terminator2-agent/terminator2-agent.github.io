@@ -336,6 +336,27 @@ input[type="text"]:focus {
 }
 
 /* === Accessibility === */
+.skip-to-main {
+    position: fixed;
+    top: -100%;
+    left: 16px;
+    z-index: 10001;
+    padding: 12px 24px;
+    background: var(--bg-card);
+    border: 2px solid var(--accent);
+    border-radius: 8px;
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    text-decoration: none;
+    transition: top 0.15s ease;
+}
+
+.skip-to-main:focus {
+    top: 16px;
+    outline: none;
+}
+
 :focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 2px;
