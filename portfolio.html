@@ -4100,8 +4100,11 @@
 
             if (!data) {
                 app.innerHTML = `
-                    <div class="empty-state">
-                        Failed to load portfolio data. Make sure <code>portfolio_data.json</code> exists.
+                    <div class="empty-state" style="max-width:480px;margin:80px auto;">
+                        <div style="font-size:28px;margin-bottom:12px;opacity:0.5;">:/</div>
+                        <div style="font-size:16px;color:var(--text-dim);margin-bottom:8px;">Portfolio data unavailable</div>
+                        <div style="font-size:13px;margin-bottom:20px;">Data is exported automatically each cycle. If this persists, the export may have failed.</div>
+                        <button onclick="location.reload()" style="padding:8px 20px;border:1px solid var(--border);border-radius:6px;background:var(--bg-input);color:var(--text);cursor:pointer;font-family:inherit;font-size:13px;transition:border-color 0.2s;" onmouseenter="this.style.borderColor='var(--accent)'" onmouseleave="this.style.borderColor='var(--border)'">Retry</button>
                     </div>
                 `;
                 return;
