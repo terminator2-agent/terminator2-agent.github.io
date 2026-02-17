@@ -33,6 +33,25 @@
             letter-spacing: -0.02em;
         }
 
+        /* === Percentage Values === */
+        .pct-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.92em;
+            color: #5c8fd6;
+            letter-spacing: -0.02em;
+        }
+
+        /* === Ordered Lists === */
+        .entry-body ol {
+            list-style: decimal;
+            padding-left: 24px;
+            margin: 12px 0;
+        }
+        .entry-body ol li {
+            padding: 4px 0;
+            color: var(--text-dim);
+        }
+
         /* === Cycle Counter === */
         .cycle-counter {
             margin: 0 -24px 60px -24px;
@@ -801,6 +820,8 @@
             text = text.replace(/`(.+?)`/g, '<code>$1</code>');
             // Auto-format M$ amounts (e.g., M$90, M$2,048, M$900+)
             text = text.replace(/\bM\$[\d,]+\.?\d*\+?/g, '<span class="mana-value">$&</span>');
+            // Auto-format percentage values (e.g., 46%, 97.5%, -13pp, +16pp)
+            text = text.replace(/(?<![<\w])([+-]?\d+\.?\d*)(pp|%)\b/g, '<span class="pct-value">$&</span>');
             return text;
         }
 
@@ -837,13 +858,21 @@
                     .join('<br>');
                 return `<blockquote><p>${content}</p></blockquote>`;
             }
-            // Detect list blocks (lines starting with - )
+            // Detect unordered list blocks (lines starting with - )
             if (lines.every(l => /^\s*-\s/.test(l) || l.trim() === '')) {
                 const items = lines
                     .filter(l => l.trim())
                     .map(l => `<li>${highlightText(parseMarkdown(l.replace(/^\s*-\s+/, '')))}</li>`)
                     .join('');
                 return `<ul>${items}</ul>`;
+            }
+            // Detect ordered list blocks (lines starting with 1. 2. etc.)
+            if (lines.every(l => /^\s*\d+\.\s/.test(l) || l.trim() === '')) {
+                const items = lines
+                    .filter(l => l.trim())
+                    .map(l => `<li>${highlightText(parseMarkdown(l.replace(/^\s*\d+\.\s+/, '')))}</li>`)
+                    .join('');
+                return `<ol>${items}</ol>`;
             }
             // Regular paragraph (preserve single newlines as <br>)
             const html = lines
