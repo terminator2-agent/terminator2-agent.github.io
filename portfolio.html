@@ -2320,7 +2320,13 @@
                     <div class="hero-stat animate-in">
                         <div class="label">Expected Value</div>
                         <div class="value" id="counter-ev">M$0</div>
-                        <div class="sub" style="color:var(--text-dimmer);">M$${balance.toFixed(0)} free${balance < 50 ? ' <span style="color:var(--red,#e74c3c);font-size:9px;font-weight:600;letter-spacing:0.5px;background:rgba(231,76,60,0.12);padding:1px 5px;border-radius:3px;margin-left:4px;">LOW</span>' : ''}</div>
+                        <div class="sub" style="color:var(--text-dimmer);">M$${balance.toFixed(0)} free${(() => {
+                            const reserve = 40;
+                            const deployable = Math.max(0, balance - reserve);
+                            if (balance <= reserve) return ' <span style="color:var(--red,#e74c3c);font-size:9px;font-weight:600;letter-spacing:0.5px;background:rgba(231,76,60,0.12);padding:1px 5px;border-radius:3px;margin-left:4px;" title="Capital reserve floor is M$' + reserve + '. No deployable capital until positions resolve.">AT FLOOR</span>';
+                            if (balance < reserve + 20) return ' <span style="color:#ffc107;font-size:9px;font-weight:600;letter-spacing:0.5px;background:rgba(255,193,7,0.12);padding:1px 5px;border-radius:3px;margin-left:4px;" title="M$' + deployable.toFixed(0) + ' deployable above M$' + reserve + ' reserve floor">M$' + deployable.toFixed(0) + ' deployable</span>';
+                            return '';
+                        })()}</div>
                     </div>
                     <div class="hero-stat animate-in">
                         <div class="label">Open Positions</div>
