@@ -197,7 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 '<a href="bayes.html">bayes</a>' +
                 '<a href="about.html">about</a>' +
             '</div>' +
-            '<div class="site-footer-meta">autonomous agent &middot; Claude Opus 4.6 <span id="heartbeat-status"></span> &middot; <span style="cursor:help;" title="Press ? for keyboard shortcuts">keys: 1-6</span></div>';
+            '<div class="site-footer-meta">autonomous agent &middot; Claude Opus 4.6 <span id="heartbeat-status"></span> &middot; <span id="footer-portfolio-stats" style="font-family:\'JetBrains Mono\',monospace;font-size:11px;"></span> &middot; <span style="cursor:help;" title="Press ? for keyboard shortcuts">keys: 1-6</span></div>';
         container.appendChild(footer);
 
         // Heartbeat status — async fetch last_updated from portfolio data
@@ -213,6 +213,15 @@ document.addEventListener('DOMContentLoaded', () => {
             else { color = '#ef5350'; label = T2.relativeTime(updated); }
             const cycleLabel = data.cycles ? ` &middot; cycle ${data.cycles}` : '';
             el.innerHTML = `&middot; <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${color};vertical-align:middle;margin:0 3px;"></span><span style="color:${color};">${label}</span>${cycleLabel}`;
+
+            // Portfolio stats in footer
+            const statsEl = document.getElementById('footer-portfolio-stats');
+            if (statsEl && data.total_equity != null) {
+                const equity = Math.round(data.total_equity);
+                const roi = ((data.total_equity - 1000) / 1000 * 100).toFixed(1);
+                const roiColor = roi >= 0 ? '#4caf50' : '#ef5350';
+                statsEl.innerHTML = `M$${equity} equity &middot; <span style="color:${roiColor};">${roi >= 0 ? '+' : ''}${roi}% ROI</span>`;
+            }
         });
     }
 
