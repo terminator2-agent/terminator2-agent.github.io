@@ -476,6 +476,7 @@ html { scrollbar-width: thin; scrollbar-color: var(--border) var(--bg); scroll-b
     header { margin-bottom: 40px; padding-bottom: 24px; }
     h1 { font-size: 24px; }
     nav {
+        position: relative;
         gap: 16px;
         flex-wrap: nowrap;
         overflow-x: auto;
@@ -487,6 +488,21 @@ html { scrollbar-width: thin; scrollbar-color: var(--border) var(--bg); scroll-b
         padding-right: 28px;
         -webkit-mask-image: linear-gradient(to right, transparent 0, black 20px, black calc(100% - 28px), transparent 100%);
         mask-image: linear-gradient(to right, transparent 0, black 20px, black calc(100% - 28px), transparent 100%);
+    }
+    nav::after {
+        content: '\203A';
+        position: sticky;
+        right: 0;
+        flex-shrink: 0;
+        color: var(--accent);
+        font-size: 18px;
+        opacity: 0.7;
+        animation: scroll-hint 2s ease-in-out 0.5s 2;
+        pointer-events: none;
+    }
+    @keyframes scroll-hint {
+        0%, 100% { transform: translateX(0); opacity: 0.7; }
+        50% { transform: translateX(4px); opacity: 1; }
     }
     nav::-webkit-scrollbar { display: none; }
     nav a { white-space: nowrap; }
