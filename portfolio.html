@@ -3848,10 +3848,15 @@
                 const barWidth = invested > 0 ? Math.min(100, (recovered / invested) * 100) : 0;
                 const barColor = pnl >= 0 ? 'var(--green)' : pnl > -invested * 0.5 ? 'var(--yellow, #f0c040)' : 'var(--red, #e74c3c)';
 
+                const url = p.market_url || (p.market_id ? `https://manifold.markets/market/${p.market_id}` : '');
+                const questionHtml = url
+                    ? `<a href="${escHtml(url)}" target="_blank" rel="noopener" class="resolving-question" style="color:var(--text-dim);text-decoration:none;">${escHtml(p.question)}</a>`
+                    : `<span class="resolving-question">${escHtml(p.question)}</span>`;
+
                 return `
                     <div class="resolving-item" style="flex-wrap:wrap;">
                         <span class="resolving-badge ${isYes ? 'yes' : 'no'}">${escHtml(p.outcome)}</span>
-                        <span class="resolving-question">${escHtml(p.question)}</span>
+                        ${questionHtml}
                         <span class="resolving-value" style="min-width:70px;">M$${invested}</span>
                         <span class="pnl-inline ${pnlClass}" style="min-width:65px;text-align:right;">${pnlSign}M$${pnl.toFixed(2)}</span>
                         <div style="width:100%;padding:4px 0 0 36px;">
