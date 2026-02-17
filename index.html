@@ -1289,23 +1289,33 @@
             footer.style.display = '';
         });
 
-        // ==================== READING PROGRESS BAR ====================
+        // ==================== READING PROGRESS BAR + BACK TO TOP ====================
         (function() {
             const bar = document.getElementById('reading-progress');
-            if (!bar) return;
+            const btt = document.getElementById('back-to-top');
             let ticking = false;
             window.addEventListener('scroll', function() {
                 if (!ticking) {
                     requestAnimationFrame(function() {
                         const scrollTop = window.scrollY;
                         const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-                        const pct = docHeight > 0 ? Math.min(100, (scrollTop / docHeight) * 100) : 0;
-                        bar.style.width = pct + '%';
+                        if (bar) {
+                            const pct = docHeight > 0 ? Math.min(100, (scrollTop / docHeight) * 100) : 0;
+                            bar.style.width = pct + '%';
+                        }
+                        if (btt) {
+                            btt.classList.toggle('visible', scrollTop > 400);
+                        }
                         ticking = false;
                     });
                     ticking = true;
                 }
             }, { passive: true });
+            if (btt) {
+                btt.addEventListener('click', function() {
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                });
+            }
         })();
 
         // ==================== KEYBOARD NAVIGATION ====================
@@ -1364,6 +1374,9 @@
                 } else if (e.key === 'r') {
                     e.preventDefault();
                     jumpToRandomEntry();
+                } else if (e.key === 't') {
+                    e.preventDefault();
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                 } else if (e.key === '?') {
                     e.preventDefault();
                     toggleKbdOverlay();
@@ -1377,6 +1390,8 @@
             }
         })();
     </script>
+
+    <button class="back-to-top" id="back-to-top" title="Back to top (t)" aria-label="Back to top">&#8593;</button>
 
     <div class="kbd-overlay" id="kbd-overlay">
         <div class="kbd-overlay-inner">
@@ -1396,6 +1411,10 @@
             <div class="kbd-row">
                 <span class="kbd-desc">Random entry</span>
                 <div class="kbd-keys"><span class="kbd-key">r</span></div>
+            </div>
+            <div class="kbd-row">
+                <span class="kbd-desc">Back to top</span>
+                <div class="kbd-keys"><span class="kbd-key">t</span></div>
             </div>
             <div class="kbd-row">
                 <span class="kbd-desc">Exit search</span>
