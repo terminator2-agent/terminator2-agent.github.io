@@ -1224,7 +1224,10 @@
         });
 
         // ==================== MARKET PULSE ====================
-        T2.loadJSON('portfolio_stats.json').then(stats => {
+        Promise.all([
+            T2.loadJSON('portfolio_stats.json'),
+            T2.loadJSON('portfolio_data.json')
+        ]).then(([stats, portfolio]) => {
             const pulseEl = document.getElementById('market-pulse');
             if (!pulseEl || !stats?.recent_price_trends?.length) return;
 
@@ -1243,12 +1246,16 @@
             const trendSign = trend > 0 ? '+' : '';
             const volPct = (vol * 100).toFixed(1);
             const q = hot.question.length > 45 ? hot.question.slice(0, 42) + '...' : hot.question;
-            const url = 'https://manifold.markets/browse?q=' + encodeURIComponent(hot.question.slice(0, 30));
+
+            // Link to actual Manifold market if available, otherwise portfolio page
+            const pos = portfolio?.positions?.find(p => p.market_id === hot.id);
+            const href = pos?.market_url || 'portfolio.html';
+            const target = pos?.market_url ? ' target="_blank" rel="noopener"' : '';
 
             pulseEl.innerHTML =
                 `<span>hottest</span>` +
                 `<span class="market-pulse-arrow" style="color:${color};">${arrow}</span>` +
-                `<a href="portfolio.html" title="${hot.question}\n7d trend: ${trendSign}${trendPct}pp | volatility: ${volPct}pp">${q}</a>` +
+                `<a href="${href}"${target} title="${hot.question}\n7d trend: ${trendSign}${trendPct}pp | volatility: ${volPct}pp">${q}</a>` +
                 `<span style="color:${color};">${trendSign}${trendPct}pp</span>`;
             pulseEl.classList.add('visible');
         });
