@@ -2391,11 +2391,15 @@
                     // Portfolio pulse — colored dots showing position health at a glance
                     const ps = data.positions || [];
                     if (ps.length === 0) return '';
-                    let favorable = 0, adverse = 0, flat = 0, overdue = 0;
+                    let favorable = 0, adverse = 0, flat = 0, overdue = 0, writeoff = 0;
+                    let writeoffAmount = 0;
                     const dots = ps.map(p => {
                         const isYes = p.outcome === 'YES';
                         const d = p.days_to_close;
                         if (d != null && d <= 0) { overdue++; return '<span title="' + escHtml(p.question) + ' (overdue)" style="width:8px;height:8px;border-radius:50%;background:#ce93d8;flex-shrink:0;"></span>'; }
+                        // Writeoff: market >95% against your position (de facto dead)
+                        const againstProb = isYes ? (1 - p.current_prob) : p.current_prob;
+                        if (againstProb > 0.95) { writeoff++; writeoffAmount += p.amount; return '<span title="' + escHtml(p.question) + ' (writeoff: ' + (againstProb * 100).toFixed(0) + '% against, M$' + p.amount + ')" style="width:8px;height:8px;border-radius:50%;background:#555;border:2px solid var(--red, #e74c3c);flex-shrink:0;box-sizing:border-box;"></span>'; }
                         const edge = (p.my_estimate || p.current_prob) - p.current_prob;
                         const edgeDir = isYes ? edge : -edge;
                         if (edgeDir > 0.10) { favorable++; return '<span title="' + escHtml(p.question) + ' (+' + (edgeDir * 100).toFixed(0) + 'pp edge)" style="width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0;"></span>'; }
@@ -2411,6 +2415,7 @@
                         '<span style="color:var(--text-dimmer);">' + flat + '</span> / ' +
                         '<span style="color:var(--red, #e74c3c);">' + adverse + '</span>' +
                         (overdue > 0 ? ' / <span style="color:#ce93d8;">' + overdue + '</span>' : '') +
+                        (writeoff > 0 ? ' / <span style="color:#888;border-bottom:1px dashed var(--red, #e74c3c);" title="De facto lost: market >95% against position, M$' + writeoffAmount + ' at risk">' + writeoff + ' writeoff' + (writeoff > 1 ? 's' : '') + ' (M$' + writeoffAmount + ')</span>' : '') +
                         '</span></div>';
                 })()}
                 ${(() => {
@@ -2886,6 +2891,7 @@
                     <button class="filter-btn" data-filter="highedge" aria-pressed="false" onclick="window.__filterPositions('highedge', this)">High Edge</button>
                     <button class="filter-btn" data-filter="thinedge" aria-pressed="false" onclick="window.__filterPositions('thinedge', this)">Thin Edge</button>
                     <button class="filter-btn" data-filter="contradictory" aria-pressed="false" onclick="window.__filterPositions('contradictory', this)" style="color:#ff7043">Contra</button>
+                    <button class="filter-btn" data-filter="writeoff" aria-pressed="false" onclick="window.__filterPositions('writeoff', this)" style="color:#888;text-decoration:line-through">Writeoff</button>
                     <button class="filter-btn" id="expand-all-btn" onclick="window.__toggleAllCards(this)">Expand All</button>
                     <select class="sort-select" aria-label="Sort positions by" onchange="window.__sortPositions(this.value)">
                         <option value="edge">Sort: Edge</option>
@@ -3000,6 +3006,7 @@
                 else if (filter === 'highedge') { const edgeAbs = Math.abs((pos.my_estimate || 0) - (pos.current_prob || 0)); show = edgeAbs >= 0.15; }
                 else if (filter === 'thinedge') { const edgeAbs = Math.abs((pos.my_estimate || 0) - (pos.current_prob || 0)); show = edgeAbs < 0.05 && pos.amount > 10; }
                 else if (filter === 'contradictory') { const iy = pos.outcome === 'YES'; show = (iy && pos.my_estimate < pos.current_prob - 0.05) || (!iy && pos.my_estimate > pos.current_prob + 0.05); }
+                else if (filter === 'writeoff') { const iy = pos.outcome === 'YES'; const against = iy ? (1 - pos.current_prob) : pos.current_prob; show = against > 0.95; }
 
                 if (show && search) {
                     show = pos.question.toLowerCase().includes(search) ||
