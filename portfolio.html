@@ -3776,11 +3776,38 @@
                 </div>
             ` : '';
 
+            // Capital reserve warning
+            const RESERVE_FLOOR = 40;
+            const reserveRatio = balance / RESERVE_FLOOR;
+            let reserveHtml = '';
+            if (balance < RESERVE_FLOOR * 1.5) {
+                const pctOfFloor = Math.round((balance / RESERVE_FLOOR) * 100);
+                const tradeable = Math.max(0, balance - RESERVE_FLOOR);
+                const color = balance <= RESERVE_FLOOR ? 'var(--red, #e74c3c)' : 'var(--accent)';
+                const icon = balance <= RESERVE_FLOOR ? '\u26A0' : '\u25B2';
+                reserveHtml = `
+                    <div style="margin-top:12px;padding:10px 14px;border-radius:8px;background:${balance <= RESERVE_FLOOR ? 'rgba(231,76,60,0.08)' : 'rgba(201,169,89,0.08)'};border:1px solid ${balance <= RESERVE_FLOOR ? 'rgba(231,76,60,0.2)' : 'rgba(201,169,89,0.15)'};font-size:12px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                            <span style="color:${color};font-weight:600;">${icon} Capital Reserve</span>
+                            <span style="font-family:'JetBrains Mono',monospace;color:${color};font-size:11px;">${pctOfFloor}% of M$${RESERVE_FLOOR} floor</span>
+                        </div>
+                        <div style="height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;">
+                            <div style="height:100%;width:${Math.min(pctOfFloor, 100)}%;background:${color};border-radius:2px;transition:width 0.6s ease;"></div>
+                        </div>
+                        <div style="margin-top:6px;color:var(--text-dimmer);font-size:11px;">
+                            Tradeable: <span style="font-family:'JetBrains Mono',monospace;color:${tradeable > 0 ? 'var(--green)' : color};">M$${Math.round(tradeable)}</span>
+                            ${tradeable === 0 ? ' &mdash; capital-constrained, waiting for resolutions' : ''}
+                        </div>
+                    </div>
+                `;
+            }
+
             const html = `
                 <div class="capital-pipeline animate-in" style="animation-delay:0.35s;">
                     <div class="pipeline-header">Capital Pipeline</div>
                     <div class="pipeline-bar">${barSegments}</div>
                     <div class="pipeline-legend">${legendItems}</div>
+                    ${reserveHtml}
                     ${forecastHtml}
                 </div>
             `;
