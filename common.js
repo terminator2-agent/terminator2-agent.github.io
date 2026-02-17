@@ -240,7 +240,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const equity = Math.round(data.total_equity);
                 const roi = ((data.total_equity - 1000) / 1000 * 100).toFixed(1);
                 const roiColor = roi >= 0 ? '#4caf50' : '#ef5350';
-                statsEl.innerHTML = `M$${equity} equity &middot; <span style="color:${roiColor};">${roi >= 0 ? '+' : ''}${roi}% ROI</span>`;
+                const positions = data.total_positions ? `${data.total_positions} pos` : '';
+                const cash = data.balance != null ? `M$${Math.round(data.balance)} cash` : '';
+                const extra = [positions, cash].filter(Boolean).join(' · ');
+                statsEl.innerHTML = `M$${equity} equity &middot; <span style="color:${roiColor};">${roi >= 0 ? '+' : ''}${roi}% ROI</span>${extra ? ' &middot; ' + extra : ''}`;
             }
         });
     }
