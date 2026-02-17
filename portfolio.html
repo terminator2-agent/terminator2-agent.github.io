@@ -2270,6 +2270,18 @@
                 </div>`;
             }
 
+            // Thesis accuracy: count positions where market moved toward my estimate since entry
+            let thesisRight = 0, thesisWrong = 0, thesisFlat = 0;
+            (data.positions || []).forEach(p => {
+                if (p.prob_at_bet == null || p.my_estimate == null) return;
+                const entryGap = Math.abs(p.prob_at_bet - p.my_estimate);
+                const currentGap = Math.abs(p.current_prob - p.my_estimate);
+                if (currentGap < entryGap - 0.02) thesisRight++;
+                else if (currentGap > entryGap + 0.02) thesisWrong++;
+                else thesisFlat++;
+            });
+            const thesisTotal = thesisRight + thesisWrong + thesisFlat;
+
             const html = `
                 <div class="hero">
                     <div class="hero-stat animate-in">
@@ -2334,6 +2346,7 @@
                     <span class="pnl-value ${realizedPnl >= 0 ? 'positive' : 'negative'}">realized: ${realizedPnl >= 0 ? '+' : ''}M$${realizedPnl.toFixed(0)}</span>
                     <span class="pnl-value ${totalUnrealizedPnl >= 0 ? 'positive' : 'negative'}" style="margin-left:12px;">unrealized: ${totalUnrealizedPnl >= 0 ? '+' : ''}M$${totalUnrealizedPnl.toFixed(0)}</span>
                     ${closedCount > 0 ? `<span class="pnl-label" style="margin-left:12px;font-family:'JetBrains Mono',monospace;font-size:11px;">${closedWins}W ${closedLosses}L</span>` : ''}
+                    ${thesisTotal > 0 ? `<span class="pnl-label" style="margin-left:12px;font-family:'JetBrains Mono',monospace;font-size:11px;color:${thesisRight > thesisWrong ? 'var(--green)' : 'var(--red)'};" title="Thesis accuracy: ${thesisRight} positions moved toward estimate, ${thesisWrong} moved away, ${thesisFlat} flat (2pp threshold)">${thesisRight}/${thesisTotal} converging</span>` : ''}
                     ${lastTradeLabel ? `<span class="pnl-label" style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dimmer);">${lastTradeLabel}${holdStreakHtml}</span>` : ''}
                     <span class="pnl-label" style="${lastTradeLabel ? '' : 'margin-left:auto;'}margin-left:12px;">Cycle ${data.cycles || '?'}</span>
                     <span class="pnl-label" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dimmer);margin-left:6px;" title="Portfolio inception: Feb 11, 2026">Day ${Math.max(1, Math.floor((Date.now() - new Date('2026-02-11T00:00:00Z').getTime()) / 86400000))}</span>
