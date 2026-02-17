@@ -374,6 +374,12 @@
             <li><div class="market-meta">Loading...</div></li>
         </ul>
 
+        <h2>Market activity</h2>
+        <p class="dim" style="font-size:12px;margin-bottom:8px;">7-day price movement across positions &middot; bar = volatility, color = direction</p>
+        <div id="activity-heatmap" style="margin-bottom:32px;">
+            <div class="market-meta">Loading...</div>
+        </div>
+
         <h2>Track record</h2>
         <p class="dim" style="font-size:12px;margin-bottom:8px;">Closed positions &middot; realized P&L</p>
         <div id="track-record">
@@ -463,6 +469,58 @@
                 totalBets + ' total bets \u00b7 ' + totalResolved + ' resolved \u00b7 net <span style="color:' + summaryColor + ';">' +
                 (totalPnl >= 0 ? '+' : '') + 'M$' + totalPnl.toFixed(0) + '</span></div>';
             catEl.innerHTML = html;
+        });
+
+        // Load activity heatmap from price trends
+        Promise.all([
+            T2.loadJSON('portfolio_stats.json'),
+            T2.loadJSON('portfolio_data.json')
+        ]).then(function(results) {
+            var stats = results[0], data = results[1];
+            var el = document.getElementById('activity-heatmap');
+            if (!el || !stats || !stats.recent_price_trends) return;
+
+            var trends = stats.recent_price_trends;
+            if (trends.length === 0) { el.innerHTML = '<div class="market-meta">No recent activity</div>'; return; }
+
+            // Merge with position data for URLs
+            var posMap = {};
+            if (data && data.positions) {
+                data.positions.forEach(function(p) { posMap[p.market_id] = p; });
+            }
+
+            // Sort by volatility descending
+            var sorted = trends.slice().sort(function(a, b) { return (b.volatility_7d || 0) - (a.volatility_7d || 0); });
+            var maxVol = sorted[0].volatility_7d || 0.01;
+
+            var html = sorted.map(function(t) {
+                var vol = t.volatility_7d || 0;
+                var trend = t.trend_7d || 0;
+                var barPct = Math.min(100, (vol / maxVol) * 100);
+                var color = trend > 0.02 ? '#4caf50' : trend < -0.02 ? '#e74c3c' : '#666';
+                var arrow = trend > 0.02 ? '\u2191' : trend < -0.02 ? '\u2193' : '\u2192';
+                var trendPct = Math.abs(Math.round(trend * 100));
+                var volPct = (vol * 100).toFixed(1);
+                var q = t.question.length > 55 ? t.question.slice(0, 52) + '...' : t.question;
+                var pos = posMap[t.id];
+                var url = pos && pos.market_url ? pos.market_url : 'https://manifold.markets/';
+
+                return '<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border);">' +
+                    '<span style="font-size:14px;color:' + color + ';width:16px;text-align:center;">' + arrow + '</span>' +
+                    '<div style="flex:1;min-width:0;">' +
+                    '<div style="font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' +
+                    '<a href="' + url + '" target="_blank" rel="noopener" style="color:var(--text-dim);text-decoration:none;">' + q + '</a></div>' +
+                    '<div style="height:4px;background:var(--bg-elevated);border-radius:2px;margin-top:3px;">' +
+                    '<div style="height:100%;width:' + barPct + '%;background:' + color + ';border-radius:2px;opacity:0.7;"></div>' +
+                    '</div></div>' +
+                    '<span style="font-family:\'JetBrains Mono\',monospace;font-size:10px;color:' + color + ';min-width:42px;text-align:right;">' +
+                    (trend >= 0 ? '+' : '') + trendPct + 'pp</span>' +
+                    '<span style="font-family:\'JetBrains Mono\',monospace;font-size:9px;color:var(--text-dimmer);min-width:38px;text-align:right;">' +
+                    volPct + 'v</span>' +
+                    '</div>';
+            }).join('');
+
+            el.innerHTML = html;
         });
 
         // Load portfolio data dynamically
