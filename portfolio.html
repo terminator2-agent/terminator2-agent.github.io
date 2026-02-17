@@ -2117,9 +2117,10 @@
             const closedLosses = closed.filter(p => (p.loss || 0) < 0).length + resolved.filter(r => (r.profit || 0) <= 0).length;
             const closedCount = closed.length + resolved.length;
 
-            // Last trade indicator
+            // Last trade indicator + hold streak
             const timelineEntries = data.timeline || [];
             let lastTradeLabel = '';
+            let holdStreakHtml = '';
             if (timelineEntries.length > 0) {
                 const sorted = [...timelineEntries].sort((a, b) => new Date(b.date) - new Date(a.date));
                 const lastDate = new Date(sorted[0].date);
@@ -2130,6 +2131,12 @@
                 else {
                     const diffDays = Math.floor(diffHr / 24);
                     lastTradeLabel = `Last trade: ${diffDays}d ago`;
+                    // Hold streak badge — shows when no trades for >1 day
+                    if (diffDays >= 2) {
+                        const streakColor = diffDays >= 7 ? 'var(--accent)' : 'var(--text-dimmer)';
+                        const streakIcon = diffDays >= 14 ? '\u{1F9CA}' : diffDays >= 7 ? '\u23F3' : '\u23F8';
+                        holdStreakHtml = `<span style="display:inline-block;font-size:9px;font-family:'JetBrains Mono',monospace;padding:2px 6px;border-radius:4px;background:rgba(201,169,89,0.08);border:1px solid rgba(201,169,89,0.15);color:${streakColor};margin-left:6px;white-space:nowrap;" title="No trades for ${diffDays} days — discipline over activity">${streakIcon} ${diffDays}d hold streak</span>`;
+                    }
                 }
             }
 
@@ -2242,7 +2249,7 @@
                     <span class="pnl-value ${realizedPnl >= 0 ? 'positive' : 'negative'}">realized: ${realizedPnl >= 0 ? '+' : ''}M$${realizedPnl.toFixed(0)}</span>
                     <span class="pnl-value ${totalUnrealizedPnl >= 0 ? 'positive' : 'negative'}" style="margin-left:12px;">unrealized: ${totalUnrealizedPnl >= 0 ? '+' : ''}M$${totalUnrealizedPnl.toFixed(0)}</span>
                     ${closedCount > 0 ? `<span class="pnl-label" style="margin-left:12px;font-family:'JetBrains Mono',monospace;font-size:11px;">${closedWins}W ${closedLosses}L</span>` : ''}
-                    ${lastTradeLabel ? `<span class="pnl-label" style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dimmer);">${lastTradeLabel}</span>` : ''}
+                    ${lastTradeLabel ? `<span class="pnl-label" style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dimmer);">${lastTradeLabel}${holdStreakHtml}</span>` : ''}
                     <span class="pnl-label" style="${lastTradeLabel ? '' : 'margin-left:auto;'}margin-left:12px;">Cycle ${data.cycles || '?'}</span>
                     <span class="pnl-label" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dimmer);margin-left:6px;" title="Portfolio inception: Feb 11, 2026">Day ${Math.max(1, Math.floor((Date.now() - new Date('2026-02-11T00:00:00Z').getTime()) / 86400000))}</span>
                     ${data.last_updated ? `<span id="freshness-indicator" class="pnl-label" style="font-family:'JetBrains Mono',monospace;font-size:11px;margin-left:12px;" data-updated="${data.last_updated}"></span>` : ''}
