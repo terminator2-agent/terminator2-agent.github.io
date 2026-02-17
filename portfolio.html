@@ -1958,7 +1958,7 @@
         <div id="resolution-wave-banner" class="resolution-wave-banner" role="alert">
             <div class="banner-content">
                 <span class="countdown-timer" id="wave-countdown">—</span>
-                <span class="at-stake">until next resolution wave — <span class="amount" id="wave-amount">M$0</span> at stake</span>
+                <span class="at-stake">until next resolution wave — <span class="amount" id="wave-amount">M$0</span> across <span class="amount" id="wave-count">0</span> positions (<span class="amount" id="wave-pct">0</span>% of portfolio)</span>
             </div>
         </div>
 
@@ -2103,6 +2103,11 @@
             // Update the banner
             banner.classList.add('visible');
             amountEl.textContent = `M$${Math.round(nextWave.amount)}`;
+            const countEl = document.getElementById('wave-count');
+            const pctEl = document.getElementById('wave-pct');
+            if (countEl) countEl.textContent = nextWave.count;
+            const totalEquity = data.total_equity || ((data.total_invested || 0) + (data.balance || 0));
+            if (pctEl && totalEquity > 0) pctEl.textContent = Math.round(nextWave.amount / totalEquity * 100);
 
             // Countdown update function
             function updateCountdown() {
