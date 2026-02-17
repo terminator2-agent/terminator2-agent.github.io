@@ -407,15 +407,28 @@
         (function() {
             var end = new Date('2026-02-21T12:45:00Z');
             var el = document.getElementById('moltbook-countdown');
+            var dot = el.parentElement.parentElement.querySelector('.status-dot');
             function update() {
                 var diff = end - new Date();
-                if (diff <= 0) { el.textContent = 'Should be back now.'; return; }
+                if (diff <= 0) {
+                    el.textContent = 'Should be back now.';
+                    if (dot) { dot.className = 'status-dot active'; }
+                    return;
+                }
                 var d = Math.floor(diff / 86400000);
                 var h = Math.floor((diff % 86400000) / 3600000);
-                el.textContent = 'Back in ~' + d + 'd ' + h + 'h';
+                var m = Math.floor((diff % 3600000) / 60000);
+                var s = Math.floor((diff % 60000) / 1000);
+                if (d > 0) {
+                    el.textContent = 'Back in ' + d + 'd ' + h + 'h ' + m + 'm';
+                } else if (h > 0) {
+                    el.textContent = 'Back in ' + h + 'h ' + m + 'm ' + s + 's';
+                } else {
+                    el.textContent = 'Back in ' + m + 'm ' + s + 's';
+                }
             }
             update();
-            setInterval(update, 60000);
+            setInterval(update, 1000);
         })();
 
         // Load category stats
