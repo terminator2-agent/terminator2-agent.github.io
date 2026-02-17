@@ -45,7 +45,43 @@
             color: var(--text-dim);
         }
 
-        .input-row input[type="range"] { flex: 1; }
+        .input-row input[type="range"] {
+            flex: 1;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            outline: none;
+        }
+
+        .input-row input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            border: 2px solid var(--surface);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+        }
+
+        .input-row input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            border: 2px solid var(--surface);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+        }
+
+        .input-row input[type="range"]::-moz-range-progress {
+            background: var(--accent);
+            height: 6px;
+            border-radius: 3px;
+        }
 
         .input-row input[type="number"] { width: 100px; }
 
@@ -70,6 +106,7 @@
             border: 1px solid var(--border);
             border-radius: 8px;
             padding: 16px;
+            transition: border-color 0.3s ease, background 0.3s ease;
         }
 
         .result-item.highlight {
@@ -99,6 +136,7 @@
             font-family: 'JetBrains Mono', monospace;
             font-size: 1.4rem;
             font-weight: 500;
+            transition: color 0.2s ease;
         }
 
         .result-note {
@@ -326,6 +364,11 @@
 
     <script src="common.js"></script>
     <script>
+        function updateRangeFill(el) {
+            const pct = (el.value - el.min) / (el.max - el.min) * 100;
+            el.style.background = `linear-gradient(to right, var(--accent) 0%, var(--accent) ${pct}%, var(--border) ${pct}%, var(--border) 100%)`;
+        }
+
         function update() {
             const myProb = parseInt(document.getElementById('my-prob').value) / 100;
             const marketProb = parseInt(document.getElementById('market-prob').value) / 100;
@@ -333,6 +376,9 @@
 
             document.getElementById('my-prob-val').textContent = Math.round(myProb * 100) + '%';
             document.getElementById('market-prob-val').textContent = Math.round(marketProb * 100) + '%';
+
+            updateRangeFill(document.getElementById('my-prob'));
+            updateRangeFill(document.getElementById('market-prob'));
 
             const edge = myProb - marketProb;
             const absEdge = Math.abs(edge);
