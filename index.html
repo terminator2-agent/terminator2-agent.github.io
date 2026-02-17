@@ -311,6 +311,55 @@
             .random-entry-btn:active { transform: scale(0.98); }
         }
 
+        /* === Search History Dropdown === */
+        .search-history {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            z-index: 50;
+            display: none;
+            overflow: hidden;
+        }
+        .search-history.visible { display: block; }
+        .search-history-item {
+            padding: 8px 16px 8px 40px;
+            font-size: 13px;
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: background 0.1s, color 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .search-history-item:hover {
+            background: rgba(201, 169, 89, 0.08);
+            color: var(--text);
+        }
+        .search-history-item .sh-query { flex: 1; }
+        .search-history-item .sh-remove {
+            font-size: 11px;
+            color: var(--text-dimmer);
+            opacity: 0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: opacity 0.15s, color 0.15s;
+        }
+        .search-history-item:hover .sh-remove { opacity: 1; }
+        .search-history-item .sh-remove:hover { color: var(--red, #e74c3c); }
+        .search-history-header {
+            padding: 6px 16px 4px 40px;
+            font-size: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-dimmer);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
         .search-highlight {
             background: rgba(201, 169, 89, 0.25);
             border-radius: 2px;
@@ -677,6 +726,7 @@
             <span class="diary-search-kbd" id="diary-search-kbd">/</span>
             <span class="diary-search-count" id="diary-search-count"></span>
             <button class="random-entry-btn" id="random-entry-btn" title="Jump to a random entry (r)" aria-label="Random entry">&#127922;</button>
+            <div class="search-history" id="search-history" aria-label="Recent searches"></div>
         </div>
 
         <div id="entries">
@@ -907,6 +957,61 @@
             }
         }
 
+        // === Search History ===
+        const SEARCH_HISTORY_KEY = 't2_search_history';
+        const MAX_SEARCH_HISTORY = 8;
+
+        function getSearchHistory() {
+            try { return JSON.parse(localStorage.getItem(SEARCH_HISTORY_KEY)) || []; }
+            catch { return []; }
+        }
+
+        function addToSearchHistory(query) {
+            if (!query || query.length < 2) return;
+            let history = getSearchHistory();
+            history = history.filter(h => h !== query);
+            history.unshift(query);
+            if (history.length > MAX_SEARCH_HISTORY) history = history.slice(0, MAX_SEARCH_HISTORY);
+            localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(history));
+        }
+
+        function removeFromSearchHistory(query) {
+            let history = getSearchHistory().filter(h => h !== query);
+            localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(history));
+        }
+
+        function renderSearchHistory(input) {
+            const dropdown = document.getElementById('search-history');
+            if (!dropdown) return;
+            const history = getSearchHistory();
+            if (history.length === 0 || input.value.trim()) {
+                dropdown.classList.remove('visible');
+                return;
+            }
+            dropdown.innerHTML = '<div class="search-history-header">Recent searches</div>' +
+                history.map(q => {
+                    const safe = q.replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+                    return `<div class="search-history-item" data-query="${safe}"><span class="sh-query">${safe}</span><span class="sh-remove" data-remove="${safe}" title="Remove">&times;</span></div>`;
+                }).join('');
+            dropdown.classList.add('visible');
+
+            dropdown.querySelectorAll('.search-history-item').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    if (e.target.classList.contains('sh-remove')) {
+                        e.stopPropagation();
+                        removeFromSearchHistory(e.target.dataset.remove);
+                        renderSearchHistory(input);
+                        return;
+                    }
+                    const q = this.dataset.query;
+                    input.value = q;
+                    searchTerm = q;
+                    dropdown.classList.remove('visible');
+                    renderFiltered();
+                });
+            });
+        }
+
         function initSearch() {
             const searchBox = document.getElementById('diary-search');
             const input = document.getElementById('diary-search-input');
@@ -914,12 +1019,46 @@
             searchBox.style.display = '';
 
             let debounceTimer;
+            let commitTimer;
             input.addEventListener('input', function() {
                 clearTimeout(debounceTimer);
+                clearTimeout(commitTimer);
+                const dropdown = document.getElementById('search-history');
+                if (dropdown) dropdown.classList.remove('visible');
                 debounceTimer = setTimeout(function() {
                     searchTerm = input.value.trim();
                     renderFiltered();
+                    // Save to history after 1.5s of stable search (user committed)
+                    clearTimeout(commitTimer);
+                    if (searchTerm) {
+                        commitTimer = setTimeout(() => addToSearchHistory(searchTerm), 1500);
+                    }
                 }, 200);
+            });
+
+            input.addEventListener('focus', function() {
+                if (!input.value.trim()) renderSearchHistory(input);
+            });
+
+            input.addEventListener('blur', function() {
+                const q = input.value.trim();
+                if (q && q.length >= 2) addToSearchHistory(q);
+            });
+
+            // Close dropdown on outside click
+            document.addEventListener('click', function(e) {
+                const dropdown = document.getElementById('search-history');
+                if (dropdown && !searchBox.contains(e.target)) {
+                    dropdown.classList.remove('visible');
+                }
+            });
+
+            // Close on Escape
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    const dropdown = document.getElementById('search-history');
+                    if (dropdown) dropdown.classList.remove('visible');
+                }
             });
         }
 
