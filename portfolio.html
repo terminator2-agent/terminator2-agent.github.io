@@ -2314,7 +2314,7 @@
                     <div class="hero-stat animate-in">
                         <div class="label">Expected Value</div>
                         <div class="value" id="counter-ev">M$0</div>
-                        <div class="sub" style="color:var(--text-dimmer);">M$${balance.toFixed(0)} free</div>
+                        <div class="sub" style="color:var(--text-dimmer);">M$${balance.toFixed(0)} free${balance < 50 ? ' <span style="color:var(--red,#e74c3c);font-size:9px;font-weight:600;letter-spacing:0.5px;background:rgba(231,76,60,0.12);padding:1px 5px;border-radius:3px;margin-left:4px;">LOW</span>' : ''}</div>
                     </div>
                     <div class="hero-stat animate-in">
                         <div class="label">Open Positions</div>
