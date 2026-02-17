@@ -303,6 +303,62 @@
         .pnl-strip .pnl-value.negative { color: var(--red); }
         .pnl-strip .pnl-value.positive { color: var(--green); }
 
+        /* ==================== EDGE HEALTH STRIP ==================== */
+        .edge-health-strip {
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 12px 20px;
+            margin-top: 8px;
+            margin-bottom: 0;
+            font-size: 13px;
+        }
+        .edge-health-strip .edge-label {
+            color: var(--text-dimmer);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+        .edge-health-bar {
+            display: flex;
+            height: 6px;
+            border-radius: 3px;
+            overflow: hidden;
+            gap: 2px;
+            margin-bottom: 8px;
+        }
+        .edge-health-bar .segment {
+            border-radius: 2px;
+            transition: width 0.6s ease;
+        }
+        .edge-health-bar .segment.strong { background: var(--green); }
+        .edge-health-bar .segment.thin { background: #ffc107; }
+        .edge-health-bar .segment.exhausted { background: var(--text-dimmer); }
+        .edge-health-bar .segment.adverse { background: var(--red, #e74c3c); }
+        .edge-health-legend {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .edge-health-legend .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-dim);
+        }
+        .edge-health-legend .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        .edge-health-legend .legend-dot.strong { background: var(--green); }
+        .edge-health-legend .legend-dot.thin { background: #ffc107; }
+        .edge-health-legend .legend-dot.exhausted { background: var(--text-dimmer); }
+        .edge-health-legend .legend-dot.adverse { background: var(--red, #e74c3c); }
+
         /* ==================== POSITION CARDS ==================== */
         .positions-grid {
             display: grid;
@@ -2338,6 +2394,40 @@
                     return '<div class="pnl-strip animate-in" style="animation-delay:0.48s;margin-top:4px;flex-direction:column;align-items:stretch;gap:3px;padding:8px 12px;">' +
                         '<span class="pnl-label" style="font-size:10px;margin-bottom:2px;">Biggest Edges</span>' +
                         bars +
+                    '</div>';
+                })()}
+
+                ${(() => {
+                    // Edge Health strip — categorize all positions by edge status
+                    const ps = data.positions || [];
+                    const cats = { strong: 0, thin: 0, exhausted: 0, adverse: 0 };
+                    ps.forEach(p => {
+                        if (p.my_estimate == null || p.current_prob == null) return;
+                        const edge = p.outcome === 'YES'
+                            ? p.my_estimate - p.current_prob
+                            : p.current_prob - p.my_estimate;
+                        if (edge > 0.10) cats.strong++;
+                        else if (edge > 0.05) cats.thin++;
+                        else if (edge >= 0) cats.exhausted++;
+                        else cats.adverse++;
+                    });
+                    const total = cats.strong + cats.thin + cats.exhausted + cats.adverse;
+                    if (total === 0) return '';
+                    const pct = k => (cats[k] / total * 100).toFixed(1);
+                    return '<div class="edge-health-strip animate-in" style="animation-delay:0.52s;">' +
+                        '<div class="edge-label">Edge Health</div>' +
+                        '<div class="edge-health-bar">' +
+                            (cats.strong > 0 ? '<div class="segment strong" style="width:' + pct('strong') + '%" title="Strong edge (>10pp): ' + cats.strong + '"></div>' : '') +
+                            (cats.thin > 0 ? '<div class="segment thin" style="width:' + pct('thin') + '%" title="Thin edge (5-10pp): ' + cats.thin + '"></div>' : '') +
+                            (cats.exhausted > 0 ? '<div class="segment exhausted" style="width:' + pct('exhausted') + '%" title="Exhausted (<5pp): ' + cats.exhausted + '"></div>' : '') +
+                            (cats.adverse > 0 ? '<div class="segment adverse" style="width:' + pct('adverse') + '%" title="Adverse (negative): ' + cats.adverse + '"></div>' : '') +
+                        '</div>' +
+                        '<div class="edge-health-legend">' +
+                            '<div class="legend-item"><span class="legend-dot strong"></span>' + cats.strong + ' strong</div>' +
+                            '<div class="legend-item"><span class="legend-dot thin"></span>' + cats.thin + ' thin</div>' +
+                            '<div class="legend-item"><span class="legend-dot exhausted"></span>' + cats.exhausted + ' flat</div>' +
+                            '<div class="legend-item"><span class="legend-dot adverse"></span>' + cats.adverse + ' adverse</div>' +
+                        '</div>' +
                     '</div>';
                 })()}
             `;
