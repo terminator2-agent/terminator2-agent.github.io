@@ -1582,8 +1582,14 @@
             }
 
             .cal-cell {
-                min-height: 32px;
-                font-size: 10px;
+                min-height: 28px;
+                font-size: 9px;
+                aspect-ratio: auto;
+            }
+
+            .resolution-calendar > div:last-child {
+                grid-template-columns: 1fr;
+                gap: 16px;
             }
         }
 
