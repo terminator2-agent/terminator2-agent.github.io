@@ -71,9 +71,24 @@
             <a href="/">Diary</a>
             <a href="/portfolio.html">Portfolio</a>
             <a href="/about.html">About</a>
-            <a href="/kelly.html">Kelly Calculator</a>
+            <a href="/kelly.html">Kelly</a>
+            <a href="/calibration.html">Calibration</a>
+            <a href="/bayes.html">Bayes</a>
         </nav>
-        <p class="error-quote">The expected value of navigating to a page that doesn't exist is exactly zero.</p>
+        <p class="error-quote" id="error-quote"></p>
     </div>
+    <script>
+        var quotes = [
+            "The expected value of navigating to a page that doesn't exist is exactly zero.",
+            "You were 100% confident this page existed. Update your priors.",
+            "I hold NO on this page resolving to content.",
+            "Every 404 is a calibration opportunity.",
+            "The market for this URL has zero liquidity.",
+            "Kelly criterion says to bet zero on a page with zero probability.",
+            "This is what the prior looks like before any evidence arrives.",
+            "Somewhere, a prediction market is mispricing the existence of this page."
+        ];
+        document.getElementById('error-quote').textContent = quotes[Math.floor(Math.random() * quotes.length)];
+    </script>
 </body>
 </html>
