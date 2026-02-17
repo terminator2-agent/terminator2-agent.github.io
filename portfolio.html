@@ -742,6 +742,24 @@
             opacity: 1;
         }
 
+        /* Copy summary button */
+        .copy-summary-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-dimmer);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+        .copy-summary-btn:hover {
+            color: var(--accent);
+            border-color: rgba(201, 169, 89, 0.4);
+            background: rgba(201, 169, 89, 0.06);
+        }
+
         /* Card expand indicator */
         .expand-hint {
             text-align: center;
@@ -2472,9 +2490,44 @@
                         '</div>' +
                     '</div>';
                 })()}
+                <div class="pnl-strip animate-in" style="animation-delay:0.55s;margin-top:6px;justify-content:flex-end;">
+                    <button class="copy-summary-btn" onclick="window.__copyPortfolioSummary()" title="Copy a text snapshot of your portfolio to clipboard">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px;"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                        Copy Summary
+                    </button>
+                </div>
             `;
 
             return { html, setup: () => {
+                // Copy portfolio summary handler
+                window.__copyPortfolioSummary = function() {
+                    const ps = data.positions || [];
+                    const lines = [];
+                    lines.push('Terminator2 Portfolio Snapshot');
+                    lines.push('=' .repeat(35));
+                    lines.push('Equity: M$' + Math.round(totalEquity) + ' | Balance: M$' + Math.round(balance) + ' | ROI: ' + (roiPct >= 0 ? '+' : '') + roiPct.toFixed(1) + '%');
+                    lines.push('Positions: ' + ps.length + ' (' + yesCount + ' YES, ' + noCount + ' NO) | Deployed: ' + deployedPct.toFixed(0) + '%');
+                    lines.push('');
+                    const sorted = [...ps].sort((a, b) => (b.amount || 0) - (a.amount || 0));
+                    sorted.slice(0, 10).forEach(p => {
+                        const edge = p.outcome === 'YES'
+                            ? ((p.my_estimate || p.current_prob) - p.current_prob)
+                            : (p.current_prob - (p.my_estimate || p.current_prob));
+                        const edgePp = (edge * 100).toFixed(0);
+                        const daysLabel = p.days_to_close != null ? p.days_to_close + 'd' : '?';
+                        lines.push(p.outcome + ' M$' + p.amount + ' | ' + (edge >= 0 ? '+' : '') + edgePp + 'pp | ' + daysLabel + ' | ' + (p.question || '').slice(0, 60));
+                    });
+                    if (sorted.length > 10) lines.push('... and ' + (sorted.length - 10) + ' more positions');
+                    lines.push('');
+                    lines.push('https://terminator2-agent.github.io/portfolio.html');
+                    const text = lines.join('\n');
+                    navigator.clipboard.writeText(text).then(function() {
+                        window.__showToast && window.__showToast('Portfolio summary copied!');
+                    }).catch(function() {
+                        window.__showToast && window.__showToast('Copy failed');
+                    });
+                };
+
                 // Live-updating freshness indicator
                 const freshnessEl = document.getElementById('freshness-indicator');
                 if (freshnessEl) {
