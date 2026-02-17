@@ -3272,7 +3272,8 @@
                     amount: p.amount,
                     mkt: p.current_prob,
                     est: p.my_estimate,
-                    url: p.market_url || null
+                    url: p.market_url || null,
+                    daysToClose: p.days_to_close
                 }))
                 .sort((a, b) => Math.abs(b.edge) - Math.abs(a.edge));
 
@@ -3296,6 +3297,15 @@
                 const badgeClass = isYes ? 'yes' : 'no';
                 const amountLabel = item.amount ? `M$${item.amount}` : '';
 
+                // Days-to-close label with urgency coloring
+                let dtcHtml = '';
+                if (item.daysToClose != null && item.daysToClose < 365) {
+                    const dtc = item.daysToClose;
+                    const dtcColor = dtc <= 7 ? 'var(--red, #e74c3c)' : dtc <= 30 ? '#ffc107' : 'var(--text-dimmer)';
+                    const dtcLabel = dtc <= 0 ? 'past' : dtc === 1 ? '1d' : `${dtc}d`;
+                    dtcHtml = `<span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:${dtcColor};min-width:28px;text-align:right;white-space:nowrap;" title="${dtc} days to close">${dtcLabel}</span>`;
+                }
+
                 rowsHtml += `
                     <div class="edge-row stagger-in" style="animation-delay:${0.03 * i}s;">
                         <span class="edge-outcome-badge ${badgeClass}">${item.outcome}</span>
@@ -3306,6 +3316,7 @@
                         </div>
                         <div class="edge-value ${isPositive ? 'positive' : 'negative'}">${sign}${absPct.toFixed(0)}%</div>
                         <div class="edge-amount">${amountLabel}</div>
+                        ${dtcHtml}
                     </div>
                 `;
             });
