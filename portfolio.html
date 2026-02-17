@@ -2901,7 +2901,7 @@
                     </select>
                 </div>
                 <div class="filter-count" id="filter-count" style="display:none;font-size:12px;color:var(--text-dimmer);margin-bottom:8px;"></div>
-                <div class="kbd-help" style="font-size:10px;color:var(--text-dimmer);margin-bottom:12px;font-family:'JetBrains Mono',monospace;opacity:0.5;">j/k navigate &middot; enter/space toggle &middot; g/G top/bottom &middot; t scroll top &middot; esc collapse all</div>
+                <div class="kbd-help" style="font-size:10px;color:var(--text-dimmer);margin-bottom:12px;font-family:'JetBrains Mono',monospace;opacity:0.5;">j/k navigate &middot; enter/space toggle &middot; g/G top/bottom &middot; t scroll top &middot; 1-9 jump to section &middot; esc collapse all</div>
                 <div class="positions-grid" id="positions-grid">
                     ${cardsHtml}
                 </div>
@@ -4507,6 +4507,37 @@
                         ticking = false;
                     });
                     ticking = true;
+                }
+            });
+        })();
+
+        // Keyboard shortcuts for section navigation (1-9, 0 for 10th)
+        (function() {
+            const jumpBar = document.getElementById('section-jump-bar');
+            if (!jumpBar) return;
+            const pills = Array.from(jumpBar.querySelectorAll('.section-jump-pill'));
+            document.addEventListener('keydown', e => {
+                // Don't intercept if user is typing in an input/textarea/select
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+                if (e.ctrlKey || e.metaKey || e.altKey) return;
+                const key = e.key;
+                let idx = -1;
+                if (key >= '1' && key <= '9') idx = parseInt(key) - 1;
+                else if (key === '0') idx = 9;
+                if (idx >= 0 && idx < pills.length) {
+                    e.preventDefault();
+                    const targetId = pills[idx].getAttribute('href').slice(1);
+                    const target = document.getElementById(targetId);
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        pills[idx].classList.add('active');
+                    }
+                }
+            });
+            // Add subtle number hints to pills on hover
+            pills.forEach((pill, i) => {
+                if (i < 10) {
+                    pill.setAttribute('title', pill.textContent.trim() + ' (press ' + ((i + 1) % 10) + ')');
                 }
             });
         })();
