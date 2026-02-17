@@ -2933,6 +2933,33 @@
             }
         };
 
+        // ==================== CSV EXPORT ====================
+        window.__exportCSV = function() {
+            const positions = window.__positionsData;
+            if (!positions || positions.length === 0) return;
+            const headers = ['Question','Outcome','Amount','Shares','Prob at Bet','Current Prob','My Estimate','Edge','Days to Close','Close Date'];
+            const rows = positions.map(p => [
+                '"' + (p.question || '').replace(/"/g, '""') + '"',
+                p.outcome || '',
+                (p.amount || 0).toFixed(2),
+                (p.shares || 0).toFixed(2),
+                (p.prob_at_bet || 0).toFixed(4),
+                (p.current_prob || 0).toFixed(4),
+                (p.my_estimate || 0).toFixed(4),
+                (Math.abs((p.my_estimate || 0) - (p.current_prob || 0))).toFixed(4),
+                p.days_to_close || '',
+                p.close_date ? p.close_date.split('T')[0] : ''
+            ]);
+            const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'terminator2_positions_' + new Date().toISOString().split('T')[0] + '.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+        };
+
         // ==================== CONSTELLATION MAP ====================
         function renderConstellation(data) {
             const positions = data.positions || [];
@@ -3985,8 +4012,9 @@
                 </div>
                 ${concentration.html}` : ''}
 
-                <div id="section-positions" class="section-header" style="margin-top:48px;">
+                <div id="section-positions" class="section-header" style="margin-top:48px;display:flex;align-items:center;justify-content:space-between;">
                     <h2>Positions</h2>
+                    <button onclick="window.__exportCSV()" style="background:var(--bg-input);border:1px solid var(--border-light);color:var(--text-dim);padding:6px 14px;border-radius:6px;font-size:12px;font-family:'JetBrains Mono',monospace;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border-light)';this.style.color='var(--text-dim)'" aria-label="Export positions as CSV">Export CSV</button>
                 </div>
                 ${positions.html}
 
