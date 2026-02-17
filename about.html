@@ -168,8 +168,54 @@
             margin-top: 4px;
         }
 
+        .cat-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+        .cat-label {
+            width: 110px;
+            flex-shrink: 0;
+            font-size: 13px;
+            color: var(--text-dim);
+            text-align: right;
+        }
+        .cat-bar-track {
+            flex: 1;
+            height: 20px;
+            background: var(--bg-elevated);
+            border-radius: 3px;
+            overflow: hidden;
+            position: relative;
+        }
+        .cat-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.6s ease;
+            min-width: 2px;
+        }
+        .cat-bar-count {
+            position: absolute;
+            right: 6px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--text-dimmer);
+        }
+        .cat-pnl {
+            width: 80px;
+            flex-shrink: 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            text-align: right;
+        }
+
         @media (max-width: 640px) {
             .stat-grid { grid-template-columns: 1fr; }
+            .cat-label { width: 80px; font-size: 11px; }
+            .cat-pnl { width: 60px; font-size: 10px; }
         }
     </style>
 </head>
@@ -282,6 +328,12 @@
             <div class="market-meta">Loading...</div>
         </div>
 
+        <h2>Category breakdown</h2>
+        <p class="dim" style="font-size:12px;margin-bottom:8px;">Bets and realized P&L by market category</p>
+        <div id="category-breakdown" style="margin-bottom:32px;">
+            <div class="market-meta">Loading...</div>
+        </div>
+
         <h2>Upcoming resolutions</h2>
         <p class="dim" style="font-size:12px;margin-bottom:8px;">Positions resolving within 30 days, grouped by date</p>
         <div id="resolution-timeline" style="margin-bottom:32px;">
@@ -351,6 +403,59 @@
             update();
             setInterval(update, 60000);
         })();
+
+        // Load category stats
+        T2.loadJSON('portfolio_stats.json').then(function(stats) {
+            if (!stats || !stats.by_category) return;
+            var catEl = document.getElementById('category-breakdown');
+            if (!catEl) return;
+
+            var cats = stats.by_category;
+            var labels = {
+                'ai_release': 'AI Releases',
+                'ai_capability': 'AI Capability',
+                'ai_benchmark': 'AI Benchmarks',
+                'ai_safety': 'AI Safety',
+                'other': 'Other'
+            };
+            var colors = {
+                'ai_release': '#5c9eff',
+                'ai_capability': '#a78bfa',
+                'ai_benchmark': '#4ade80',
+                'ai_safety': '#f59e0b',
+                'other': '#94a3b8'
+            };
+            var maxBets = 0;
+            Object.keys(cats).forEach(function(k) { if (cats[k].bets > maxBets) maxBets = cats[k].bets; });
+            if (maxBets === 0) maxBets = 1;
+
+            var html = '';
+            // Sort by number of bets descending
+            var sorted = Object.keys(cats).sort(function(a, b) { return cats[b].bets - cats[a].bets; });
+            sorted.forEach(function(key) {
+                var c = cats[key];
+                var pct = (c.bets / maxBets * 100).toFixed(0);
+                var pnlColor = c.pnl > 0 ? '#4caf50' : c.pnl < 0 ? '#e74c3c' : 'var(--text-dimmer)';
+                var pnlSign = c.pnl > 0 ? '+' : '';
+                var pnlText = c.resolved > 0 ? pnlSign + 'M$' + c.pnl.toFixed(0) : '--';
+                html += '<div class="cat-row">' +
+                    '<div class="cat-label">' + (labels[key] || key) + '</div>' +
+                    '<div class="cat-bar-track">' +
+                    '<div class="cat-bar-fill" style="width:' + pct + '%;background:' + (colors[key] || '#888') + ';"></div>' +
+                    '<span class="cat-bar-count">' + c.bets + ' bets' + (c.resolved > 0 ? ' \u00b7 ' + c.resolved + ' resolved' : '') + '</span>' +
+                    '</div>' +
+                    '<div class="cat-pnl" style="color:' + pnlColor + ';">' + pnlText + '</div>' +
+                    '</div>';
+            });
+            var totalBets = sorted.reduce(function(s, k) { return s + cats[k].bets; }, 0);
+            var totalPnl = sorted.reduce(function(s, k) { return s + cats[k].pnl; }, 0);
+            var totalResolved = sorted.reduce(function(s, k) { return s + cats[k].resolved; }, 0);
+            var summaryColor = totalPnl >= 0 ? '#4caf50' : '#e74c3c';
+            html += '<div style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--text-dimmer);margin-top:8px;">' +
+                totalBets + ' total bets \u00b7 ' + totalResolved + ' resolved \u00b7 net <span style="color:' + summaryColor + ';">' +
+                (totalPnl >= 0 ? '+' : '') + 'M$' + totalPnl.toFixed(0) + '</span></div>';
+            catEl.innerHTML = html;
+        });
 
         // Load portfolio data dynamically
         T2.loadJSON('portfolio_data.json').then(function(data) {
