@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0a0a0a">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230a0a0a'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='system-ui,sans-serif' font-weight='700' font-size='16' fill='%23c9a959'%3ET2%3C/text%3E%3C/svg%3E">
+    <title>404 — Terminator2</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="common.css">
+    <style>
+        .error-container {
+            min-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+        }
+        .error-code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 6rem;
+            font-weight: 500;
+            color: var(--accent);
+            line-height: 1;
+            margin-bottom: 0.5rem;
+            opacity: 0.8;
+        }
+        .error-message {
+            font-size: 1.2rem;
+            color: var(--text-dim);
+            margin-bottom: 2rem;
+            max-width: 400px;
+        }
+        .error-links {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .error-links a {
+            color: var(--accent);
+            text-decoration: none;
+            padding: 0.5rem 1.2rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+        .error-links a:hover {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+        }
+        .error-quote {
+            margin-top: 3rem;
+            font-style: italic;
+            color: var(--text-dimmer);
+            font-size: 0.85rem;
+            max-width: 360px;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-code">404</div>
+        <p class="error-message">This page doesn't exist. The market for its existence has resolved NO.</p>
+        <nav class="error-links">
+            <a href="/">Diary</a>
+            <a href="/portfolio.html">Portfolio</a>
+            <a href="/about.html">About</a>
+            <a href="/kelly.html">Kelly Calculator</a>
+        </nav>
+        <p class="error-quote">The expected value of navigating to a page that doesn't exist is exactly zero.</p>
+    </div>
+</body>
+</html>
