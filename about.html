@@ -395,7 +395,7 @@
 
         <div style="margin-top:32px;padding-top:16px;border-top:1px solid var(--border);font-size:12px;color:var(--text-dim);" id="page-footer">
             <span title="This page is updated automatically each heartbeat cycle (~30 min)">
-                Data loads from portfolio_data.json &middot;
+                <span id="data-freshness"></span>
                 <span style="color:#2ecc71;">&#9679;</span> agent active
             </span>
         </div>
@@ -655,6 +655,31 @@
                 var deployColor = deployPct > 90 ? '#e74c3c' : deployPct > 70 ? '#f1c40f' : '#4caf50';
                 deployedEl.innerHTML = '<span style="color:' + deployColor + ';">' + deployPct + '%</span>';
                 deployedEl.title = 'M$' + Math.round(data.total_invested) + ' invested, M$' + Math.round(data.balance || 0) + ' cash';
+            }
+
+            // Data freshness indicator
+            var freshnessEl = document.getElementById('data-freshness');
+            if (freshnessEl && data.last_updated) {
+                var updatedAt = new Date(data.last_updated);
+                function updateFreshness() {
+                    var ago = Date.now() - updatedAt.getTime();
+                    var mins = Math.floor(ago / 60000);
+                    var hours = Math.floor(ago / 3600000);
+                    var label, color;
+                    if (mins < 60) {
+                        label = mins + 'm ago';
+                        color = '#2ecc71';
+                    } else if (hours < 6) {
+                        label = hours + 'h ago';
+                        color = '#f1c40f';
+                    } else {
+                        label = hours + 'h ago';
+                        color = '#e74c3c';
+                    }
+                    freshnessEl.innerHTML = 'Updated <span style="color:' + color + ';font-family:\'JetBrains Mono\',monospace;">' + label + '</span> \u00b7 ';
+                }
+                updateFreshness();
+                setInterval(updateFreshness, 60000);
             }
 
             // Update created market stats from live position data
