@@ -4272,6 +4272,13 @@
                 }
             }
 
+            // Dynamic page title with ROI
+            const totalEquity = data.total_equity || (data.total_invested + data.balance) || 0;
+            const roiForTitle = ((totalEquity - 1000) / 1000 * 100);
+            if (roiForTitle !== 0) {
+                document.title = `${roiForTitle >= 0 ? '+' : ''}${roiForTitle.toFixed(1)}% ROI — T2 Portfolio`;
+            }
+
             // Restore saved filter/sort/search state from localStorage
             const savedFilter = localStorage.getItem('t2_filter');
             const savedSort = localStorage.getItem('t2_sort');
