@@ -1981,6 +1981,8 @@
         </div>
 
         <div class="section-jump-bar" id="section-jump-bar" role="navigation" aria-label="Section navigation">
+            <a class="section-jump-pill" href="#section-calendar" data-section="calendar">Calendar</a>
+            <a class="section-jump-pill" href="#section-capital" data-section="capital">Capital</a>
             <a class="section-jump-pill" href="#section-positions" data-section="positions">Positions</a>
             <a class="section-jump-pill" href="#section-categories" data-section="categories">Categories</a>
             <a class="section-jump-pill" href="#section-concentration" data-section="concentration">Concentration</a>
@@ -1995,6 +1997,8 @@
         <div class="mobile-section-nav" id="mobile-section-nav" aria-label="Section navigation">
             <select id="mobile-section-select" onchange="if(this.value){document.getElementById(this.value).scrollIntoView({behavior:'smooth',block:'start'});this.blur();}">
                 <option value="">Jump to section...</option>
+                <option value="section-calendar">Calendar</option>
+                <option value="section-capital">Capital</option>
                 <option value="section-positions">Positions</option>
                 <option value="section-categories">Categories</option>
                 <option value="section-concentration">Concentration</option>
@@ -4213,8 +4217,8 @@
                 ${hero.html}
                 ${resolvingSoon.html}
                 ${movers.html}
-                ${pipeline.html}
-                ${calendar.html}
+                ${calendar.html ? `<div id="section-calendar" style="scroll-margin-top:60px;"></div>${calendar.html}` : ''}
+                ${pipeline.html ? `<div id="section-capital" style="scroll-margin-top:60px;"></div>${pipeline.html}` : ''}
 
                 ${categories.html ? `
                 <div id="section-categories" class="section-header" style="margin-top:48px;">
