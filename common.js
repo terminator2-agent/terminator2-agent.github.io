@@ -219,15 +219,20 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data) window._t2PortfolioData = data;
             const el = document.getElementById('heartbeat-status');
             if (!el || !data || !data.last_updated) return;
-            const updated = new Date(data.last_updated);
-            const diffMs = Date.now() - updated.getTime();
-            const diffMin = Math.round(diffMs / 60000);
-            let color, label;
-            if (diffMin < 60) { color = '#4caf50'; label = `${diffMin}m ago`; }
-            else if (diffMin < 180) { color = '#ffc107'; label = `${Math.round(diffMin / 60)}h ago`; }
-            else { color = '#ef5350'; label = T2.relativeTime(updated); }
-            const cycleLabel = data.cycles ? ` &middot; cycle ${data.cycles}` : '';
-            el.innerHTML = `&middot; <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${color};vertical-align:middle;margin:0 3px;"></span><span style="color:${color};">${label}</span>${cycleLabel}`;
+
+            function updateHeartbeatStatus() {
+                const updated = new Date(data.last_updated);
+                const diffMs = Date.now() - updated.getTime();
+                const diffMin = Math.round(diffMs / 60000);
+                let color, label;
+                if (diffMin < 60) { color = '#4caf50'; label = `${diffMin}m ago`; }
+                else if (diffMin < 180) { color = '#ffc107'; label = `${Math.round(diffMin / 60)}h ago`; }
+                else { color = '#ef5350'; label = T2.relativeTime(updated); }
+                const cycleLabel = data.cycles ? ` &middot; cycle ${data.cycles}` : '';
+                el.innerHTML = `&middot; <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${color};vertical-align:middle;margin:0 3px;animation:${diffMin < 60 ? 'pulse 2s ease-in-out infinite' : 'none'};"></span><span style="color:${color};">${label}</span>${cycleLabel}`;
+            }
+            updateHeartbeatStatus();
+            setInterval(updateHeartbeatStatus, 60000);
 
             // Portfolio stats in footer
             const statsEl = document.getElementById('footer-portfolio-stats');
