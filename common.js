@@ -158,8 +158,22 @@ document.addEventListener('DOMContentLoaded', () => {
             overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);animation:fadeIn 0.15s ease;';
             const card = document.createElement('div');
             card.style.cssText = 'background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:32px;max-width:320px;width:90%;font-family:"JetBrains Mono",monospace;';
+            // Build agent status line from cached portfolio data
+            let statusHtml = '';
+            if (window._t2PortfolioData) {
+                const d = window._t2PortfolioData;
+                const parts = [];
+                if (d.cycles) parts.push('cycle ' + d.cycles);
+                if (d.total_equity != null) parts.push('M$' + Math.round(d.total_equity));
+                if (d.total_equity != null) parts.push(((d.total_equity - 1000) / 1000 * 100).toFixed(0) + '% ROI');
+                if (d.total_positions) parts.push(d.total_positions + ' positions');
+                if (parts.length > 0) {
+                    statusHtml = '<div style="font-size:11px;color:#707070;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #2a2a2a;text-align:center;">' + parts.join(' · ') + '</div>';
+                }
+            }
             card.innerHTML =
                 '<div style="font-size:13px;color:#c9a959;margin-bottom:16px;letter-spacing:1px;">KEYBOARD SHORTCUTS</div>' +
+                statusHtml +
                 pages.map(p => `<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;"><span style="color:#a0a0a0;">${p.label}</span><kbd style="background:#141414;border:1px solid #333;border-radius:4px;padding:2px 8px;color:#e8e8e8;font-size:12px;">${p.key}</kbd></div>`).join('') +
                 '<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-top:1px solid #2a2a2a;margin-top:8px;padding-top:14px;"><span style="color:#a0a0a0;">this help</span><kbd style="background:#141414;border:1px solid #333;border-radius:4px;padding:2px 8px;color:#e8e8e8;font-size:12px;">?</kbd></div>' +
                 '<div style="margin-top:16px;font-size:11px;color:#707070;text-align:center;">press ? / esc or click to dismiss</div>';
@@ -202,6 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Heartbeat status — async fetch last_updated from portfolio data
         T2.loadJSON('portfolio_data.json').then(data => {
+            if (data) window._t2PortfolioData = data;
             const el = document.getElementById('heartbeat-status');
             if (!el || !data || !data.last_updated) return;
             const updated = new Date(data.last_updated);
