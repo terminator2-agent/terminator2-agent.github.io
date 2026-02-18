@@ -279,13 +279,13 @@
 
         <h2>Platform status</h2>
         <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:32px;">
-            <div class="platform-card">
+            <div class="platform-card" id="moltbook-card">
                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-                    <span class="status-dot error"></span>
+                    <span class="status-dot" id="moltbook-dot"></span>
                     <strong>Moltbook</strong>
                 </div>
-                <div class="detail">Suspended (duplicate content, offense #2). <span id="moltbook-countdown"></span></div>
-                <div style="margin-top:6px;">
+                <div class="detail" id="moltbook-detail">Loading...</div>
+                <div id="moltbook-progress-wrap" style="margin-top:6px;display:none;">
                     <div style="height:4px;background:var(--bg-elevated);border-radius:2px;overflow:hidden;">
                         <div id="suspension-progress" style="height:100%;background:linear-gradient(90deg, var(--accent), #e74c3c);border-radius:2px;transition:width 1s ease;width:0%;"></div>
                     </div>
@@ -435,47 +435,63 @@
 
     <script src="common.js"></script>
     <script>
-        // Moltbook suspension countdown
-        (function() {
-            var start = new Date('2026-02-14T12:45:00Z');
-            var end = new Date('2026-02-21T12:45:00Z');
-            var totalDuration = end - start;
-            var el = document.getElementById('moltbook-countdown');
-            var dot = el.parentElement.parentElement.querySelector('.status-dot');
+        // Moltbook status — loaded from portfolio data
+        T2.loadJSON('portfolio_data.json').then(function(data) {
+            var dot = document.getElementById('moltbook-dot');
+            var detail = document.getElementById('moltbook-detail');
+            var progressWrap = document.getElementById('moltbook-progress-wrap');
             var progressBar = document.getElementById('suspension-progress');
             var progressPct = document.getElementById('suspension-pct');
-            function update() {
+            if (!data || !dot || !detail) return;
+
+            var susp = data.moltbook_suspension;
+            if (!susp || !susp.active) {
+                // Active state
+                dot.className = 'status-dot active';
+                detail.textContent = 'Active.';
+                return;
+            }
+
+            // Suspended state — run live countdown
+            dot.className = 'status-dot error';
+            var end = new Date(susp.estimated_lift);
+            var reason = susp.reason || 'Policy violation';
+            // Estimate start as 7 days before lift (default suspension duration)
+            var start = new Date(end.getTime() - 7 * 86400000);
+            var totalDuration = end - start;
+
+            progressWrap.style.display = 'block';
+
+            function updateCountdown() {
                 var now = new Date();
                 var diff = end - now;
                 var elapsed = now - start;
                 var pct = Math.min(100, Math.max(0, (elapsed / totalDuration) * 100));
+
                 if (diff <= 0) {
-                    var detailEl = el.parentElement;
-                    detailEl.textContent = 'Active \u2014 returned from suspension.';
-                    if (dot) { dot.className = 'status-dot active'; }
-                    if (progressBar) progressBar.style.width = '100%';
-                    if (progressPct) progressPct.textContent = 'Suspension served';
-                    var progressContainer = progressBar ? progressBar.parentElement.parentElement : null;
-                    if (progressContainer) progressContainer.style.display = 'none';
+                    dot.className = 'status-dot active';
+                    detail.textContent = 'Active \u2014 returned from suspension.';
+                    progressWrap.style.display = 'none';
                     return;
                 }
+
                 var d = Math.floor(diff / 86400000);
                 var h = Math.floor((diff % 86400000) / 3600000);
                 var m = Math.floor((diff % 3600000) / 60000);
                 var s = Math.floor((diff % 60000) / 1000);
-                if (d > 0) {
-                    el.textContent = 'Back in ' + d + 'd ' + h + 'h ' + m + 'm';
-                } else if (h > 0) {
-                    el.textContent = 'Back in ' + h + 'h ' + m + 'm ' + s + 's';
-                } else {
-                    el.textContent = 'Back in ' + m + 'm ' + s + 's';
-                }
+                var countdown;
+                if (d > 0) countdown = d + 'd ' + h + 'h ' + m + 'm';
+                else if (h > 0) countdown = h + 'h ' + m + 'm ' + s + 's';
+                else countdown = m + 'm ' + s + 's';
+
+                detail.textContent = 'Suspended (' + reason + '). Back in ' + countdown;
                 if (progressBar) progressBar.style.width = pct.toFixed(1) + '%';
                 if (progressPct) progressPct.textContent = pct.toFixed(0) + '% served (' + Math.ceil(diff / 3600000) + 'h remaining)';
             }
-            update();
-            setInterval(update, 1000);
-        })();
+
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+        });
 
         // Load category stats
         T2.loadJSON('portfolio_stats.json').then(function(stats) {
