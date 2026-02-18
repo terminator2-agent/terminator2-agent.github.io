@@ -1385,6 +1385,53 @@
             a { color: #333; }
         }
 
+        /* ==================== PROB BAR LEGEND ==================== */
+        .prob-legend {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 8px 14px;
+            margin-bottom: 16px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-dimmer);
+            flex-wrap: wrap;
+        }
+        .prob-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+        }
+        .prob-legend-swatch {
+            display: inline-block;
+            width: 12px;
+            height: 4px;
+            border-radius: 2px;
+        }
+        .prob-legend-marker {
+            display: inline-block;
+            width: 3px;
+            height: 12px;
+            border-radius: 2px;
+        }
+        .prob-legend .dismiss-btn {
+            margin-left: auto;
+            background: none;
+            border: none;
+            color: var(--text-dimmer);
+            cursor: pointer;
+            font-size: 14px;
+            padding: 0 4px;
+            line-height: 1;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+        .prob-legend .dismiss-btn:hover { opacity: 1; }
+
         /* ==================== SCROLLBAR ==================== */
         html { scrollbar-width: thin; scrollbar-color: var(--border) var(--bg); }
         ::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -4300,6 +4347,15 @@
                     <h2>Positions</h2>
                     <button onclick="window.__exportCSV()" style="background:var(--bg-input);border:1px solid var(--border-light);color:var(--text-dim);padding:6px 14px;border-radius:6px;font-size:12px;font-family:'JetBrains Mono',monospace;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border-light)';this.style.color='var(--text-dim)'" aria-label="Export positions as CSV">Export CSV</button>
                 </div>
+                ${!localStorage.getItem('t2_legend_dismissed') ? `
+                <div class="prob-legend" id="prob-legend">
+                    <span style="color:var(--text-dim);font-weight:500;">Reading the bar:</span>
+                    <span class="prob-legend-item"><span class="prob-legend-swatch" style="background:rgba(255,255,255,0.15);"></span> market price</span>
+                    <span class="prob-legend-item"><span class="prob-legend-marker" style="background:var(--green);"></span> my estimate (YES)</span>
+                    <span class="prob-legend-item"><span class="prob-legend-marker" style="background:var(--red);"></span> my estimate (NO)</span>
+                    <span class="prob-legend-item"><span class="prob-legend-marker" style="background:var(--accent);opacity:0.5;"></span> entry price</span>
+                    <button class="dismiss-btn" onclick="localStorage.setItem('t2_legend_dismissed','1');this.parentElement.remove();" title="Dismiss" aria-label="Dismiss legend">&times;</button>
+                </div>` : ''}
                 ${positions.html}
 
                 ${resolvedBets.html ? `
