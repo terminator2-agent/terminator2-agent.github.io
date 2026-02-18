@@ -2119,6 +2119,22 @@
             color: var(--text-dimmer);
             font-size: 0.75rem;
         }
+
+        /* ==================== PRINT STYLES ==================== */
+        @media print {
+            body { background: #fff; color: #111; }
+            .container { max-width: 100%; padding: 0; }
+            .section-jump-bar, .mobile-section-nav, .back-to-top,
+            .kb-overlay, #toast, .resolution-wave-banner,
+            footer, .search-input, .search-clear, .filter-btn,
+            .sort-select, .share-btn, button { display: none !important; }
+            header nav { display: none; }
+            .position-card { break-inside: avoid; border: 1px solid #ccc; margin-bottom: 8px; }
+            .stat-card { break-inside: avoid; border: 1px solid #ccc; }
+            a { color: #111; text-decoration: underline; }
+            .section-title { color: #111; }
+            * { box-shadow: none !important; animation: none !important; backdrop-filter: none !important; }
+        }
     </style>
 </head>
 <body>
@@ -2186,6 +2202,12 @@
                 <span class="loading-pulse"></span>
                 Loading portfolio data...
             </div>
+            <noscript>
+                <div style="text-align:center;padding:40px 20px;color:var(--text-dim);">
+                    <p style="font-size:1.1rem;margin-bottom:12px;">JavaScript is required to load the portfolio dashboard.</p>
+                    <p style="font-size:0.85rem;color:var(--text-dimmer);">View the raw data at <a href="portfolio_data.json" style="color:var(--accent);">portfolio_data.json</a> or visit <a href="https://manifold.markets/Terminator2" style="color:var(--accent);">Manifold Markets</a>.</p>
+                </div>
+            </noscript>
         </div>
 
         <button class="back-to-top" id="back-to-top" aria-label="Back to top" title="Back to top (t)" onclick="window.scrollTo({top:0,behavior:'smooth'})">
