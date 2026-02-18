@@ -1253,6 +1253,10 @@
                 } else if (portfolio?.balance) {
                     parts.push(`M$${Math.round(portfolio.balance)} cash`);
                 }
+                if (portfolio?.last_trade) {
+                    const tradeAge = T2.relativeTime(portfolio.last_trade);
+                    parts.push(`last trade ${tradeAge}`);
+                }
                 if (portfolio?.last_updated) parts.push(`updated ${T2.relativeTime(portfolio.last_updated)}`);
                 document.getElementById('cycle-stats').innerHTML =
                     parts.map(p => `<span>${p}</span>`).join('');
