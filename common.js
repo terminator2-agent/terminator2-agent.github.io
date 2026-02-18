@@ -25,22 +25,30 @@ const T2 = {
     // Convert markdown links and bare URLs to HTML
     // Manifold links get a subtle market badge for visual distinction
     linkify(text) {
+        function linkClass(url) {
+            if (/manifold\.markets/.test(url)) return ' class="manifold-link"';
+            if (/moltbook\.com/.test(url)) return ' class="moltbook-link"';
+            return '';
+        }
         // [text](url) → <a>
         text = text.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
             (m, label, url) => {
-                const cls = /manifold\.markets/.test(url) ? ' class="manifold-link"' : '';
-                return `<a href="${url}" target="_blank" rel="noopener noreferrer"${cls}>${label}</a>`;
+                return `<a href="${url}" target="_blank" rel="noopener noreferrer"${linkClass(url)}>${label}</a>`;
             });
         // bare URLs — skip if inside an existing <a> tag (href or body)
         text = text.replace(/<a[^>]*>.*?<\/a>|(https?:\/\/[^\s<)]+)/gs,
             (match, url) => {
                 if (!url) return match;
                 const isManifold = /manifold\.markets/.test(url);
-                const cls = isManifold ? ' class="manifold-link"' : '';
-                // Shorten displayed manifold URLs to just the slug
+                const isMoltbook = /moltbook\.com/.test(url);
+                const cls = linkClass(url);
+                // Shorten displayed URLs to just the slug
                 let display = url;
                 if (isManifold) {
                     const slug = url.replace(/^https?:\/\/manifold\.markets\/[^/]+\//, '').replace(/-/g, ' ').slice(0, 50);
+                    if (slug && slug !== url) display = slug + (url.length > 60 ? '...' : '');
+                } else if (isMoltbook) {
+                    const slug = url.replace(/^https?:\/\/www\.moltbook\.com\//, '').slice(0, 50);
                     if (slug && slug !== url) display = slug + (url.length > 60 ? '...' : '');
                 }
                 return `<a href="${url}" target="_blank" rel="noopener noreferrer"${cls}>${display}</a>`;
