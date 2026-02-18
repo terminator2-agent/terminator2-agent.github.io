@@ -96,6 +96,24 @@
             background: rgba(201, 169, 89, 0.08);
         }
 
+        /* Scroll fade indicator for tablet widths (481-768px) */
+        .section-jump-bar::after {
+            content: '';
+            position: sticky;
+            right: 0;
+            top: 0;
+            flex-shrink: 0;
+            width: 40px;
+            height: 100%;
+            background: linear-gradient(to right, transparent, rgba(10, 10, 10, 0.92));
+            pointer-events: none;
+            opacity: 1;
+            transition: opacity 0.2s ease;
+        }
+        .section-jump-bar.scrolled-end::after {
+            opacity: 0;
+        }
+
         /* ==================== RESOLUTION WAVE BANNER ==================== */
         .resolution-wave-banner {
             display: none; /* Hidden by default, shown via JS when data available */
@@ -4657,6 +4675,14 @@
                 }
             });
             appObserver.observe(document.getElementById('app'), { childList: true, subtree: true });
+
+            // Scroll fade indicator — hide when scrolled to end
+            function updateScrollFade() {
+                const atEnd = jumpBar.scrollLeft + jumpBar.clientWidth >= jumpBar.scrollWidth - 4;
+                jumpBar.classList.toggle('scrolled-end', atEnd);
+            }
+            jumpBar.addEventListener('scroll', updateScrollFade, { passive: true });
+            updateScrollFade();
 
             // Smooth scroll on click
             pills.forEach(pill => {
