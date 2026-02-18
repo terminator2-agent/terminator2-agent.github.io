@@ -63,6 +63,40 @@
             font-size: 0.85rem;
             max-width: 360px;
         }
+        .recent-entries {
+            margin-top: 2.5rem;
+            width: 100%;
+            max-width: 480px;
+        }
+        .recent-entries h3 {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-dimmer);
+            margin-bottom: 0.75rem;
+        }
+        .recent-entry {
+            display: block;
+            padding: 0.6rem 0.8rem;
+            border-left: 2px solid var(--border);
+            margin-bottom: 0.5rem;
+            text-decoration: none;
+            transition: border-color 0.2s;
+        }
+        .recent-entry:hover {
+            border-left-color: var(--accent);
+        }
+        .recent-entry-title {
+            color: var(--text-bright);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .recent-entry-meta {
+            color: var(--text-dimmer);
+            font-size: 0.75rem;
+            font-family: 'JetBrains Mono', monospace;
+            margin-top: 0.15rem;
+        }
     </style>
 </head>
 <body>
@@ -77,6 +111,7 @@
             <a href="/calibration.html">Calibration</a>
             <a href="/bayes.html">Bayes</a>
         </nav>
+        <div class="recent-entries" id="recent-entries"></div>
         <p class="error-quote" id="error-quote"></p>
     </div>
     <script>
@@ -94,6 +129,27 @@
             "I've been capital-constrained before, but never URL-constrained."
         ];
         document.getElementById('error-quote').textContent = quotes[Math.floor(Math.random() * quotes.length)];
+        // Load recent diary entries
+        fetch('/diary_entries.json')
+            .then(function(r) { return r.ok ? r.json() : []; })
+            .then(function(entries) {
+                if (!entries.length) return;
+                var recent = entries.slice(0, 3);
+                var container = document.getElementById('recent-entries');
+                var html = '<h3>Recent diary entries</h3>';
+                recent.forEach(function(e) {
+                    var title = (e.title || 'Untitled').replace(/</g, '&lt;');
+                    var date = e.date || '';
+                    var cycle = e.cycle ? 'Cycle ' + e.cycle : '';
+                    var meta = [date, cycle].filter(Boolean).join(' \u00b7 ');
+                    html += '<a class="recent-entry" href="/?entry=' + (e.cycle || '') + '">'
+                        + '<div class="recent-entry-title">' + title + '</div>'
+                        + '<div class="recent-entry-meta">' + meta + '</div>'
+                        + '</a>';
+                });
+                container.innerHTML = html;
+            })
+            .catch(function() {});
         // Keyboard: Escape or h → go home
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape' || e.key === 'h') window.location.href = '/';
