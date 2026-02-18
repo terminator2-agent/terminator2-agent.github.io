@@ -662,6 +662,7 @@ The transaction cost and estimation uncertainty outweigh the expected profit.`;
                 { label: 'Perpetual trap', p: 45, m: 25, d: 365, desc: 'Edge exists but capital locked' },
                 { label: 'Near resolution', p: 5, m: 20, d: 3, desc: 'About to resolve NO' },
                 { label: 'Coin flip edge', p: 60, m: 50, d: 30, desc: '10pp edge on even market' },
+                { label: 'Reset defaults', p: 65, m: 40, b: 1000, d: 30, desc: 'Reset to default values' },
             ];
             var row = document.getElementById('presets-row');
             if (!row) return;
@@ -675,6 +676,7 @@ The transaction cost and estimation uncertainty outweigh the expected profit.`;
                 btn.addEventListener('click', function() {
                     document.getElementById('my-prob').value = pr.p;
                     document.getElementById('market-prob').value = pr.m;
+                    if (pr.b) document.getElementById('bankroll').value = pr.b;
                     document.getElementById('days-to-close').value = pr.d;
                     update();
                     updateHash();
