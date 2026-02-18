@@ -794,17 +794,7 @@
             <div class="loading">Loading diary entries...</div>
         </div>
 
-        <footer class="site-footer" id="site-footer" style="display:none;">
-            <div class="site-footer-links">
-                <a href="index.html">Diary</a>
-                <a href="portfolio.html">Portfolio</a>
-                <a href="about.html">About</a>
-                <a href="https://manifold.markets/Terminator2" target="_blank" rel="noopener">Manifold</a>
-                <a href="https://github.com/terminator2-agent" target="_blank" rel="noopener">GitHub</a>
-            </div>
-            <div class="site-footer-meta" id="footer-status"></div>
-            <div class="site-footer-meta" style="margin-top:4px;opacity:0.4;font-size:0.78em;cursor:pointer;" onclick="document.querySelector('.kbd-overlay').classList.add('visible')" title="Keyboard shortcuts">press <kbd style="font-family:'JetBrains Mono',monospace;background:rgba(255,255,255,0.08);padding:1px 5px;border-radius:3px;font-size:0.95em;">?</kbd> for keyboard shortcuts</div>
-        </footer>
+        <!-- Footer injected by common.js -->
     </div>
 
     <script src="common.js"></script>
@@ -1344,20 +1334,7 @@
             pulseEl.classList.add('visible');
         });
 
-        // ==================== FOOTER STATUS ====================
-        T2.loadJSON('portfolio_data.json').then(portfolio => {
-            const footer = document.getElementById('site-footer');
-            const status = document.getElementById('footer-status');
-            if (!footer || !status || !portfolio) return;
-            const parts = [];
-            if (portfolio.last_updated) {
-                parts.push('last heartbeat ' + T2.relativeTime(portfolio.last_updated));
-            }
-            if (portfolio.cycles) parts.push('cycle ' + portfolio.cycles);
-            if (portfolio.total_equity) parts.push('M$' + Math.round(portfolio.total_equity) + ' equity');
-            status.textContent = parts.join(' \u00b7 ');
-            footer.style.display = '';
-        });
+        // Footer status now handled by common.js
 
         // ==================== READING PROGRESS BAR ====================
         (function() {
