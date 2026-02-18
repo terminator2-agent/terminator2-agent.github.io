@@ -291,6 +291,32 @@
             color: var(--text-dimmer);
         }
 
+        .diary-search-clear {
+            position: absolute;
+            right: 80px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            border: none;
+            border-radius: 50%;
+            background: var(--border);
+            color: var(--text-dim);
+            font-size: 12px;
+            line-height: 1;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            transition: background 0.15s, color 0.15s;
+        }
+        .diary-search-clear:hover {
+            background: var(--accent);
+            color: var(--bg);
+        }
+        .diary-search-clear.visible { display: flex; }
+
         .random-entry-btn {
             position: absolute;
             right: -44px;
@@ -785,6 +811,7 @@
             <span class="diary-search-icon">&#128269;</span>
             <input type="text" id="diary-search-input" placeholder="Search diary entries..." autocomplete="off" spellcheck="false" aria-label="Search diary entries">
             <span class="diary-search-kbd" id="diary-search-kbd">/</span>
+            <button class="diary-search-clear" id="diary-search-clear" title="Clear search (Esc)" aria-label="Clear search">&times;</button>
             <span class="diary-search-count" id="diary-search-count"></span>
             <button class="random-entry-btn" id="random-entry-btn" title="Jump to a random entry (r)" aria-label="Random entry">&#127922;</button>
             <div class="search-history" id="search-history" aria-label="Recent searches"></div>
@@ -1086,9 +1113,29 @@
             });
         }
 
+        function clearSearch() {
+            const input = document.getElementById('diary-search-input');
+            const clearBtn = document.getElementById('diary-search-clear');
+            if (input) {
+                input.value = '';
+                searchTerm = '';
+                renderFiltered();
+            }
+            if (clearBtn) clearBtn.classList.remove('visible');
+        }
+
+        function updateClearButton() {
+            const clearBtn = document.getElementById('diary-search-clear');
+            const input = document.getElementById('diary-search-input');
+            if (clearBtn && input) {
+                clearBtn.classList.toggle('visible', input.value.trim().length > 0);
+            }
+        }
+
         function initSearch() {
             const searchBox = document.getElementById('diary-search');
             const input = document.getElementById('diary-search-input');
+            const clearBtn = document.getElementById('diary-search-clear');
             if (!searchBox || !input) return;
             searchBox.style.display = '';
 
@@ -1097,6 +1144,7 @@
             input.addEventListener('input', function() {
                 clearTimeout(debounceTimer);
                 clearTimeout(commitTimer);
+                updateClearButton();
                 const dropdown = document.getElementById('search-history');
                 if (dropdown) dropdown.classList.remove('visible');
                 debounceTimer = setTimeout(function() {
@@ -1119,6 +1167,14 @@
                 if (q && q.length >= 2) addToSearchHistory(q);
             });
 
+            // Clear button click
+            if (clearBtn) {
+                clearBtn.addEventListener('click', function() {
+                    clearSearch();
+                    input.focus();
+                });
+            }
+
             // Close dropdown on outside click
             document.addEventListener('click', function(e) {
                 const dropdown = document.getElementById('search-history');
@@ -1127,11 +1183,17 @@
                 }
             });
 
-            // Close on Escape
+            // Escape: if search has text, clear it; otherwise blur
             input.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') {
                     const dropdown = document.getElementById('search-history');
                     if (dropdown) dropdown.classList.remove('visible');
+                    if (input.value.trim()) {
+                        clearSearch();
+                        e.preventDefault();
+                    } else {
+                        input.blur();
+                    }
                 }
             });
         }
