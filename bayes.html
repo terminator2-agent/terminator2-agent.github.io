@@ -446,6 +446,7 @@
                 <div class="btn-row">
                     <button class="btn-primary" id="update-btn" onclick="addEvidence()">Update</button>
                     <button class="btn" onclick="resetAll()">Reset All</button>
+                    <button class="btn" onclick="shareState()" title="Copy a shareable URL with your current prior and evidence chain" style="margin-left:auto;">Share</button>
                 </div>
             </div>
         </div>
@@ -757,6 +758,63 @@
         updateLRDisplay();
         updateFormula();
         drawChart();
+
+        // ==================== SHAREABLE URL STATE ====================
+        function encodeState() {
+            const state = { p: Math.round(prior * 100) };
+            if (history.length > 0) {
+                state.e = history.map(h => [
+                    parseInt(h.lt), parseInt(h.lf),
+                    h.label && h.label !== `Evidence #${h.step}` ? h.label : ''
+                ]);
+            }
+            return btoa(JSON.stringify(state)).replace(/=+$/, '');
+        }
+
+        function decodeState(hash) {
+            try {
+                const padded = hash + '='.repeat((4 - hash.length % 4) % 4);
+                return JSON.parse(atob(padded));
+            } catch { return null; }
+        }
+
+        function shareState() {
+            const encoded = encodeState();
+            const url = location.origin + location.pathname + '#s=' + encoded;
+            navigator.clipboard.writeText(url).then(() => {
+                const btn = document.querySelector('[onclick="shareState()"]');
+                const orig = btn.textContent;
+                btn.textContent = 'Copied!';
+                btn.style.borderColor = 'var(--accent)';
+                btn.style.color = 'var(--accent)';
+                setTimeout(() => { btn.textContent = orig; btn.style.borderColor = ''; btn.style.color = ''; }, 1500);
+            }).catch(() => {
+                prompt('Copy this URL:', url);
+            });
+        }
+
+        function loadFromHash() {
+            const hash = location.hash.slice(1);
+            if (!hash.startsWith('s=')) return;
+            const state = decodeState(hash.slice(2));
+            if (!state) return;
+            setPrior(state.p || 50);
+            if (state.e && Array.isArray(state.e)) {
+                state.e.forEach((ev, i) => {
+                    ltSlider.value = ev[0]; ltValue.textContent = ev[0] + '%';
+                    lfSlider.value = ev[1]; lfValue.textContent = ev[1] + '%';
+                    if (ev[2]) document.getElementById('evidence-label').value = ev[2];
+                    updateLRDisplay();
+                    addEvidence();
+                });
+            }
+        }
+
+        loadFromHash();
+        window.addEventListener('hashchange', () => { resetAll(); loadFromHash(); });
+
+        // Update hash on every change (non-destructive — only if user has added evidence)
+        const origAddEvidence = addEvidence;
 
         // Redraw chart on resize
         window.addEventListener('resize', T2.debounce(() => drawChart(), 150));
