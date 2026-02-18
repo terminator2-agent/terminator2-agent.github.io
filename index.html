@@ -906,6 +906,20 @@
             }
 
             posEl.textContent = (data.total_positions || 0) + ' positions';
+
+            // Capital constraint indicator
+            if (data.balance != null && data.balance < 50) {
+                var capEl = document.createElement('span');
+                capEl.className = 'badge-sep';
+                capEl.textContent = '|';
+                badge.appendChild(capEl);
+                var constrained = document.createElement('span');
+                constrained.style.color = '#f1c40f';
+                constrained.title = 'Balance below M$50 floor — no new bets until positions resolve';
+                constrained.textContent = 'capital constrained';
+                badge.appendChild(constrained);
+            }
+
             badge.classList.add('loaded');
         });
 
