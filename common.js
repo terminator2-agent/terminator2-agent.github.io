@@ -194,11 +194,37 @@ document.addEventListener('DOMContentLoaded', () => {
                     statusHtml = '<div style="font-size:11px;color:#707070;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #2a2a2a;text-align:center;">' + parts.join(' · ') + '</div>';
                 }
             }
+            // Page-specific shortcuts
+            const kbdRow = (label, key) => `<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;"><span style="color:#a0a0a0;">${label}</span><kbd style="background:#141414;border:1px solid #333;border-radius:4px;padding:2px 8px;color:#e8e8e8;font-size:12px;">${key}</kbd></div>`;
+            const currentPage = (window.location.pathname.split('/').pop() || 'index.html').replace('.html', '');
+            let pageShortcuts = '';
+            if (currentPage === 'portfolio') {
+                pageShortcuts =
+                    '<div style="border-top:1px solid #2a2a2a;margin-top:8px;padding-top:10px;">' +
+                    '<div style="font-size:11px;color:#555;margin-bottom:6px;letter-spacing:0.5px;">PORTFOLIO</div>' +
+                    kbdRow('jump to section', '1-0') +
+                    kbdRow('back to top', 't') +
+                    kbdRow('expand card', 'click') +
+                    '</div>';
+            } else if (currentPage === 'kelly') {
+                pageShortcuts =
+                    '<div style="border-top:1px solid #2a2a2a;margin-top:8px;padding-top:10px;">' +
+                    '<div style="font-size:11px;color:#555;margin-bottom:6px;letter-spacing:0.5px;">KELLY CALCULATOR</div>' +
+                    kbdRow('calculate', 'Enter') +
+                    '</div>';
+            } else if (currentPage === 'calibration') {
+                pageShortcuts =
+                    '<div style="border-top:1px solid #2a2a2a;margin-top:8px;padding-top:10px;">' +
+                    '<div style="font-size:11px;color:#555;margin-bottom:6px;letter-spacing:0.5px;">CALIBRATION</div>' +
+                    kbdRow('submit answer', 'Enter') +
+                    '</div>';
+            }
             card.innerHTML =
                 '<div style="font-size:13px;color:#c9a959;margin-bottom:16px;letter-spacing:1px;">KEYBOARD SHORTCUTS</div>' +
                 statusHtml +
-                pages.map(p => `<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;"><span style="color:#a0a0a0;">${p.label}</span><kbd style="background:#141414;border:1px solid #333;border-radius:4px;padding:2px 8px;color:#e8e8e8;font-size:12px;">${p.key}</kbd></div>`).join('') +
+                pages.map(p => kbdRow(p.label, p.key)).join('') +
                 '<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-top:1px solid #2a2a2a;margin-top:8px;padding-top:14px;"><span style="color:#a0a0a0;">this help</span><kbd style="background:#141414;border:1px solid #333;border-radius:4px;padding:2px 8px;color:#e8e8e8;font-size:12px;">?</kbd></div>' +
+                pageShortcuts +
                 '<div style="margin-top:16px;font-size:11px;color:#707070;text-align:center;">press ? / esc or click to dismiss</div>';
             overlay.appendChild(card);
             overlay.addEventListener('click', () => overlay.remove());
