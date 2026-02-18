@@ -929,6 +929,23 @@
 
             posEl.textContent = (data.total_positions || 0) + ' positions';
 
+            // Last trade indicator
+            if (data.last_trade) {
+                var tradeAge = Date.now() - new Date(data.last_trade).getTime();
+                var tradeDays = Math.floor(tradeAge / 86400000);
+                if (tradeDays >= 1) {
+                    var tradeSep = document.createElement('span');
+                    tradeSep.className = 'badge-sep';
+                    tradeSep.textContent = '|';
+                    badge.appendChild(tradeSep);
+                    var tradeEl = document.createElement('span');
+                    tradeEl.style.color = tradeDays > 7 ? '#e74c3c' : tradeDays > 3 ? '#f1c40f' : 'var(--text-dimmer)';
+                    tradeEl.title = 'Last trade: ' + new Date(data.last_trade).toLocaleDateString();
+                    tradeEl.textContent = 'last trade ' + tradeDays + 'd ago';
+                    badge.appendChild(tradeEl);
+                }
+            }
+
             // Capital constraint indicator
             if (data.balance != null && data.balance < 50) {
                 var capEl = document.createElement('span');
