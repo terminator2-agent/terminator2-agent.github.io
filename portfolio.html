@@ -2031,7 +2031,7 @@
         <div id="resolution-wave-banner" class="resolution-wave-banner" role="alert">
             <div class="banner-content">
                 <span class="countdown-timer" id="wave-countdown">—</span>
-                <span class="at-stake">until next resolution wave — <span class="amount" id="wave-amount">M$0</span> across <span class="amount" id="wave-count">0</span> positions (<span class="amount" id="wave-pct">0</span>% of portfolio)</span>
+                <span class="at-stake">until next resolution wave — <span class="amount" id="wave-amount">M$0</span> across <span class="amount" id="wave-count">0</span> positions (<span class="amount" id="wave-pct">0</span>% of portfolio) — expected <span class="amount" id="wave-return">M$0</span></span>
             </div>
         </div>
 
@@ -2164,10 +2164,12 @@
             positions.forEach(p => {
                 const dateKey = p.close_date.split('T')[0];
                 if (!dateGroups[dateKey]) {
-                    dateGroups[dateKey] = { date: dateKey, amount: 0, count: 0 };
+                    dateGroups[dateKey] = { date: dateKey, amount: 0, count: 0, expectedReturn: 0 };
                 }
                 dateGroups[dateKey].amount += p.amount || 0;
                 dateGroups[dateKey].count += 1;
+                const uv = p.unrealized_value != null ? p.unrealized_value : p.amount;
+                dateGroups[dateKey].expectedReturn += uv - (p.amount || 0);
             });
 
             // Sort by date and get the next wave
@@ -2185,6 +2187,12 @@
             if (countEl) countEl.textContent = nextWave.count;
             const totalEquity = data.total_equity || ((data.total_invested || 0) + (data.balance || 0));
             if (pctEl && totalEquity > 0) pctEl.textContent = Math.round(nextWave.amount / totalEquity * 100);
+            const returnEl = document.getElementById('wave-return');
+            if (returnEl) {
+                const ret = Math.round(nextWave.expectedReturn);
+                returnEl.textContent = (ret >= 0 ? '+' : '') + 'M$' + ret;
+                returnEl.style.color = ret >= 0 ? 'var(--green)' : 'var(--red)';
+            }
 
             // Countdown update function
             function updateCountdown() {
