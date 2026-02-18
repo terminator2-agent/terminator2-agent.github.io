@@ -3835,12 +3835,18 @@
                     const totalAmt = resolutions.reduce((s, p) => s + (p.amount || 0), 0);
 
                     let tooltipHtml = '';
+                    let totalExpectedPayout = 0;
                     if (hasRes) {
                         tooltipHtml = `<div class="cal-tooltip">`;
                         resolutions.forEach(p => {
                             const isYes = p.outcome === 'YES';
-                            tooltipHtml += `<div class="cal-tooltip-row"><span class="cal-dot ${isYes ? 'yes' : 'no'}"></span>${escHtml(p.question.length > 40 ? p.question.slice(0, 40) + '...' : p.question)} <span style="color:var(--accent);margin-left:4px;">M$${p.amount}</span></div>`;
+                            const winProb = isYes ? (p.my_estimate || p.current_prob || 0.5) : (1 - (p.my_estimate || p.current_prob || 0.5));
+                            const expectedPayout = (p.shares || p.amount) * winProb;
+                            totalExpectedPayout += expectedPayout;
+                            const payoutColor = expectedPayout > p.amount ? 'var(--green)' : 'var(--red, #e74c3c)';
+                            tooltipHtml += `<div class="cal-tooltip-row"><span class="cal-dot ${isYes ? 'yes' : 'no'}"></span>${escHtml(p.question.length > 40 ? p.question.slice(0, 40) + '...' : p.question)} <span style="color:var(--accent);margin-left:4px;">M$${p.amount}</span> <span style="color:${payoutColor};margin-left:4px;font-size:10px;" title="Expected payout = shares \u00d7 P(win)">\u2192 M$${Math.round(expectedPayout)}</span></div>`;
                         });
+                        tooltipHtml += `<div style="border-top:1px solid var(--border);margin-top:4px;padding-top:4px;font-size:10px;color:var(--text-dimmer);display:flex;justify-content:space-between;"><span>Invested: M$${totalAmt}</span><span style="color:${totalExpectedPayout > totalAmt ? 'var(--green)' : 'var(--red, #e74c3c)'};">EV: M$${Math.round(totalExpectedPayout)}</span></div>`;
                         tooltipHtml += `</div>`;
                     }
 
@@ -3914,8 +3920,11 @@
             positions.forEach(p => {
                 if (!p.close_date || !p.amount) return;
                 const d = p.close_date.slice(0, 10);
-                if (!unlockByDate[d]) unlockByDate[d] = { amount: 0, positions: [] };
+                if (!unlockByDate[d]) unlockByDate[d] = { amount: 0, expectedPayout: 0, positions: [] };
                 unlockByDate[d].amount += p.amount;
+                const isYes = p.outcome === 'YES';
+                const winProb = isYes ? (p.my_estimate || p.current_prob || 0.5) : (1 - (p.my_estimate || p.current_prob || 0.5));
+                unlockByDate[d].expectedPayout += (p.shares || p.amount) * winProb;
                 const parts = (p.question || '').split(' - ');
                 const label = parts.length > 1 ? parts[parts.length - 1] : (p.question || '').slice(0, 40);
                 unlockByDate[d].positions.push(label);
@@ -3929,18 +3938,21 @@
                 });
 
             let cumulative = balance;
+            let cumulativeEV = balance;
             const unlockRows = unlockDates.map(([date, info]) => {
                 cumulative += info.amount;
+                cumulativeEV += info.expectedPayout;
                 const dateStr = new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
                 const posCount = info.positions.length;
                 const tooltip = info.positions.slice(0, 3).join(', ') + (posCount > 3 ? ` +${posCount - 3} more` : '');
                 const pctFill = total > 0 ? (cumulative / total * 100) : 0;
+                const evColor = info.expectedPayout > info.amount ? 'var(--green)' : 'var(--red, #e74c3c)';
                 return `
                     <div class="unlock-row">
                         <div class="unlock-date">${dateStr}</div>
                         <div class="unlock-label" title="${escHtml(tooltip)}">${posCount} position${posCount > 1 ? 's' : ''}</div>
                         <div class="unlock-amount">+M$${Math.round(info.amount)}</div>
-                        <div class="unlock-cumulative">M$${Math.round(cumulative)}</div>
+                        <div class="unlock-cumulative" title="Invested: M$${Math.round(cumulative)} / EV: M$${Math.round(cumulativeEV)}">M$${Math.round(cumulative)} <span style="font-size:10px;color:${evColor};">(EV ${Math.round(cumulativeEV)})</span></div>
                     </div>
                     <div class="unlock-bar-track"><div class="unlock-bar-fill" style="width:${pctFill.toFixed(1)}%"></div></div>
                 `;
