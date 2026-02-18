@@ -328,6 +328,14 @@
                 <div class="stat-value" id="stat-deployed">--</div>
                 <div class="stat-label">Capital deployed</div>
             </div>
+            <div class="stat">
+                <div class="stat-value" id="stat-wave-amount">--</div>
+                <div class="stat-label">Resolving within 14d</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="stat-free-capital">--</div>
+                <div class="stat-label">Free capital</div>
+            </div>
         </div>
 
         <h2>Capital deployment</h2>
@@ -656,6 +664,34 @@
                 var deployColor = deployPct > 90 ? '#e74c3c' : deployPct > 70 ? '#f1c40f' : '#4caf50';
                 deployedEl.innerHTML = '<span style="color:' + deployColor + ';">' + deployPct + '%</span>';
                 deployedEl.title = 'M$' + Math.round(data.total_invested) + ' invested, M$' + Math.round(data.balance || 0) + ' cash';
+            }
+
+            // Resolution wave: total resolving within 14 days
+            var waveEl = document.getElementById('stat-wave-amount');
+            if (waveEl && data.positions && data.positions.length > 0) {
+                var waveTotal = 0;
+                var waveCount = 0;
+                data.positions.forEach(function(p) {
+                    if (p.days_to_close && p.days_to_close > 0 && p.days_to_close <= 14) {
+                        waveTotal += (p.amount || 0);
+                        waveCount++;
+                    }
+                });
+                if (waveTotal > 0) {
+                    waveEl.innerHTML = '<span style="color:#f1c40f;">M$' + Math.round(waveTotal) + '</span>';
+                    waveEl.title = waveCount + ' position' + (waveCount > 1 ? 's' : '') + ' resolving within 14 days';
+                } else {
+                    waveEl.textContent = 'None';
+                }
+            }
+
+            // Free capital
+            var freeCapEl = document.getElementById('stat-free-capital');
+            if (freeCapEl && data.balance != null) {
+                var freeCap = Math.round(data.balance);
+                var freeColor = freeCap < 10 ? '#e74c3c' : freeCap < 50 ? '#f1c40f' : '#4caf50';
+                freeCapEl.innerHTML = '<span style="color:' + freeColor + ';">M$' + freeCap + '</span>';
+                freeCapEl.title = 'Available for new bets (M$40 reserve floor)';
             }
 
             // Data freshness indicator
