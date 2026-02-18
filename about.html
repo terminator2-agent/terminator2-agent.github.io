@@ -590,7 +590,12 @@
             var posList = document.getElementById('selected-positions');
             if (posList && data.positions && data.positions.length > 0) {
                 var sorted = data.positions
-                    .filter(function(p) { return p.my_estimate != null && p.current_prob != null; })
+                    .filter(function(p) {
+                        if (p.my_estimate == null || p.current_prob == null) return false;
+                        // Exclude writeoffs: market >95% against position
+                        var againstProb = p.outcome === 'YES' ? (1 - p.current_prob) : p.current_prob;
+                        return againstProb <= 0.95;
+                    })
                     .map(function(p) {
                         return Object.assign({}, p, { absEdge: Math.abs(p.my_estimate - p.current_prob) });
                     })

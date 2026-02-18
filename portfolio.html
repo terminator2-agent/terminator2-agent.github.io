@@ -2344,11 +2344,14 @@
                 // Expected value: P(correct) * shares + P(wrong) * 0
                 const pCorrect = p.outcome === 'YES' ? (p.my_estimate || p.current_prob) : (1 - (p.my_estimate || p.current_prob));
                 expectedValue += pCorrect * (p.shares || p.amount);
-                // Edge strength classification
-                const edge = Math.abs((p.my_estimate || p.current_prob) - p.current_prob);
-                if (edge >= 0.15) edgeStrong++;
-                else if (edge >= 0.05) edgeModerate++;
-                else edgeThin++;
+                // Edge strength classification (exclude writeoffs — market >95% against position)
+                const againstProb = p.outcome === 'YES' ? (1 - p.current_prob) : p.current_prob;
+                if (againstProb <= 0.95) {
+                    const edge = Math.abs((p.my_estimate || p.current_prob) - p.current_prob);
+                    if (edge >= 0.15) edgeStrong++;
+                    else if (edge >= 0.05) edgeModerate++;
+                    else edgeThin++;
+                }
             });
 
             // Concentration risk analysis — group by market_id
