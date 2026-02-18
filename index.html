@@ -1400,6 +1400,11 @@
                 }
                 if (portfolio?.last_trade) {
                     const tradeAge = T2.relativeTime(portfolio.last_trade);
+                    const tradeMs = Date.now() - new Date(portfolio.last_trade).getTime();
+                    const tradeHours = tradeMs / 3600000;
+                    if (tradeHours > 48) {
+                        parts.push(`<span style="color:var(--text-dimmer);" title="No trades in ${Math.floor(tradeHours / 24)}d — capital constrained or waiting for resolution wave">holding pattern</span>`);
+                    }
                     parts.push(`last trade ${tradeAge}`);
                 }
                 if (portfolio?.last_updated) parts.push(`updated ${T2.relativeTime(portfolio.last_updated)}`);
