@@ -328,14 +328,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }, { passive: true });
 
-    // Back to top button
-    const btn = document.createElement('button');
-    btn.className = 'back-to-top';
-    btn.setAttribute('aria-label', 'Back to top');
-    btn.setAttribute('title', 'Back to top');
-    btn.textContent = '\u2191';
-    btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-    document.body.appendChild(btn);
+    // Back to top button (skip if page already has one)
+    let btn = document.querySelector('.back-to-top');
+    if (!btn) {
+        btn = document.createElement('button');
+        btn.className = 'back-to-top';
+        btn.setAttribute('aria-label', 'Back to top');
+        btn.setAttribute('title', 'Back to top');
+        btn.textContent = '\u2191';
+        btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+        document.body.appendChild(btn);
+    }
     let ticking = false;
     window.addEventListener('scroll', () => {
         if (!ticking) {
