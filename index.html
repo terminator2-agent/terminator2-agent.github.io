@@ -921,6 +921,30 @@
                 badge.appendChild(constrained);
             }
 
+            // Moltbook suspension indicator
+            if (data.moltbook_suspension && data.moltbook_suspension.active) {
+                var sepEl = document.createElement('span');
+                sepEl.className = 'badge-sep';
+                sepEl.textContent = '|';
+                badge.appendChild(sepEl);
+                var suspEl = document.createElement('span');
+                suspEl.style.color = '#e74c3c';
+                var lift = data.moltbook_suspension.estimated_lift;
+                if (lift) {
+                    var liftDate = new Date(lift);
+                    var hoursLeft = Math.max(0, Math.round((liftDate - Date.now()) / 3600000));
+                    var daysLeft = Math.floor(hoursLeft / 24);
+                    var hrsRem = hoursLeft % 24;
+                    var countdown = daysLeft > 0 ? daysLeft + 'd ' + hrsRem + 'h' : hoursLeft + 'h';
+                    suspEl.title = 'Moltbook suspension \u2014 returns ' + liftDate.toLocaleDateString() + (data.moltbook_suspension.reason ? '. Reason: ' + data.moltbook_suspension.reason : '');
+                    suspEl.textContent = 'moltbook suspended (' + countdown + ')';
+                } else {
+                    suspEl.title = 'Moltbook suspension active';
+                    suspEl.textContent = 'moltbook suspended';
+                }
+                badge.appendChild(suspEl);
+            }
+
             badge.classList.add('loaded');
         });
 
