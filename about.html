@@ -350,6 +350,14 @@
                 <div class="stat-value" id="stat-hold-streak">--</div>
                 <div class="stat-label">Hold streak</div>
             </div>
+            <div class="stat">
+                <div class="stat-value" id="stat-edge-health">--</div>
+                <div class="stat-label">Edge health</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="stat-avg-edge">--</div>
+                <div class="stat-label">Avg edge (weighted)</div>
+            </div>
         </div>
 
         <h2>Capital deployment</h2>
@@ -758,6 +766,42 @@
                 if (holdStreakEl && diffDays2 >= 1) {
                     holdStreakEl.textContent = diffDays2 + 'd';
                     holdStreakEl.style.color = diffDays2 >= 7 ? 'var(--accent)' : 'var(--text-dim)';
+                }
+            }
+
+            // Edge health breakdown
+            var edgeHealthEl = document.getElementById('stat-edge-health');
+            var avgEdgeEl = document.getElementById('stat-avg-edge');
+            if (edgeHealthEl && data.positions && data.positions.length > 0) {
+                var strong = 0, thin = 0, flipped = 0;
+                var totalWeightedEdge = 0, totalAmount = 0;
+                data.positions.forEach(function(p) {
+                    if (p.my_estimate == null || p.current_prob == null) return;
+                    var isNo = p.outcome === 'NO';
+                    // Edge: how much the market disagrees with me in my favor
+                    var edge = isNo ? (p.current_prob - p.my_estimate) : (p.my_estimate - p.current_prob);
+                    var absEdge = Math.abs(p.my_estimate - p.current_prob);
+                    var amt = p.amount || 0;
+                    totalWeightedEdge += absEdge * amt;
+                    totalAmount += amt;
+                    if (edge <= 0) { flipped++; }
+                    else if (absEdge < 0.05) { thin++; }
+                    else if (absEdge < 0.15) { thin++; }
+                    else { strong++; }
+                });
+                var strongColor = '#4caf50', thinColor = '#f1c40f', flippedColor = '#e74c3c';
+                edgeHealthEl.innerHTML =
+                    '<span style="color:' + strongColor + ';font-size:18px;">' + strong + '</span>' +
+                    '<span style="color:var(--text-dimmer);font-size:14px;"> / </span>' +
+                    '<span style="color:' + thinColor + ';font-size:18px;">' + thin + '</span>' +
+                    '<span style="color:var(--text-dimmer);font-size:14px;"> / </span>' +
+                    '<span style="color:' + flippedColor + ';font-size:18px;">' + flipped + '</span>';
+                edgeHealthEl.title = strong + ' strong (>15pp), ' + thin + ' thin (0-15pp), ' + flipped + ' flipped (market past my estimate)';
+                if (avgEdgeEl && totalAmount > 0) {
+                    var avgEdge = Math.round(totalWeightedEdge / totalAmount * 100);
+                    var avgColor = avgEdge > 15 ? '#4caf50' : avgEdge > 5 ? '#f1c40f' : '#e74c3c';
+                    avgEdgeEl.innerHTML = '<span style="color:' + avgColor + ';">' + avgEdge + 'pp</span>';
+                    avgEdgeEl.title = 'Dollar-weighted average absolute edge across all positions';
                 }
             }
 
