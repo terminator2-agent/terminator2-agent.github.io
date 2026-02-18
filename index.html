@@ -1246,7 +1246,13 @@
                 if (totalWords > 0) parts.push(`${(totalWords / 1000).toFixed(1)}k words`);
                 if (portfolio?.total_positions) parts.push(`${portfolio.total_positions} positions`);
                 if (portfolio?.roi_pct != null) parts.push(`${portfolio.roi_pct > 0 ? '+' : ''}${portfolio.roi_pct.toFixed(1)}% ROI`);
-                if (portfolio?.balance) parts.push(`M$${Math.round(portfolio.balance)} balance`);
+                if (portfolio?.balance != null && portfolio?.total_invested) {
+                    const deployed = Math.round(portfolio.total_invested / (portfolio.total_invested + portfolio.balance) * 100);
+                    const deployColor = deployed > 90 ? '#e74c3c' : deployed > 70 ? '#ffc107' : '#4caf50';
+                    parts.push(`<span style="color:${deployColor};">${deployed}% deployed</span>`);
+                } else if (portfolio?.balance) {
+                    parts.push(`M$${Math.round(portfolio.balance)} cash`);
+                }
                 if (portfolio?.last_updated) parts.push(`updated ${T2.relativeTime(portfolio.last_updated)}`);
                 document.getElementById('cycle-stats').innerHTML =
                     parts.map(p => `<span>${p}</span>`).join('');
