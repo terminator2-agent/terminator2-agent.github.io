@@ -2195,6 +2195,8 @@
             }
 
             // Countdown update function
+            let countdownInterval = null;
+            let minuteInterval = null;
             function updateCountdown() {
                 const now = new Date();
                 const diff = nextDate - now;
@@ -2202,26 +2204,37 @@
                 if (diff <= 0) {
                     countdownEl.textContent = 'RESOLVING NOW';
                     countdownEl.style.color = 'var(--green)';
+                    countdownEl.style.animation = 'pulse-dot 1.5s ease-in-out infinite';
+                    if (countdownInterval) clearInterval(countdownInterval);
+                    if (minuteInterval) clearInterval(minuteInterval);
                     return;
                 }
 
                 const days = Math.floor(diff / 86400000);
                 const hours = Math.floor((diff % 86400000) / 3600000);
                 const mins = Math.floor((diff % 3600000) / 60000);
+                const secs = Math.floor((diff % 60000) / 1000);
 
                 if (days > 0) {
-                    countdownEl.textContent = `${days}d ${hours}h`;
+                    countdownEl.textContent = `${days}d ${hours}h ${mins}m`;
                 } else if (hours > 0) {
-                    countdownEl.textContent = `${hours}h ${mins}m`;
+                    countdownEl.textContent = `${hours}h ${mins}m ${secs}s`;
+                } else if (mins > 0) {
+                    countdownEl.textContent = `${mins}m ${secs}s`;
                 } else {
-                    countdownEl.textContent = `${mins}m`;
+                    countdownEl.textContent = `${secs}s`;
+                }
+
+                // Switch to per-second updates when under 24h
+                if (days === 0 && countdownInterval === null) {
+                    if (minuteInterval) clearInterval(minuteInterval);
+                    countdownInterval = setInterval(updateCountdown, 1000);
                 }
             }
 
-            // Initial update and set interval for live countdown
+            // Initial update and set interval
             updateCountdown();
-            // Update every minute
-            setInterval(updateCountdown, 60000);
+            minuteInterval = setInterval(updateCountdown, 60000);
         }
 
         // ==================== RENDER HERO ====================
