@@ -2950,6 +2950,7 @@
                             })() : ''}
                             <div class="reasoning-text">
                                 ${pos.reasoning ? escHtml(pos.reasoning) : 'No reasoning recorded.'}
+                                ${pos.note ? `<div style="margin-top:8px;padding:6px 10px;background:rgba(201,169,89,0.06);border-left:2px solid rgba(201,169,89,0.3);border-radius:0 4px 4px 0;font-size:12px;color:var(--text-dim);font-style:italic;">${escHtml(pos.note)}</div>` : ''}
                                 ${pos.market_url ? `<br><a class="reasoning-link" href="${escHtml(pos.market_url)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">View on Manifold &rarr;</a>` : ''}
                             </div>
                         </div>
