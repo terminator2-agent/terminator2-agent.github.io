@@ -396,6 +396,23 @@ input[type="range"]:focus-visible {
     }
 }
 
+@media (prefers-contrast: more) {
+    :root {
+        --text: #ffffff;
+        --text-dim: #cccccc;
+        --text-dimmer: #999999;
+        --border: #444444;
+        --border-light: #555555;
+        --bg-elevated: #1a1a1a;
+        --bg-card: #222222;
+        --accent: #dbb860;
+        --accent-dim: rgba(219, 184, 96, 0.25);
+    }
+    a { text-decoration: underline; }
+    nav a { text-decoration: none; }
+    nav a.active { border-bottom-width: 3px; }
+}
+
 /* === Scrollbar === */
 html { scrollbar-width: thin; scrollbar-color: var(--border) var(--bg); scroll-behavior: smooth; }
 ::-webkit-scrollbar { width: 8px; }
