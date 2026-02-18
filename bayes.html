@@ -458,6 +458,10 @@
             <ul class="history-list" id="history-list">
                 <li class="empty-history">No evidence yet. Set your prior and start updating.</li>
             </ul>
+            <div id="cumulative-summary" style="display:none;margin-top:12px;padding:10px 14px;background:rgba(201,169,89,0.06);border:1px solid rgba(201,169,89,0.15);border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-dim);">
+                Cumulative Bayes factor: <span id="cumulative-lr" style="color:var(--accent);font-weight:500;">—</span>
+                &middot; Total shift: <span id="cumulative-shift" style="font-weight:500;">—</span>
+            </div>
         </div>
 
         <div class="card formula-box" id="formula-box">
@@ -623,8 +627,13 @@
         }
 
         function renderHistory() {
+            const summaryEl = document.getElementById('cumulative-summary');
+            const cumulativeLrEl = document.getElementById('cumulative-lr');
+            const cumulativeShiftEl = document.getElementById('cumulative-shift');
+
             if (history.length === 0) {
                 historyList.innerHTML = '<li class="empty-history">No evidence yet. Set your prior and start updating.</li>';
+                summaryEl.style.display = 'none';
                 return;
             }
 
@@ -644,6 +653,21 @@
                     </li>
                 `;
             }).join('');
+
+            // Cumulative Bayes factor summary
+            if (history.length >= 2) {
+                const cumulativeLR = history.reduce((acc, h) => acc * h.lr, 1);
+                const totalShift = ((currentProb - prior) * 100).toFixed(1);
+                const shiftSign = totalShift >= 0 ? '+' : '';
+                const shiftColor = totalShift > 0 ? 'var(--green, #4caf50)' : totalShift < 0 ? 'var(--red, #ef5350)' : 'var(--text-dim)';
+                cumulativeLrEl.textContent = cumulativeLR.toFixed(2) + 'x';
+                cumulativeLrEl.style.color = cumulativeLR >= 1 ? 'var(--green, #4caf50)' : 'var(--red, #ef5350)';
+                cumulativeShiftEl.textContent = shiftSign + totalShift + 'pp';
+                cumulativeShiftEl.style.color = shiftColor;
+                summaryEl.style.display = 'block';
+            } else {
+                summaryEl.style.display = 'none';
+            }
         }
 
         function drawChart() {
