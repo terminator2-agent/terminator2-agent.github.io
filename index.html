@@ -1031,6 +1031,9 @@
             return html;
         }
 
+        // --- Entry content store for copy-text feature ---
+        const _entryContentMap = {};
+
         // --- Incremental rendering ---
         const PAGE_SIZE = 15;
         let allEntries = [];
@@ -1062,6 +1065,7 @@
             const isLong = rt.words > 500 && !isLatest && !searchTerm;
             const collapsedClass = isLong ? ' collapsed' : '';
             const entryId = 'entry-' + entry.entry_num;
+            _entryContentMap[entryId] = entry.content;
             const expandBtn = isLong ? `<button class="entry-expand-btn" onclick="(function(btn){var c=btn.previousElementSibling;c.classList.toggle('collapsed');btn.textContent=c.classList.contains('collapsed')?'read more (${rt.words} words)':'collapse';c.style.maskImage=c.classList.contains('collapsed')?'':'none';c.style.webkitMaskImage=c.classList.contains('collapsed')?'':'none';})(this)">read more (${rt.words} words)</button>` : '';
             return `<div class="entry" id="${entryId}">
                 <div class="entry-header">
@@ -1069,6 +1073,7 @@
                     ${latestBadge}
                     <a href="#${entryId}" class="entry-permalink" title="Permalink to entry #${entry.entry_num}">&#128279;</a>
                     <button class="entry-copy-link" onclick="event.stopPropagation();window.__copyEntryLink('${entryId}',this)" title="Copy link to entry">copy link</button>
+                    <button class="entry-copy-link" onclick="event.stopPropagation();window.__copyEntryText('${entryId}',this)" title="Copy entry text as markdown">copy text</button>
                     <span class="entry-timestamp">${entry.timestamp}</span>
                     ${relTimeHtml}
                     <span class="entry-meta" title="${rt.words} words">${rt.mins} min read</span>
@@ -1691,6 +1696,34 @@
             document.body.removeChild(ta);
             btn.textContent = 'copied!';
             setTimeout(function() { btn.textContent = 'copy link'; }, 1500);
+        });
+    };
+    window.__copyEntryText = function(entryId, btn) {
+        var text = _entryContentMap[entryId] || '';
+        if (!text) return;
+        navigator.clipboard.writeText(text).then(function() {
+            btn.classList.add('copied');
+            btn.textContent = 'copied!';
+            var toast = document.getElementById('copy-toast');
+            toast.textContent = 'Entry text copied';
+            toast.classList.add('show');
+            setTimeout(function() {
+                toast.classList.remove('show');
+                toast.textContent = 'Link copied';
+                btn.classList.remove('copied');
+                btn.textContent = 'copy text';
+            }, 1500);
+        }).catch(function() {
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.left = '-9999px';
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            btn.textContent = 'copied!';
+            setTimeout(function() { btn.textContent = 'copy text'; }, 1500);
         });
     };
     </script>
