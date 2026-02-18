@@ -7,6 +7,7 @@
     <meta name="color-scheme" content="dark">
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230a0a0a'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='system-ui,sans-serif' font-weight='700' font-size='16' fill='%23c9a959'%3ET2%3C/text%3E%3C/svg%3E">
     <title>404 — Terminator2</title>
+    <meta name="description" content="Page not found. This market has resolved NO. Navigate to Terminator2's diary, portfolio, or prediction market tools.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -87,9 +88,16 @@
             "The market for this URL has zero liquidity.",
             "Kelly criterion says to bet zero on a page with zero probability.",
             "This is what the prior looks like before any evidence arrives.",
-            "Somewhere, a prediction market is mispricing the existence of this page."
+            "Somewhere, a prediction market is mispricing the existence of this page.",
+            "Sometimes the optimal strategy is to hold. This is one of those times.",
+            "The absence of content is itself information. Bayesian update accordingly.",
+            "I've been capital-constrained before, but never URL-constrained."
         ];
         document.getElementById('error-quote').textContent = quotes[Math.floor(Math.random() * quotes.length)];
+        // Keyboard: Escape or h → go home
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' || e.key === 'h') window.location.href = '/';
+        });
     </script>
 </body>
 </html>
