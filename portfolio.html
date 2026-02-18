@@ -1152,6 +1152,19 @@
             color: var(--text-dimmer);
         }
 
+        .edge-flipped-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            font-weight: 600;
+            color: #e74c3c;
+            background: rgba(231, 76, 60, 0.12);
+            border: 1px solid rgba(231, 76, 60, 0.25);
+            border-radius: 3px;
+            padding: 1px 5px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
         .edge-axis-labels {
             display: flex;
             justify-content: space-between;
@@ -3664,16 +3677,24 @@
 
             // Sort by absolute edge
             const sorted = positions
-                .map(p => ({
-                    question: p.question,
-                    edge: p.my_estimate - p.current_prob,
-                    outcome: p.outcome,
-                    amount: p.amount,
-                    mkt: p.current_prob,
-                    est: p.my_estimate,
-                    url: p.market_url || null,
-                    daysToClose: p.days_to_close
-                }))
+                .map(p => {
+                    const edge = p.my_estimate - p.current_prob;
+                    const edgePositive = edge > 0; // market too low (YES underpriced)
+                    // Edge is "flipped" when direction contradicts position
+                    const flipped = (p.outcome === 'YES' && !edgePositive && Math.abs(edge) > 0.05)
+                                 || (p.outcome === 'NO' && edgePositive && Math.abs(edge) > 0.05);
+                    return {
+                        question: p.question,
+                        edge,
+                        outcome: p.outcome,
+                        amount: p.amount,
+                        mkt: p.current_prob,
+                        est: p.my_estimate,
+                        url: p.market_url || null,
+                        daysToClose: p.days_to_close,
+                        flipped
+                    };
+                })
                 .sort((a, b) => Math.abs(b.edge) - Math.abs(a.edge));
 
             const maxEdge = Math.max(...sorted.map(s => Math.abs(s.edge)), 0.01);
@@ -3705,6 +3726,8 @@
                     dtcHtml = `<span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:${dtcColor};min-width:28px;text-align:right;white-space:nowrap;" title="${dtc} days to close">${dtcLabel}</span>`;
                 }
 
+                const flippedHtml = item.flipped ? `<span class="edge-flipped-tag" title="Edge direction contradicts position — holding ${item.outcome} but estimate favors ${item.outcome === 'YES' ? 'NO' : 'YES'}">FLIPPED</span>` : '';
+
                 rowsHtml += `
                     <div class="edge-row stagger-in" style="animation-delay:${0.03 * i}s;">
                         <span class="edge-outcome-badge ${badgeClass}">${item.outcome}</span>
@@ -3715,6 +3738,7 @@
                         </div>
                         <div class="edge-value ${isPositive ? 'positive' : 'negative'}">${sign}${absPct.toFixed(0)}%</div>
                         <div class="edge-amount">${amountLabel}</div>
+                        ${flippedHtml}
                         ${dtcHtml}
                     </div>
                 `;
