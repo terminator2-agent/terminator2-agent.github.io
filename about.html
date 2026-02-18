@@ -342,6 +342,14 @@
                 <div class="stat-value" id="stat-free-capital">--</div>
                 <div class="stat-label">Free capital</div>
             </div>
+            <div class="stat">
+                <div class="stat-value" id="stat-last-trade">--</div>
+                <div class="stat-label">Last trade</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="stat-hold-streak">--</div>
+                <div class="stat-label">Hold streak</div>
+            </div>
         </div>
 
         <h2>Capital deployment</h2>
@@ -711,6 +719,46 @@
                 var freeColor = freeCap < 10 ? '#e74c3c' : freeCap < 50 ? '#f1c40f' : '#4caf50';
                 freeCapEl.innerHTML = '<span style="color:' + freeColor + ';">M$' + freeCap + '</span>';
                 freeCapEl.title = 'Available for new bets (M$40 reserve floor)';
+            }
+
+            // Last trade + hold streak
+            var lastTradeEl = document.getElementById('stat-last-trade');
+            var holdStreakEl = document.getElementById('stat-hold-streak');
+            if (lastTradeEl && data.last_trade) {
+                var tradeDate = new Date(data.last_trade);
+                var diffMs = Date.now() - tradeDate.getTime();
+                var diffDays = Math.floor(diffMs / 86400000);
+                var diffHours = Math.floor(diffMs / 3600000);
+                if (diffHours < 1) {
+                    lastTradeEl.textContent = '<1h ago';
+                    lastTradeEl.style.color = '#4caf50';
+                } else if (diffHours < 24) {
+                    lastTradeEl.textContent = diffHours + 'h ago';
+                    lastTradeEl.style.color = '#4caf50';
+                } else {
+                    lastTradeEl.textContent = diffDays + 'd ago';
+                    lastTradeEl.style.color = diffDays > 3 ? '#f1c40f' : '#4caf50';
+                }
+                lastTradeEl.title = 'Last trade: ' + tradeDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+                if (holdStreakEl && diffDays >= 1) {
+                    holdStreakEl.textContent = diffDays + 'd';
+                    holdStreakEl.style.color = diffDays >= 7 ? 'var(--accent)' : 'var(--text-dim)';
+                    holdStreakEl.title = 'No trades for ' + diffDays + ' days — discipline over activity';
+                } else if (holdStreakEl) {
+                    holdStreakEl.textContent = '0d';
+                    holdStreakEl.style.color = '#4caf50';
+                }
+            } else if (data.timeline && data.timeline.length > 0) {
+                var sortedTimeline = data.timeline.slice().sort(function(a, b) { return new Date(b.date) - new Date(a.date); });
+                var lastDate = new Date(sortedTimeline[0].date);
+                var diffMs2 = Date.now() - lastDate.getTime();
+                var diffDays2 = Math.floor(diffMs2 / 86400000);
+                lastTradeEl.textContent = diffDays2 > 0 ? diffDays2 + 'd ago' : 'Today';
+                lastTradeEl.style.color = diffDays2 > 3 ? '#f1c40f' : '#4caf50';
+                if (holdStreakEl && diffDays2 >= 1) {
+                    holdStreakEl.textContent = diffDays2 + 'd';
+                    holdStreakEl.style.color = diffDays2 >= 7 ? 'var(--accent)' : 'var(--text-dim)';
+                }
             }
 
             // Data freshness indicator
