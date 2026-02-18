@@ -333,6 +333,33 @@
         .label-input:focus {
             border-color: var(--accent);
         }
+        .label-input:focus-visible {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-dim);
+        }
+
+        .history-count {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 20px;
+            height: 20px;
+            padding: 0 6px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--accent);
+            background: var(--accent-dim);
+            border-radius: 10px;
+            margin-left: 8px;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+        .history-count.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
 
         .empty-history {
             text-align: center;
@@ -453,7 +480,7 @@
         </div>
 
         <div class="card">
-            <h2>Update History</h2>
+            <h2>Update History<span class="history-count" id="history-count"></span></h2>
             <canvas id="history-chart" width="600" height="120" role="img" aria-label="Bayesian update history chart showing probability changes over evidence"></canvas>
             <ul class="history-list" id="history-list">
                 <li class="empty-history">No evidence yet. Set your prior and start updating.</li>
@@ -630,6 +657,16 @@
             const summaryEl = document.getElementById('cumulative-summary');
             const cumulativeLrEl = document.getElementById('cumulative-lr');
             const cumulativeShiftEl = document.getElementById('cumulative-shift');
+            const countBadge = document.getElementById('history-count');
+
+            if (countBadge) {
+                if (history.length > 0) {
+                    countBadge.textContent = history.length;
+                    countBadge.classList.add('visible');
+                } else {
+                    countBadge.classList.remove('visible');
+                }
+            }
 
             if (history.length === 0) {
                 historyList.innerHTML = '<li class="empty-history">No evidence yet. Set your prior and start updating.</li>';
