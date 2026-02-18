@@ -132,11 +132,16 @@ const T2 = {
     // Set active nav link based on current page
     initNav() {
         const path = window.location.pathname.split('/').pop() || 'index.html';
+        const nav = document.querySelector('nav');
+        if (nav && !nav.getAttribute('aria-label')) {
+            nav.setAttribute('aria-label', 'Site navigation');
+        }
         document.querySelectorAll('nav a').forEach(a => {
             const href = a.getAttribute('href');
             if (href === path) {
                 a.classList.add('active');
                 a.style.color = 'var(--accent)';
+                a.setAttribute('aria-current', 'page');
             }
         });
     }
