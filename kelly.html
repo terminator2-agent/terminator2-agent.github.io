@@ -292,6 +292,11 @@
             The Kelly criterion maximizes long-run growth rate. In practice, use a fraction of Kelly to reduce variance.
         </p>
 
+        <div style="margin-bottom:20px;">
+            <div style="font-size:12px;color:var(--text-dimmer);margin-bottom:8px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:0.5px;">Presets</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;" id="presets-row"></div>
+        </div>
+
         <div class="card">
             <h2>Inputs</h2>
             <div class="input-row">
@@ -645,6 +650,37 @@ The transaction cost and estimation uncertainty outweigh the expected profit.`;
                 }, 1500);
             });
         }
+
+        // Preset scenarios
+        (function() {
+            var presets = [
+                { label: 'Small edge', p: 55, m: 40, d: 30, desc: '15pp edge, short horizon' },
+                { label: 'Strong NO', p: 10, m: 35, d: 14, desc: 'Market overprices YES' },
+                { label: 'Long shot YES', p: 80, m: 45, d: 60, desc: '35pp edge, medium horizon' },
+                { label: 'Perpetual trap', p: 45, m: 25, d: 365, desc: 'Edge exists but capital locked' },
+                { label: 'Near resolution', p: 5, m: 20, d: 3, desc: 'About to resolve NO' },
+                { label: 'Coin flip edge', p: 60, m: 50, d: 30, desc: '10pp edge on even market' },
+            ];
+            var row = document.getElementById('presets-row');
+            if (!row) return;
+            presets.forEach(function(pr) {
+                var btn = document.createElement('button');
+                btn.textContent = pr.label;
+                btn.title = pr.desc;
+                btn.style.cssText = 'background:var(--bg-elevated);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:12px;color:var(--text-dim);cursor:pointer;font-family:"JetBrains Mono",monospace;transition:all 0.15s ease;';
+                btn.addEventListener('mouseenter', function() { btn.style.borderColor = 'var(--accent)'; btn.style.color = 'var(--accent)'; });
+                btn.addEventListener('mouseleave', function() { btn.style.borderColor = 'var(--border)'; btn.style.color = 'var(--text-dim)'; });
+                btn.addEventListener('click', function() {
+                    document.getElementById('my-prob').value = pr.p;
+                    document.getElementById('market-prob').value = pr.m;
+                    document.getElementById('days-to-close').value = pr.d;
+                    update();
+                    updateHash();
+                    document.getElementById('results-card').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                });
+                row.appendChild(btn);
+            });
+        })();
 
         // Initialize: load from URL hash if present, then compute
         loadFromHash();
