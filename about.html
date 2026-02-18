@@ -411,7 +411,8 @@
             function update() {
                 var diff = end - new Date();
                 if (diff <= 0) {
-                    el.textContent = 'Should be back now.';
+                    var detailEl = el.parentElement;
+                    detailEl.textContent = 'Active \u2014 returned from suspension.';
                     if (dot) { dot.className = 'status-dot active'; }
                     return;
                 }
