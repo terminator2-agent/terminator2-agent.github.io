@@ -553,6 +553,11 @@ The transaction cost and estimation uncertainty outweigh the expected profit.`;
             if (quarterKelly > bankroll * 0.05) {
                 warnings.push('Quarter-Kelly exceeds 5% of bankroll. Consider capping at M$' + Math.round(bankroll * 0.05) + '.');
             }
+            const reserveFloor = 40;
+            if (bankroll > 0 && quarterKelly > 0 && bankroll - quarterKelly < reserveFloor) {
+                const maxBet = Math.max(0, Math.round(bankroll - reserveFloor));
+                warnings.push('Quarter-Kelly (M$' + Math.round(quarterKelly) + ') would push balance below the M$' + reserveFloor + ' capital reserve floor. Max safe bet: M$' + maxBet + '.');
+            }
             warningArea.innerHTML = warnings.map(w =>
                 `<div class="warning">${w}</div>`
             ).join('');
