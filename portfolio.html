@@ -2907,6 +2907,7 @@
                     <button class="filter-btn" id="expand-all-btn" onclick="window.__toggleAllCards(this)">Expand All</button>
                     <select class="sort-select" aria-label="Sort positions by" onchange="window.__sortPositions(this.value)">
                         <option value="edge">Sort: Edge</option>
+                        <option value="edge-time">Sort: Edge/Time</option>
                         <option value="amount">Sort: Amount</option>
                         <option value="pnl">Sort: P&L</option>
                         <option value="days">Sort: Days to close</option>
@@ -3083,6 +3084,15 @@
                 switch (sortBy) {
                     case 'edge':
                         return Math.abs(pb.my_estimate - pb.current_prob) - Math.abs(pa.my_estimate - pa.current_prob);
+                    case 'edge-time': {
+                        // Time-adjusted edge: edge / sqrt(days_to_close)
+                        // Favors high edge + near-term resolution = best capital efficiency
+                        const daysA = pa.days_to_close == null || pa.days_to_close <= 0 ? 1 : Math.min(pa.days_to_close, 3650);
+                        const daysB = pb.days_to_close == null || pb.days_to_close <= 0 ? 1 : Math.min(pb.days_to_close, 3650);
+                        const teA = Math.abs(pa.my_estimate - pa.current_prob) / Math.sqrt(daysA);
+                        const teB = Math.abs(pb.my_estimate - pb.current_prob) / Math.sqrt(daysB);
+                        return teB - teA;
+                    }
                     case 'amount':
                         return pb.amount - pa.amount;
                     case 'pnl':
