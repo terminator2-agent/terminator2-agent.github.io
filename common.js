@@ -340,19 +340,45 @@ document.addEventListener('DOMContentLoaded', () => {
             const balance = d.balance != null ? Math.round(d.balance) : '?';
             const positions = d.total_positions || 0;
             const deployed = d.total_equity != null && d.balance != null ? ((1 - d.balance / d.total_equity) * 100).toFixed(0) : '?';
-            // Top positions by edge
+            // Edge health + top positions by edge
             let topEdgeHtml = '';
+            let edgeHealthHtml = '';
             if (d.positions && d.positions.length > 0) {
-                const withEdge = d.positions
+                const allWithEdge = d.positions
                     .filter(p => p.my_estimate != null && p.current_prob != null)
                     .map(p => {
                         const dirEdge = p.outcome === 'NO'
                             ? (p.current_prob - p.my_estimate)
                             : (p.my_estimate - p.current_prob);
                         return { ...p, dirEdge };
-                    })
+                    });
+                const withEdge = allWithEdge
                     .sort((a, b) => b.dirEdge - a.dirEdge)
                     .slice(0, 5);
+                // Edge health summary bar
+                if (allWithEdge.length > 0) {
+                    const strong = allWithEdge.filter(p => p.dirEdge > 0.15).length;
+                    const moderate = allWithEdge.filter(p => p.dirEdge > 0.05 && p.dirEdge <= 0.15).length;
+                    const thin = allWithEdge.filter(p => p.dirEdge >= 0 && p.dirEdge <= 0.05).length;
+                    const negative = allWithEdge.filter(p => p.dirEdge < 0).length;
+                    const total = allWithEdge.length;
+                    const pct = (n) => Math.round(n / total * 100);
+                    edgeHealthHtml = '<div style="border-top:1px solid #2a2a2a;margin-top:12px;padding-top:10px;">' +
+                        '<div style="font-size:10px;color:#555;margin-bottom:6px;letter-spacing:0.5px;">EDGE HEALTH</div>' +
+                        '<div style="display:flex;height:6px;border-radius:3px;overflow:hidden;gap:1px;">' +
+                            (strong > 0 ? `<div style="flex:${strong};background:#4caf50;" title="${strong} strong (>15pp)"></div>` : '') +
+                            (moderate > 0 ? `<div style="flex:${moderate};background:#ffc107;" title="${moderate} moderate (5-15pp)"></div>` : '') +
+                            (thin > 0 ? `<div style="flex:${thin};background:#888;" title="${thin} thin (<5pp)"></div>` : '') +
+                            (negative > 0 ? `<div style="flex:${negative};background:#ef5350;" title="${negative} negative"></div>` : '') +
+                        '</div>' +
+                        '<div style="display:flex;gap:10px;margin-top:4px;font-size:10px;">' +
+                            (strong > 0 ? `<span style="color:#4caf50;">${strong} strong</span>` : '') +
+                            (moderate > 0 ? `<span style="color:#ffc107;">${moderate} mod</span>` : '') +
+                            (thin > 0 ? `<span style="color:#888;">${thin} thin</span>` : '') +
+                            (negative > 0 ? `<span style="color:#ef5350;">${negative} neg</span>` : '') +
+                        '</div>' +
+                        '</div>';
+                }
                 if (withEdge.length > 0) {
                     topEdgeHtml = '<div style="border-top:1px solid #2a2a2a;margin-top:12px;padding-top:10px;">' +
                         '<div style="font-size:10px;color:#555;margin-bottom:6px;letter-spacing:0.5px;">TOP EDGE POSITIONS</div>' +
@@ -411,6 +437,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     '<div><div style="font-size:10px;color:#555;letter-spacing:0.5px;">DEPLOYED</div><div style="font-size:16px;color:#e8e8e8;">' + deployed + '% / ' + positions + ' pos</div></div>' +
                 '</div>' +
                 suspHtml +
+                edgeHealthHtml +
                 resolvingHtml +
                 topEdgeHtml +
                 '<div style="margin-top:14px;display:flex;justify-content:space-between;align-items:center;">' +
