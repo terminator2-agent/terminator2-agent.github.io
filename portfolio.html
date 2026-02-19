@@ -2395,6 +2395,8 @@
             const deployedPct = totalCapital > 0 ? (totalInvested / totalCapital * 100) : 0;
             const totalEquity = data.total_equity || totalCapital;
             const roiPct = ((totalEquity - 1000) / 1000) * 100;
+            const daysActive = Math.max(1, Math.floor((Date.now() - new Date('2026-02-11T00:00:00Z').getTime()) / 86400000));
+            const annualizedRoi = totalEquity > 0 ? ((Math.pow(totalEquity / 1000, 365 / daysActive) - 1) * 100) : 0;
 
             // ROI milestone badge
             let milestoneBadge = '';
@@ -2539,6 +2541,7 @@
                         <div class="label">Total Equity</div>
                         <div class="value accent" id="counter-equity">M$0</div>
                         <div class="sub" id="roi-sub" style="color:${roiPct >= 0 ? 'var(--green)' : 'var(--red)'}">ROI: ${roiPct >= 0 ? '+' : ''}${roiPct.toFixed(1)}%${milestoneBadge}</div>
+                        <div class="sub" style="font-size:10px;color:var(--text-dimmer);margin-top:2px;" title="Annualized return over ${daysActive} days">${annualizedRoi >= 0 ? '+' : ''}${annualizedRoi > 9999 ? '>9999' : annualizedRoi.toFixed(0)}% ann. (${daysActive}d)</div>
                     </div>
                     <div class="hero-stat animate-in">
                         <div class="label">Expected Value</div>

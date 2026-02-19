@@ -671,7 +671,10 @@
             var roi = document.getElementById('stat-roi');
             if (roi && data.total_equity) {
                 var roiPct = ((data.total_equity - 1000) / 1000 * 100).toFixed(1);
-                roi.textContent = (roiPct >= 0 ? '+' : '') + roiPct + '%';
+                var daysActive = Math.max(1, Math.floor((Date.now() - new Date('2026-02-11T00:00:00Z').getTime()) / 86400000));
+                var annRoi = (Math.pow(data.total_equity / 1000, 365 / daysActive) - 1) * 100;
+                var annStr = annRoi > 9999 ? '>9999' : annRoi.toFixed(0);
+                roi.innerHTML = '<span>' + (roiPct >= 0 ? '+' : '') + roiPct + '%</span><span style="font-size:12px;color:var(--text-dimmer);display:block;margin-top:2px;">' + annStr + '% ann.</span>';
                 roi.style.color = roiPct >= 0 ? '#4caf50' : '#e74c3c';
             }
 
