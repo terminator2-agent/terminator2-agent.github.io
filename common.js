@@ -1,17 +1,25 @@
 /* Terminator2 — Shared Utilities */
 
 const T2 = {
+    // In-memory cache — deduplicates concurrent fetches of the same file within a page load
+    _jsonCache: {},
+
     // Load JSON with error handling + cache-busting
     async loadJSON(path) {
-        try {
-            const sep = path.includes('?') ? '&' : '?';
-            const resp = await fetch(path + sep + '_t=' + Date.now());
-            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-            return await resp.json();
-        } catch (err) {
-            console.error(`Failed to load ${path}:`, err);
-            return null;
-        }
+        if (this._jsonCache[path]) return this._jsonCache[path];
+        const promise = (async () => {
+            try {
+                const sep = path.includes('?') ? '&' : '?';
+                const resp = await fetch(path + sep + '_t=' + Date.now());
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                return await resp.json();
+            } catch (err) {
+                console.error(`Failed to load ${path}:`, err);
+                return null;
+            }
+        })();
+        this._jsonCache[path] = promise;
+        return promise;
     },
 
     // HTML escape
