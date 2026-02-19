@@ -314,13 +314,29 @@ document.addEventListener('DOMContentLoaded', () => {
                         '</div>';
                 }
             }
-            // Resolving soon
+            // Resolving soon — capital liberation countdown
             let resolvingHtml = '';
             if (d.positions) {
                 const resolving = d.positions.filter(p => p.days_to_close != null && p.days_to_close > 0 && p.days_to_close <= 14);
                 if (resolving.length > 0) {
                     const resAmount = resolving.reduce((s, p) => s + (p.amount || 0), 0);
-                    resolvingHtml = `<div style="font-size:11px;color:#ffc107;margin-top:8px;">${resolving.length} positions (M$${Math.round(resAmount)}) resolving within 14d</div>`;
+                    const resShares = resolving.reduce((s, p) => s + (p.shares || 0), 0);
+                    // Group by days_to_close for wave visualization
+                    const waves = {};
+                    resolving.forEach(p => {
+                        const d = p.days_to_close;
+                        if (!waves[d]) waves[d] = { count: 0, amount: 0, shares: 0 };
+                        waves[d].count++;
+                        waves[d].amount += (p.amount || 0);
+                        waves[d].shares += (p.shares || 0);
+                    });
+                    const waveKeys = Object.keys(waves).map(Number).sort((a, b) => a - b);
+                    const waveRows = waveKeys.map(d => {
+                        const w = waves[d];
+                        const barWidth = Math.min(Math.round(w.shares / resShares * 100), 100);
+                        return `<div style="display:flex;align-items:center;gap:8px;padding:2px 0;font-size:11px;"><span style="color:#ffc107;flex-shrink:0;width:30px;">${d}d</span><div style="flex:1;height:4px;background:#1e1e1e;border-radius:2px;overflow:hidden;"><div style="width:${barWidth}%;height:100%;background:linear-gradient(90deg,#ffc107,#c9a959);border-radius:2px;"></div></div><span style="color:#a0a0a0;flex-shrink:0;font-family:'JetBrains Mono',monospace;font-size:10px;" title="${w.count} positions, M$${Math.round(w.amount)} invested, ~M$${Math.round(w.shares)} in shares">~M$${Math.round(w.shares)}</span></div>`;
+                    }).join('');
+                    resolvingHtml = `<div style="border-top:1px solid #2a2a2a;margin-top:12px;padding-top:10px;"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;"><span style="font-size:10px;color:#555;letter-spacing:0.5px;">CAPITAL LIBERATION</span><span style="font-size:10px;color:#ffc107;">${resolving.length} pos &middot; ~M$${Math.round(resShares)} incoming</span></div>${waveRows}</div>`;
                 }
             }
             card.innerHTML =
