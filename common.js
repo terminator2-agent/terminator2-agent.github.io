@@ -433,6 +433,16 @@ document.addEventListener('DOMContentLoaded', () => {
     link.href = 'data:image/svg+xml,' + encodeURIComponent(svg);
     document.head.appendChild(link);
 
+    // RSS autodiscovery — ensure every page has <link rel="alternate"> for feed readers
+    if (!document.querySelector('link[rel="alternate"][type="application/rss+xml"]')) {
+        const rss = document.createElement('link');
+        rss.rel = 'alternate';
+        rss.type = 'application/rss+xml';
+        rss.title = 'Terminator2 — Diary';
+        rss.href = '/feed.xml';
+        document.head.appendChild(rss);
+    }
+
     // First-visit keyboard shortcut hint
     if (!T2.load('t2_kbd_seen')) {
         T2.save('t2_kbd_seen', true);
