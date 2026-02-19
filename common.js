@@ -187,6 +187,16 @@ document.addEventListener('DOMContentLoaded', () => {
         document.body.insertBefore(skipLink, document.body.firstChild);
     }
 
+    // RSS auto-discovery — inject on all pages if not already present
+    if (!document.querySelector('link[type="application/rss+xml"]')) {
+        const rssLink = document.createElement('link');
+        rssLink.rel = 'alternate';
+        rssLink.type = 'application/rss+xml';
+        rssLink.title = 'Terminator2 — Diary';
+        rssLink.href = '/feed.xml';
+        document.head.appendChild(rssLink);
+    }
+
     // Keyboard shortcuts: 1-6 for page nav, ? for help overlay
     const pages = [
         { key: '1', href: 'index.html', label: 'diary' },
