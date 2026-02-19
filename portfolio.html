@@ -2887,6 +2887,15 @@
                         edgeHtml = `<span style="font-size:10px;font-family:'JetBrains Mono',monospace;color:${color};opacity:${0.5 + intensity * 0.5};white-space:nowrap;" title="Edge: my estimate vs market">${edgePct}pp</span>`;
                     }
                 }
+                // Win confidence indicator: probability position resolves in our favor
+                let confidenceHtml = '';
+                if (p.current_prob != null) {
+                    const winProb = isYes ? p.current_prob : (1 - p.current_prob);
+                    const pct = Math.round(winProb * 100);
+                    const barColor = winProb >= 0.8 ? '#4caf50' : winProb >= 0.5 ? '#c9a959' : '#e74c3c';
+                    const label = winProb >= 0.8 ? 'likely win' : winProb >= 0.5 ? 'uncertain' : 'at risk';
+                    confidenceHtml = `<span style="display:inline-flex;align-items:center;gap:4px;white-space:nowrap;" title="Win confidence: ${pct}% (${label})"><span style="display:inline-block;width:24px;height:4px;border-radius:2px;background:rgba(255,255,255,0.08);overflow:hidden;"><span style="display:block;width:${pct}%;height:100%;background:${barColor};border-radius:2px;"></span></span><span style="font-size:9px;font-family:'JetBrains Mono',monospace;color:${barColor};opacity:0.7;">${pct}%</span></span>`;
+                }
                 return `
                     <div class="resolving-item" ${p.market_url ? 'style="cursor:pointer;"' : ''}>
                         ${linkOpen}
@@ -2896,6 +2905,7 @@
                         <span class="resolving-value">M$${p.amount}</span>
                         ${payout ? `<span class="pnl-inline positive" style="font-size:11px;" title="Payout if correct">+${returnPct}%</span>` : ''}
                         ${edgeHtml}
+                        ${confidenceHtml}
                         ${linkClose}
                     </div>
                 `;
