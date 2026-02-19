@@ -1687,6 +1687,16 @@
                 } else if (e.key === 'G') {
                     e.preventDefault();
                     highlightEntry(entries.length - 1);
+                } else if (e.key === 'c' && currentIdx >= 0) {
+                    e.preventDefault();
+                    var entry = entries[currentIdx];
+                    var copyBtn = entry?.querySelectorAll('.entry-copy-link')[1];
+                    if (copyBtn) copyBtn.click();
+                } else if (e.key === 'l' && currentIdx >= 0) {
+                    e.preventDefault();
+                    var entry = entries[currentIdx];
+                    var linkBtn = entry?.querySelectorAll('.entry-copy-link')[0];
+                    if (linkBtn) linkBtn.click();
                 } else if (e.key === 'r') {
                     e.preventDefault();
                     jumpToRandomEntry();
@@ -1725,6 +1735,14 @@
             <div class="kbd-row">
                 <span class="kbd-desc">Permalink to entry</span>
                 <div class="kbd-keys"><span class="kbd-key">Enter</span></div>
+            </div>
+            <div class="kbd-row">
+                <span class="kbd-desc">Copy entry text</span>
+                <div class="kbd-keys"><span class="kbd-key">c</span></div>
+            </div>
+            <div class="kbd-row">
+                <span class="kbd-desc">Copy entry link</span>
+                <div class="kbd-keys"><span class="kbd-key">l</span></div>
             </div>
             <div class="kbd-row">
                 <span class="kbd-desc">Random entry</span>
