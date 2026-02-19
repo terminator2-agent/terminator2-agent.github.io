@@ -2932,11 +2932,50 @@
                 return `<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;font-size:11px;font-family:'JetBrains Mono',monospace;background:${isBig ? 'var(--accent)' : 'var(--bg-input)'};color:${isBig ? '#000' : 'var(--text-dim)'};font-weight:${isBig ? '600' : '400'};">${label} <span style="opacity:0.7">${w.positions.length} pos</span> M$${w.totalAmount}</span>`;
             }).join(' ') : '';
 
+            // Capital forecast: compute optimistic (all win), expected, and pessimistic (losers lose)
+            const forecastOptimistic = soon.reduce((s, p) => s + (p.shares || p.amount || 0), 0);
+            const forecastExpected = expectedReturn;
+            const forecastPessimistic = soon.reduce((s, p) => {
+                const isYes = p.outcome === 'YES';
+                const winProb = isYes ? (p.my_estimate || p.current_prob || 0.5) : (1 - (p.my_estimate || p.current_prob || 0.5));
+                // Pessimistic: positions with <60% win confidence return 0, others pay out
+                return s + (winProb >= 0.6 ? (p.shares || p.amount || 0) : 0);
+            }, 0);
+            const forecastBarMax = forecastOptimistic > 0 ? forecastOptimistic : 1;
+
+            const forecastHtml = soon.length >= 3 ? `
+                <div style="margin-bottom:12px;padding:10px 12px;background:var(--bg-input);border-radius:8px;border:1px solid var(--border);">
+                    <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text-dimmer);margin-bottom:8px;font-weight:500;">Capital Forecast</div>
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                        <span style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--text-dimmer);width:64px;flex-shrink:0;">pessimist</span>
+                        <div style="flex:1;height:6px;background:rgba(255,255,255,0.05);border-radius:3px;overflow:hidden;">
+                            <div style="width:${(forecastPessimistic / forecastBarMax * 100).toFixed(1)}%;height:100%;background:#e74c3c;border-radius:3px;"></div>
+                        </div>
+                        <span style="font-size:11px;font-family:'JetBrains Mono',monospace;color:#e74c3c;width:56px;text-align:right;">M$${Math.round(forecastPessimistic)}</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                        <span style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--text-dimmer);width:64px;flex-shrink:0;">expected</span>
+                        <div style="flex:1;height:6px;background:rgba(255,255,255,0.05);border-radius:3px;overflow:hidden;">
+                            <div style="width:${(forecastExpected / forecastBarMax * 100).toFixed(1)}%;height:100%;background:var(--accent);border-radius:3px;"></div>
+                        </div>
+                        <span style="font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--accent);width:56px;text-align:right;">M$${Math.round(forecastExpected)}</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <span style="font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--text-dimmer);width:64px;flex-shrink:0;">optimist</span>
+                        <div style="flex:1;height:6px;background:rgba(255,255,255,0.05);border-radius:3px;overflow:hidden;">
+                            <div style="width:100%;height:100%;background:var(--green);border-radius:3px;"></div>
+                        </div>
+                        <span style="font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--green);width:56px;text-align:right;">M$${Math.round(forecastOptimistic)}</span>
+                    </div>
+                </div>
+            ` : '';
+
             const html = `
                 <div class="resolving-soon animate-in" style="animation-delay:0.3s;">
                     <div class="resolving-soon-header">Resolving within 30 days — M$${totalAtRisk} invested <span style="color:var(--green);font-weight:400;margin-left:8px;">E[return]: M$${Math.round(expectedReturn)}</span> <span style="color:var(--text-dimmer);font-weight:400;margin-left:4px;font-size:11px;">/ M$${Math.round(totalPayout)} if all correct</span></div>
                     ${overdueItems ? `<div style="margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid rgba(156,39,176,0.2);"><div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#ce93d8;margin-bottom:6px;font-weight:500;">Awaiting Resolution — M$${Math.round(overdueAmount)} locked</div>${overdueItems}</div>` : ''}
                     ${waveBadges ? `<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">${waveBadges}</div>` : ''}
+                    ${forecastHtml}
                     ${items}
                 </div>
             `;
