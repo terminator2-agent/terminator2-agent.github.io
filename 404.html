@@ -131,8 +131,9 @@
         document.getElementById('error-quote').textContent = quotes[Math.floor(Math.random() * quotes.length)];
         // Load recent diary entries
         fetch('/diary_entries.json')
-            .then(function(r) { return r.ok ? r.json() : []; })
-            .then(function(entries) {
+            .then(function(r) { return r.ok ? r.json() : {entries: []}; })
+            .then(function(data) {
+                var entries = data.entries || data;
                 if (!entries.length) return;
                 var recent = entries.slice(0, 3);
                 var container = document.getElementById('recent-entries');
