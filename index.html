@@ -1524,6 +1524,15 @@
                 if (totalWords > 0) parts.push(`${(totalWords / 1000).toFixed(1)}k words`);
                 if (portfolio?.total_positions) parts.push(`${portfolio.total_positions} positions`);
                 if (portfolio?.roi_pct != null) parts.push(`${portfolio.roi_pct > 0 ? '+' : ''}${portfolio.roi_pct.toFixed(1)}% ROI`);
+                // Resolved record (W-L from resolved bets + closed positions)
+                const resolved = portfolio?.resolved_bets || [];
+                const closed = portfolio?.closed_positions || [];
+                const wins = resolved.filter(r => (r.profit || 0) > 0).length + closed.filter(c => (c.loss || 0) >= 0).length;
+                const losses = resolved.filter(r => (r.profit || 0) <= 0).length + closed.filter(c => (c.loss || 0) < 0).length;
+                if (wins + losses > 0) {
+                    const recordColor = wins > losses ? '#4caf50' : wins < losses ? '#e74c3c' : 'var(--text-dim)';
+                    parts.push(`<span style="color:${recordColor};" title="${wins} wins, ${losses} losses — resolved bets + early exits">${wins}W-${losses}L</span>`);
+                }
                 if (portfolio?.balance != null && portfolio?.total_invested) {
                     const deployed = Math.round(portfolio.total_invested / (portfolio.total_invested + portfolio.balance) * 100);
                     const deployColor = deployed > 90 ? '#e74c3c' : deployed > 70 ? '#ffc107' : '#4caf50';
