@@ -228,6 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 pageShortcuts =
                     '<div style="border-top:1px solid #2a2a2a;margin-top:8px;padding-top:10px;">' +
                     '<div style="font-size:11px;color:#555;margin-bottom:6px;letter-spacing:0.5px;">PORTFOLIO</div>' +
+                    kbdRow('search positions', '/') +
                     kbdRow('jump to section', '1-0') +
                     kbdRow('back to top', 't') +
                     kbdRow('expand card', 'click') +
@@ -251,6 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 pages.map(p => kbdRow(p.label, p.key)).join('') +
                 kbdRow('back to top', 't') +
                 kbdRow('portfolio snapshot', 'p') +
+                kbdRow('focus search', '/') +
                 '<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-top:1px solid #2a2a2a;margin-top:8px;padding-top:14px;"><span style="color:#a0a0a0;">this help</span><kbd style="background:#141414;border:1px solid #333;border-radius:4px;padding:2px 8px;color:#e8e8e8;font-size:12px;">?</kbd></div>' +
                 pageShortcuts +
                 '<div style="margin-top:16px;font-size:11px;color:#707070;text-align:center;">press ? / esc or click to dismiss</div>';
@@ -264,6 +266,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.key === 'Escape') {
             const overlay = document.getElementById('kbd-help-overlay');
             if (overlay) { overlay.remove(); return; }
+        }
+
+        // / → focus search input if page has one (standard UX: GitHub, Reddit, YouTube)
+        if (e.key === '/') {
+            const searchInput = document.querySelector('.search-input');
+            if (searchInput) {
+                e.preventDefault();
+                searchInput.focus();
+                searchInput.select();
+                return;
+            }
         }
 
         // t → scroll to top (global fallback — pages with their own handler take priority)
