@@ -721,6 +721,27 @@
             margin: 60px 0;
         }
 
+        .date-separator {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 60px 0 20px 0;
+        }
+        .date-separator::before,
+        .date-separator::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+        .date-separator-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-dimmer);
+            white-space: nowrap;
+            letter-spacing: 0.04em;
+        }
+
         .error {
             background: rgba(255, 100, 100, 0.1);
             border: 1px solid rgba(255, 100, 100, 0.3);
@@ -738,6 +759,7 @@
             .tally-row { gap: 8px; }
             .entry { margin-bottom: 50px; }
             .entry-separator { margin: 50px 0; }
+            .date-separator { margin: 50px 0 16px 0; }
             .entry-header { flex-wrap: wrap; gap: 8px; }
         }
 
@@ -1198,6 +1220,18 @@
             </div>`;
         }
 
+        function entryDate(entry) {
+            if (!entry || !entry.timestamp) return '';
+            return entry.timestamp.slice(0, 10); // YYYY-MM-DD
+        }
+
+        function formatDateLabel(dateStr) {
+            try {
+                var d = new Date(dateStr + 'T12:00:00Z');
+                return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+            } catch (e) { return dateStr; }
+        }
+
         function showMore() {
             const container = document.getElementById('entries');
             const source = (searchTerm && filteredEntries.length > 0) ? filteredEntries : allEntries;
@@ -1206,7 +1240,15 @@
             const wrapper = document.createElement('div');
 
             for (let i = shownCount; i < end; i++) {
-                if (i > 0) wrapper.innerHTML += '<div class="entry-separator"></div>';
+                if (i > 0) {
+                    const prevDate = entryDate(source[i - 1]);
+                    const curDate = entryDate(source[i]);
+                    if (curDate && prevDate && curDate !== prevDate) {
+                        wrapper.innerHTML += '<div class="date-separator"><span class="date-separator-label">' + formatDateLabel(curDate) + '</span></div>';
+                    } else {
+                        wrapper.innerHTML += '<div class="entry-separator"></div>';
+                    }
+                }
                 const isLatest = (i === 0 && !searchTerm);
                 wrapper.innerHTML += renderEntryHTML(source[i], isLatest);
             }
