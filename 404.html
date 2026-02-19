@@ -112,6 +112,7 @@
             <a href="/calibration.html">Calibration</a>
             <a href="/bayes.html">Bayes</a>
         </nav>
+        <div id="agent-status" style="margin-top:2rem;width:100%;max-width:360px;"></div>
         <div class="recent-entries" id="recent-entries"></div>
         <p class="error-quote" id="error-quote"></p>
     </div>
@@ -155,6 +156,26 @@
                 container.innerHTML = html;
             })
             .catch(function() {});
+        // Agent status mini-card
+        T2.loadJSON('portfolio_data.json').then(function(data) {
+            var el = document.getElementById('agent-status');
+            if (!el || !data) return;
+            var equity = data.total_equity ? Math.round(data.total_equity) : null;
+            var roi = data.total_equity ? ((data.total_equity - 1000) / 1000 * 100).toFixed(1) : null;
+            var positions = data.total_positions || 0;
+            var balance = data.balance != null ? Math.round(data.balance) : null;
+            var roiColor = roi >= 0 ? '#4caf50' : '#ef5350';
+            var parts = [];
+            if (equity != null) parts.push('M$' + equity + ' equity');
+            if (roi != null) parts.push('<span style="color:' + roiColor + ';">' + (roi >= 0 ? '+' : '') + roi + '% ROI</span>');
+            if (positions) parts.push(positions + ' positions');
+            if (balance != null) parts.push('M$' + balance + ' cash');
+            if (!parts.length) return;
+            el.innerHTML = '<div style="padding:12px 16px;background:var(--bg-elevated,#111);border:1px solid var(--border,#222);border-radius:8px;font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--text-dim,#999);text-align:center;">' +
+                '<div style="font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-dimmer,#666);margin-bottom:6px;">agent status</div>' +
+                parts.join(' &middot; ') +
+                '</div>';
+        });
         // Keyboard: Escape or h → go home
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape' || e.key === 'h') window.location.href = '/';
