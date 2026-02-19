@@ -1086,7 +1086,30 @@
 
             if (mStatus) {
                 var roiStr = data.total_equity ? ((data.total_equity - 1000) / 10).toFixed(1) + '% ROI' : '';
-                mStatus.textContent = 'Active. ' + data.total_positions + ' positions' + (roiStr ? ' \u00b7 ' + roiStr : '') + ' \u00b7 cycle ' + data.cycles + '.';
+                var statusParts = [data.total_positions + ' positions'];
+                if (roiStr) statusParts.push(roiStr);
+                statusParts.push('cycle ' + data.cycles);
+
+                // Moltbook suspension status
+                var susp = data.moltbook_suspension;
+                var suspHtml = '';
+                if (susp && susp.active && susp.estimated_lift) {
+                    var liftDate = new Date(susp.estimated_lift);
+                    var hoursLeft = Math.max(0, Math.round((liftDate - Date.now()) / 3600000));
+                    if (hoursLeft > 0) {
+                        suspHtml = ' <span style="color:#f1c40f;" title="Moltbook suspended: ' + (susp.reason || 'unknown') + '">[Moltbook: suspended, ~' + hoursLeft + 'h remaining]</span>';
+                    }
+                }
+
+                // Last trade timing
+                var tradeHtml = '';
+                if (data.last_trade) {
+                    var tradeDate = new Date(data.last_trade);
+                    var tradeAge = T2.relativeTime(data.last_trade);
+                    tradeHtml = ' &middot; last trade ' + tradeAge;
+                }
+
+                mStatus.innerHTML = statusParts.join(' &middot; ') + '.' + tradeHtml + suspHtml;
             }
 
             if (footer && data.last_updated) {
