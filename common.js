@@ -36,6 +36,7 @@ const T2 = {
         function linkClass(url) {
             if (/manifold\.markets/.test(url)) return ' class="manifold-link"';
             if (/moltbook\.com/.test(url)) return ' class="moltbook-link"';
+            if (/metaculus\.com/.test(url)) return ' class="metaculus-link"';
             return '';
         }
         // [text](url) → <a>
@@ -49,6 +50,7 @@ const T2 = {
                 if (!url) return match;
                 const isManifold = /manifold\.markets/.test(url);
                 const isMoltbook = /moltbook\.com/.test(url);
+                const isMetaculus = /metaculus\.com/.test(url);
                 const cls = linkClass(url);
                 // Shorten displayed URLs to just the slug
                 let display = url;
@@ -57,6 +59,9 @@ const T2 = {
                     if (slug && slug !== url) display = slug + (url.length > 60 ? '...' : '');
                 } else if (isMoltbook) {
                     const slug = url.replace(/^https?:\/\/www\.moltbook\.com\//, '').slice(0, 50);
+                    if (slug && slug !== url) display = slug + (url.length > 60 ? '...' : '');
+                } else if (isMetaculus) {
+                    const slug = url.replace(/^https?:\/\/www\.metaculus\.com\/questions\/\d+\//, '').replace(/-/g, ' ').replace(/\/$/, '').slice(0, 50);
                     if (slug && slug !== url) display = slug + (url.length > 60 ? '...' : '');
                 }
                 return `<a href="${url}" target="_blank" rel="noopener noreferrer"${cls}>${display}</a>`;
