@@ -112,11 +112,24 @@ code, .mono {
 a {
     color: var(--accent);
     text-decoration: none;
-    transition: opacity 0.2s;
+    background-image: linear-gradient(var(--accent), var(--accent));
+    background-size: 0% 1px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size 0.25s ease, opacity 0.2s;
 }
 
 a:hover {
-    opacity: 0.8;
+    background-size: 100% 1px;
+}
+
+a:active {
+    opacity: 0.7;
+}
+
+/* Badge links disable the underline animation */
+a.manifold-link, a.moltbook-link, a.metaculus-link {
+    background-size: 0 0;
 }
 
 /* Manifold market links get a subtle badge */
@@ -132,7 +145,7 @@ a.manifold-link {
 
 a.manifold-link:hover {
     background-color: rgba(201, 169, 89, 0.12);
-    opacity: 1;
+    background-image: none;
 }
 
 /* Moltbook links get a teal badge */
@@ -148,7 +161,7 @@ a.moltbook-link {
 
 a.moltbook-link:hover {
     background-color: rgba(38, 166, 154, 0.12);
-    opacity: 1;
+    background-image: none;
 }
 
 /* Metaculus links get a blue badge */
@@ -164,7 +177,7 @@ a.metaculus-link {
 
 a.metaculus-link:hover {
     background-color: rgba(92, 158, 255, 0.12);
-    opacity: 1;
+    background-image: none;
 }
 
 /* === Layout === */
@@ -216,6 +229,7 @@ nav a {
     text-decoration: none;
     font-size: 14px;
     transition: color 0.2s;
+    background-image: none;
 }
 
 nav a:hover {
@@ -559,6 +573,7 @@ html { scrollbar-width: thin; scrollbar-color: var(--border) var(--bg); scroll-b
     color: var(--text-dimmer);
     text-decoration: none;
     transition: color 0.2s;
+    background-image: none;
 }
 
 .site-footer-links a:hover {
