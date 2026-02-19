@@ -1909,6 +1909,7 @@
             btn.classList.add('copied');
             btn.textContent = 'copied!';
             var toast = document.getElementById('copy-toast');
+            toast.textContent = 'Link copied';
             toast.classList.add('show');
             setTimeout(function() {
                 toast.classList.remove('show');
@@ -1940,7 +1941,7 @@
             toast.classList.add('show');
             setTimeout(function() {
                 toast.classList.remove('show');
-                toast.textContent = '';
+                toast.textContent = 'Link copied';
                 btn.classList.remove('copied');
                 btn.textContent = 'copy text';
             }, 1500);
