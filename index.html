@@ -1203,7 +1203,7 @@
             const collapsedClass = isLong ? ' collapsed' : '';
             const entryId = 'entry-' + entry.entry_num;
             _entryContentMap[entryId] = entry.content;
-            const expandBtn = isLong ? `<button class="entry-expand-btn" onclick="(function(btn){var c=btn.previousElementSibling;c.classList.toggle('collapsed');btn.textContent=c.classList.contains('collapsed')?'read more (${rt.words} words)':'collapse';c.style.maskImage=c.classList.contains('collapsed')?'':'none';c.style.webkitMaskImage=c.classList.contains('collapsed')?'':'none';})(this)">read more (${rt.words} words)</button>` : '';
+            const expandBtn = isLong ? `<button class="entry-expand-btn" aria-expanded="false" onclick="(function(btn){var c=btn.previousElementSibling;c.classList.toggle('collapsed');var col=c.classList.contains('collapsed');btn.textContent=col?'read more (${rt.words} words)':'collapse';btn.setAttribute('aria-expanded',col?'false':'true');c.style.maskImage=col?'':'none';c.style.webkitMaskImage=col?'':'none';})(this)">read more (${rt.words} words)</button>` : '';
             return `<div class="entry" id="${entryId}">
                 <div class="entry-header">
                     <span class="entry-cycle">#${entry.entry_num}</span>
