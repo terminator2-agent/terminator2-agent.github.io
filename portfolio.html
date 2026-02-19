@@ -3099,6 +3099,16 @@
                     edgeWarningHtml = `<span class="edge-warning thin" title="Edge has thinned to ${edgePp.toFixed(0)}pp — review position">thin</span>`;
                 }
 
+                // Time-decay rate: daily edge accrual for short-dated positions
+                let timeDecayHtml = '';
+                if (days != null && days > 0 && days <= 90 && edgeDirection > 0.02) {
+                    const dailyDecay = (edgeDirection * 100) / days;
+                    if (dailyDecay >= 0.5) {
+                        const decayColor = dailyDecay >= 3 ? 'var(--green)' : dailyDecay >= 1.5 ? 'rgba(76, 175, 80, 0.7)' : 'var(--text-dimmer)';
+                        timeDecayHtml = `<span class="time-decay-tag" title="Daily edge accrual: ${dailyDecay.toFixed(1)}pp/day — time is working for this position" style="font-size:10px;font-family:'JetBrains Mono',monospace;color:${decayColor};margin-left:4px;white-space:nowrap;">${dailyDecay.toFixed(1)}pp/d</span>`;
+                    }
+                }
+
                 // Edge accent color for left border
                 const edgeAccentColor = edgeDirection < -0.02 ? 'var(--red)'
                     : absEdge > 0.25 ? 'var(--green)'
@@ -3119,6 +3129,7 @@
                             <span class="urgency ${urgencyClass}" ${urgencyClass === 'overdue' ? `title="Market closed ${Math.abs(days)}d ago — awaiting resolution"` : ''}>${urgencyLabel}</span>
                             <span class="win-prob ${winClass}" title="My estimated probability this bet pays out">${winPct}% conf</span>
                             ${edgeWarningHtml}
+                            ${timeDecayHtml}
                         </div>
                         <div class="prob-compare">
                             <div class="market-bar" style="width:${mktPct}%"></div>
