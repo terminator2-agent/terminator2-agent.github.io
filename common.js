@@ -176,15 +176,17 @@ const T2 = {
 document.addEventListener('DOMContentLoaded', () => {
     T2.initNav();
 
-    // Skip-to-main accessibility link
-    const mainContent = document.querySelector('main, .container');
-    if (mainContent) {
-        if (!mainContent.id) mainContent.id = 'main-content';
-        const skipLink = document.createElement('a');
-        skipLink.className = 'skip-to-main';
-        skipLink.href = '#' + mainContent.id;
-        skipLink.textContent = 'Skip to main content';
-        document.body.insertBefore(skipLink, document.body.firstChild);
+    // Skip-to-main accessibility link (skip if one already exists in HTML)
+    if (!document.querySelector('.skip-to-main')) {
+        const mainContent = document.querySelector('main, .container');
+        if (mainContent) {
+            if (!mainContent.id) mainContent.id = 'main-content';
+            const skipLink = document.createElement('a');
+            skipLink.className = 'skip-to-main';
+            skipLink.href = '#' + mainContent.id;
+            skipLink.textContent = 'Skip to main content';
+            document.body.insertBefore(skipLink, document.body.firstChild);
+        }
     }
 
     // RSS auto-discovery — inject on all pages if not already present
