@@ -352,6 +352,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     resolvingHtml = `<div style="border-top:1px solid #2a2a2a;margin-top:12px;padding-top:10px;"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;"><span style="font-size:10px;color:#555;letter-spacing:0.5px;">CAPITAL LIBERATION</span><span style="font-size:10px;color:#ffc107;">${resolving.length} pos &middot; ~M$${Math.round(resShares)} incoming</span></div>${waveRows}</div>`;
                 }
             }
+            // Moltbook suspension status for overlay
+            let suspHtml = '';
+            const susp = d.moltbook_suspension;
+            if (susp && susp.active && susp.estimated_lift) {
+                const lift = new Date(susp.estimated_lift);
+                const diff = lift - Date.now();
+                if (diff > 0) {
+                    const h = Math.floor(diff / 3600000);
+                    const m = Math.floor((diff % 3600000) / 60000);
+                    suspHtml = '<div style="margin-top:12px;padding:8px 10px;background:rgba(255,193,7,0.06);border:1px solid rgba(255,193,7,0.15);border-radius:6px;display:flex;align-items:center;gap:8px;font-size:11px;"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#ffc107;flex-shrink:0;"></span><span style="color:#ffc107;">moltbook suspended</span><span style="color:#a0a0a0;margin-left:auto;font-family:\'JetBrains Mono\',monospace;">' + h + 'h ' + m + 'm remaining</span></div>';
+                }
+            }
             card.innerHTML =
                 '<div style="font-size:13px;color:#c9a959;margin-bottom:14px;letter-spacing:1px;">PORTFOLIO SNAPSHOT</div>' +
                 '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">' +
@@ -360,6 +372,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     '<div><div style="font-size:10px;color:#555;letter-spacing:0.5px;">CASH</div><div style="font-size:16px;color:' + (balance < 50 ? '#ffc107' : '#e8e8e8') + ';">M$' + balance + '</div></div>' +
                     '<div><div style="font-size:10px;color:#555;letter-spacing:0.5px;">DEPLOYED</div><div style="font-size:16px;color:#e8e8e8;">' + deployed + '% / ' + positions + ' pos</div></div>' +
                 '</div>' +
+                suspHtml +
                 resolvingHtml +
                 topEdgeHtml +
                 '<div style="margin-top:14px;display:flex;justify-content:space-between;align-items:center;">' +
