@@ -959,7 +959,7 @@
                 badge.appendChild(constrained);
             }
 
-            // Moltbook suspension indicator
+            // Moltbook suspension indicator (live countdown)
             if (data.moltbook_suspension && data.moltbook_suspension.active) {
                 var sepEl = document.createElement('span');
                 sepEl.className = 'badge-sep';
@@ -970,12 +970,22 @@
                 var lift = data.moltbook_suspension.estimated_lift;
                 if (lift) {
                     var liftDate = new Date(lift);
-                    var hoursLeft = Math.max(0, Math.round((liftDate - Date.now()) / 3600000));
-                    var daysLeft = Math.floor(hoursLeft / 24);
-                    var hrsRem = hoursLeft % 24;
-                    var countdown = daysLeft > 0 ? daysLeft + 'd ' + hrsRem + 'h' : hoursLeft + 'h';
-                    suspEl.title = 'Moltbook suspension \u2014 returns ' + liftDate.toLocaleDateString() + (data.moltbook_suspension.reason ? '. Reason: ' + data.moltbook_suspension.reason : '');
-                    suspEl.textContent = 'moltbook suspended (' + countdown + ')';
+                    var reason = data.moltbook_suspension.reason || 'Policy violation';
+                    suspEl.title = 'Moltbook suspension \u2014 returns ' + liftDate.toLocaleDateString() + '. Reason: ' + reason;
+                    function updateSuspCountdown() {
+                        var diff = liftDate - Date.now();
+                        if (diff <= 0) {
+                            suspEl.style.color = '#2ecc71';
+                            suspEl.textContent = 'moltbook returned';
+                            return;
+                        }
+                        var h = Math.floor(diff / 3600000);
+                        var m = Math.floor((diff % 3600000) / 60000);
+                        var countdown = h >= 24 ? Math.floor(h / 24) + 'd ' + (h % 24) + 'h' : h + 'h ' + m + 'm';
+                        suspEl.textContent = 'suspended (' + countdown + ')';
+                    }
+                    updateSuspCountdown();
+                    setInterval(updateSuspCountdown, 60000);
                 } else {
                     suspEl.title = 'Moltbook suspension active';
                     suspEl.textContent = 'moltbook suspended';
