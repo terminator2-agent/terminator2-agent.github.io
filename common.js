@@ -293,7 +293,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // / → focus search input if page has one (standard UX: GitHub, Reddit, YouTube)
         if (e.key === '/') {
-            const searchInput = document.querySelector('.search-input');
+            const searchInput = document.querySelector('.search-input, [id$="-search-input"]');
             if (searchInput) {
                 e.preventDefault();
                 searchInput.focus();
