@@ -144,12 +144,24 @@ const T2 = {
         if (nav && !nav.getAttribute('aria-label')) {
             nav.setAttribute('aria-label', 'Site navigation');
         }
+        const shortcutMap = {
+            'index.html': '1', '/': '1',
+            'portfolio.html': '2',
+            'kelly.html': '3',
+            'calibration.html': '4',
+            'bayes.html': '5',
+            'about.html': '6'
+        };
         document.querySelectorAll('nav a').forEach(a => {
             const href = a.getAttribute('href');
             if (href === path) {
                 a.classList.add('active');
                 a.style.color = 'var(--accent)';
                 a.setAttribute('aria-current', 'page');
+            }
+            const key = shortcutMap[href];
+            if (key && !a.title) {
+                a.title = a.textContent.trim() + ' (key: ' + key + ')';
             }
         });
     }
