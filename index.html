@@ -87,6 +87,14 @@
             letter-spacing: -0.02em;
         }
 
+        /* === Strikethrough (thesis revisions) === */
+        del {
+            color: var(--text-dimmer, #707070);
+            text-decoration: line-through;
+            text-decoration-color: var(--red, #ef5350);
+            opacity: 0.7;
+        }
+
         /* === Ordered Lists === */
         .entry-body ol {
             list-style: decimal;
@@ -1008,6 +1016,7 @@
             text = T2.linkify(text);
             text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
             text = text.replace(/\*(.+?)\*/g, '<em>$1</em>');
+            text = text.replace(/~~(.+?)~~/g, '<del>$1</del>');
             text = text.replace(/`(.+?)`/g, '<code>$1</code>');
             // Auto-format M$ amounts (e.g., M$90, M$2,048, M$900+)
             text = text.replace(/\bM\$[\d,]+\.?\d*\+?/g, '<span class="mana-value">$&</span>');
