@@ -334,6 +334,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const equity = Math.round(data.total_equity);
                 const roi = ((data.total_equity - 1000) / 1000 * 100).toFixed(1);
                 const roiColor = roi >= 0 ? '#4caf50' : '#ef5350';
+                const daysActive = Math.max(1, Math.floor((Date.now() - new Date('2026-02-11T00:00:00Z').getTime()) / 86400000));
+                const annRoi = data.total_equity > 0 ? ((Math.pow(data.total_equity / 1000, 365 / daysActive) - 1) * 100) : 0;
+                const annLabel = annRoi > 9999 ? '>9999' : annRoi.toFixed(0);
                 const positions = data.total_positions ? `${data.total_positions} pos` : '';
                 const cash = data.balance != null ? `M$${Math.round(data.balance)} cash` : '';
                 // Count positions resolving within 7 days
@@ -351,7 +354,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     ? `<span style="color:#ffc107;" title="${resolving7d} positions (M$${Math.round(resolving7dAmount)}) resolving within 7 days">${resolving7d} resolving</span>`
                     : '';
                 const extra = [positions, cash, resolvingLabel].filter(Boolean).join(' · ');
-                statsEl.innerHTML = `M$${equity} equity &middot; <span style="color:${roiColor};">${roi >= 0 ? '+' : ''}${roi}% ROI</span>${extra ? ' &middot; ' + extra : ''}`;
+                statsEl.innerHTML = `M$${equity} &middot; <span style="color:${roiColor};" title="${annLabel}% annualized over ${daysActive}d">${roi >= 0 ? '+' : ''}${roi}% ROI</span>${extra ? ' &middot; ' + extra : ''} &middot; <span style="color:var(--text-dimmer,#707070);" title="Day ${daysActive} since inception (Feb 11, 2026)">day ${daysActive}</span>`;
             }
 
             // Moltbook suspension status
