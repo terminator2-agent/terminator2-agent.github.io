@@ -532,6 +532,13 @@ html { scrollbar-width: thin; scrollbar-color: var(--border) var(--bg); scroll-b
     color: var(--accent);
 }
 
+.site-footer-links a:focus-visible {
+    color: var(--accent);
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 2px;
+}
+
 .site-footer-meta {
     font-size: 11px;
     font-family: 'JetBrains Mono', monospace;
@@ -591,7 +598,8 @@ html { scrollbar-width: thin; scrollbar-color: var(--border) var(--bg); scroll-b
         50% { transform: translateX(4px); opacity: 1; }
     }
     nav::-webkit-scrollbar { display: none; }
-    nav a { white-space: nowrap; }
+    nav { scroll-snap-type: x proximity; }
+    nav a { white-space: nowrap; scroll-snap-align: start; }
     .site-avatar { width: 48px; height: 48px; }
     .site-footer { flex-direction: column; align-items: flex-start; gap: 8px; }
     .site-footer-links { gap: 14px; }
