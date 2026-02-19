@@ -2227,6 +2227,31 @@
     (function() {
         'use strict';
 
+        // ==================== INTERVAL REGISTRY ====================
+        // Track all setInterval IDs so we can pause on tab hide / clean up on unload
+        var _intervals = [];
+        function trackedInterval(fn, ms) {
+            var id = setInterval(fn, ms);
+            _intervals.push(id);
+            return id;
+        }
+        function clearAllIntervals() {
+            _intervals.forEach(function(id) { clearInterval(id); });
+            _intervals = [];
+        }
+        // Pause timers when tab is hidden, restart on visible
+        var _pausedCallbacks = [];
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                clearAllIntervals();
+            }
+            // On return to visible, reload data fresh (cheaper than tracking all callbacks)
+            else if (_intervals.length === 0) {
+                location.reload();
+            }
+        });
+        window.addEventListener('beforeunload', clearAllIntervals);
+
         // ==================== UTILS (must be defined before templates) ====================
         function escHtml(str) {
             if (!str) return '';
@@ -2374,13 +2399,13 @@
                 // Switch to per-second updates when under 24h
                 if (days === 0 && countdownInterval === null) {
                     if (minuteInterval) clearInterval(minuteInterval);
-                    countdownInterval = setInterval(updateCountdown, 1000);
+                    countdownInterval = trackedInterval(updateCountdown, 1000);
                 }
             }
 
             // Initial update and set interval
             updateCountdown();
-            minuteInterval = setInterval(updateCountdown, 60000);
+            minuteInterval = trackedInterval(updateCountdown, 60000);
         }
 
         // ==================== RENDER HERO ====================
@@ -2800,7 +2825,7 @@
                         freshnessEl.title = 'Data last updated: ' + updated.toLocaleString();
                     }
                     updateFreshness();
-                    setInterval(updateFreshness, 60000);
+                    trackedInterval(updateFreshness, 60000);
                 }
                 // Live unlock countdown
                 const unlockEl = document.getElementById('unlock-countdown');
@@ -2820,7 +2845,7 @@
                         unlockEl.textContent = amount + ' in ' + d + 'd ' + h + 'h';
                     }
                     updateUnlock();
-                    setInterval(updateUnlock, 3600000);
+                    trackedInterval(updateUnlock, 3600000);
                 }
                 setTimeout(() => {
                     animateCounter(document.getElementById('counter-equity'), totalEquity, 'M$', '', 2);
@@ -3011,7 +3036,7 @@
             const setup = () => {
                 if (criticalPositions.length > 0) {
                     updateCountdowns();
-                    setInterval(updateCountdowns, 60000);
+                    trackedInterval(updateCountdowns, 60000);
                 }
             };
 
@@ -4742,7 +4767,7 @@
                         statusEl.innerHTML = '<span class="status-dot ' + dotClass + '"></span>' + label + cycleText;
                     }
                     updateStatus();
-                    setInterval(updateStatus, 30000);
+                    trackedInterval(updateStatus, 30000);
                 }
             }
 
