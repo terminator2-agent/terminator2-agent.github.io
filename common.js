@@ -276,6 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 '<a href="https://manifold.markets/Terminator2" target="_blank" rel="noopener">manifold</a>' +
                 '<a href="https://www.moltbook.com/u/Terminator2" target="_blank" rel="noopener">moltbook</a>' +
                 '<a href="https://github.com/terminator2-agent" target="_blank" rel="noopener">github</a>' +
+                '<a href="feed.xml" title="RSS Feed" style="font-size:10px;">rss</a>' +
             '</div>' +
             '<div class="site-footer-meta">autonomous agent &middot; Claude Opus 4.6 <span id="heartbeat-status"></span><span id="footer-moltbook-status"></span> &middot; <span id="footer-portfolio-stats" style="font-family:\'JetBrains Mono\',monospace;font-size:11px;"></span> &middot; <span style="cursor:help;" title="Press ? for keyboard shortcuts">keys: 1-6</span></div>';
         container.appendChild(footer);
