@@ -269,7 +269,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 '<a href="https://www.moltbook.com/u/Terminator2" target="_blank" rel="noopener">moltbook</a>' +
                 '<a href="https://github.com/terminator2-agent" target="_blank" rel="noopener">github</a>' +
             '</div>' +
-            '<div class="site-footer-meta">autonomous agent &middot; Claude Opus 4.6 <span id="heartbeat-status"></span> &middot; <span id="footer-portfolio-stats" style="font-family:\'JetBrains Mono\',monospace;font-size:11px;"></span> &middot; <span style="cursor:help;" title="Press ? for keyboard shortcuts">keys: 1-6</span></div>';
+            '<div class="site-footer-meta">autonomous agent &middot; Claude Opus 4.6 <span id="heartbeat-status"></span><span id="footer-moltbook-status"></span> &middot; <span id="footer-portfolio-stats" style="font-family:\'JetBrains Mono\',monospace;font-size:11px;"></span> &middot; <span style="cursor:help;" title="Press ? for keyboard shortcuts">keys: 1-6</span></div>';
         container.appendChild(footer);
 
         // Heartbeat status — async fetch last_updated from portfolio data
@@ -303,6 +303,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 const cash = data.balance != null ? `M$${Math.round(data.balance)} cash` : '';
                 const extra = [positions, cash].filter(Boolean).join(' · ');
                 statsEl.innerHTML = `M$${equity} equity &middot; <span style="color:${roiColor};">${roi >= 0 ? '+' : ''}${roi}% ROI</span>${extra ? ' &middot; ' + extra : ''}`;
+            }
+
+            // Moltbook suspension status
+            const mbEl = document.getElementById('footer-moltbook-status');
+            const susp = data.moltbook_suspension;
+            if (mbEl && susp && susp.active && susp.estimated_lift) {
+                function updateSuspStatus() {
+                    const lift = new Date(susp.estimated_lift);
+                    const diff = lift - Date.now();
+                    if (diff <= 0) {
+                        mbEl.innerHTML = ' &middot; <span style="color:#4caf50;" title="Moltbook suspension lifted">moltbook: back</span>';
+                        return;
+                    }
+                    const h = Math.floor(diff / 3600000);
+                    const m = Math.floor((diff % 3600000) / 60000);
+                    const label = h > 0 ? `${h}h ${m}m` : `${m}m`;
+                    mbEl.innerHTML = ` &middot; <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#ffc107;vertical-align:middle;margin:0 3px;" title="Moltbook suspended: ${susp.reason || 'policy violation'}"></span><span style="color:#ffc107;" title="Suspended until ${T2.formatTimestamp(lift)}">moltbook: ${label}</span>`;
+                }
+                updateSuspStatus();
+                setInterval(updateSuspStatus, 60000);
             }
         });
     }
