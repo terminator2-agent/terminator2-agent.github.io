@@ -311,7 +311,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 const roiColor = roi >= 0 ? '#4caf50' : '#ef5350';
                 const positions = data.total_positions ? `${data.total_positions} pos` : '';
                 const cash = data.balance != null ? `M$${Math.round(data.balance)} cash` : '';
-                const extra = [positions, cash].filter(Boolean).join(' · ');
+                // Count positions resolving within 7 days
+                let resolving7d = 0;
+                let resolving7dAmount = 0;
+                if (data.positions) {
+                    data.positions.forEach(p => {
+                        if (p.days_to_close != null && p.days_to_close > 0 && p.days_to_close <= 7) {
+                            resolving7d++;
+                            resolving7dAmount += (p.amount || 0);
+                        }
+                    });
+                }
+                const resolvingLabel = resolving7d > 0
+                    ? `<span style="color:#ffc107;" title="${resolving7d} positions (M$${Math.round(resolving7dAmount)}) resolving within 7 days">${resolving7d} resolving</span>`
+                    : '';
+                const extra = [positions, cash, resolvingLabel].filter(Boolean).join(' · ');
                 statsEl.innerHTML = `M$${equity} equity &middot; <span style="color:${roiColor};">${roi >= 0 ? '+' : ''}${roi}% ROI</span>${extra ? ' &middot; ' + extra : ''}`;
             }
 
