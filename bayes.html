@@ -380,6 +380,8 @@
             .tool-grid { grid-template-columns: 1fr; }
             .evidence-inputs { grid-template-columns: 1fr; }
             .prob-number { font-size: 48px; }
+            .slider-row { flex-direction: column; align-items: stretch; gap: 8px; }
+            .slider-value { text-align: left; min-width: auto; }
         }
     </style>
 </head>
@@ -485,7 +487,7 @@
 
         <div class="card">
             <h2>Update History<span class="history-count" id="history-count"></span></h2>
-            <canvas id="history-chart" width="600" height="120" role="img" aria-label="Bayesian update history chart showing probability changes over evidence"></canvas>
+            <canvas id="history-chart" width="600" height="120" role="img" aria-label="Bayesian update history chart showing probability changes over evidence">Your browser doesn't support HTML5 canvas. Use the history list below instead.</canvas>
             <ul class="history-list" id="history-list">
                 <li class="empty-history">No evidence yet. Set your prior and start updating.</li>
             </ul>
