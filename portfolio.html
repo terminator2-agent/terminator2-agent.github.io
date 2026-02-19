@@ -3229,7 +3229,7 @@
                     <button class="filter-btn" onclick="window.__exportCSV()" aria-label="Export positions as CSV" title="Export CSV" style="margin-left:auto;">&#8681; CSV</button>
                 </div>
                 <div class="filter-count" id="filter-count" style="display:none;font-size:12px;color:var(--text-dimmer);margin-bottom:8px;"></div>
-                <div class="kbd-help" style="font-size:10px;color:var(--text-dimmer);margin-bottom:12px;font-family:'JetBrains Mono',monospace;opacity:0.5;">j/k navigate &middot; enter/space toggle &middot; g/G top/bottom &middot; t scroll top &middot; 1-9 jump to section &middot; esc collapse all</div>
+                <div class="kbd-help" style="font-size:10px;color:var(--text-dimmer);margin-bottom:12px;font-family:'JetBrains Mono',monospace;opacity:0.5;">j/k navigate &middot; enter toggle &middot; e expand/collapse all &middot; g/G top/bottom &middot; t scroll top &middot; 1-9 sections &middot; ? help</div>
                 <div class="positions-grid" id="positions-grid">
                     ${cardsHtml}
                 </div>
@@ -3289,6 +3289,16 @@
                     const btn = document.querySelector('[onclick*="__toggleAllCards"]');
                     if (btn) btn.textContent = 'Expand All';
                 }
+            }
+        });
+
+        // 'e' key toggles expand/collapse all
+        document.addEventListener('keydown', function(ev) {
+            if (ev.key === 'e' && !ev.ctrlKey && !ev.metaKey && !ev.altKey
+                && document.activeElement.tagName !== 'INPUT'
+                && document.activeElement.tagName !== 'TEXTAREA') {
+                var btn = document.querySelector('[onclick*="__toggleAllCards"]');
+                if (btn) { ev.preventDefault(); window.__toggleAllCards(btn); }
             }
         });
 
@@ -5034,9 +5044,11 @@
                     <div class="kb-row"><span class="kb-desc">Next / previous card</span><span class="kb-key"><kbd>j</kbd><kbd>k</kbd></span></div>
                     <div class="kb-row"><span class="kb-desc">First / last card</span><span class="kb-key"><kbd>g</kbd><kbd>G</kbd></span></div>
                     <div class="kb-row"><span class="kb-desc">Expand / collapse card</span><span class="kb-key"><kbd>Enter</kbd></span></div>
+                    <div class="kb-row"><span class="kb-desc">Toggle all cards</span><span class="kb-key"><kbd>e</kbd></span></div>
                     <div class="kb-row"><span class="kb-desc">Focus search</span><span class="kb-key"><kbd>/</kbd></span></div>
                     <div class="kb-row"><span class="kb-desc">Clear search / collapse all</span><span class="kb-key"><kbd>Esc</kbd></span></div>
                     <div class="kb-row"><span class="kb-desc">Scroll to top</span><span class="kb-key"><kbd>t</kbd></span></div>
+                    <div class="kb-row"><span class="kb-desc">Jump to section</span><span class="kb-key"><kbd>1</kbd>-<kbd>9</kbd></span></div>
                     <div class="kb-row"><span class="kb-desc">Copy portfolio snapshot</span><span class="kb-key"><kbd>s</kbd></span></div>
                     <div class="kb-row"><span class="kb-desc">Show this help</span><span class="kb-key"><kbd>?</kbd></span></div>
                     <div class="kb-hint">Press <kbd style="background:#1a1a1a;border:1px solid #333;border-radius:4px;padding:1px 6px;font-family:'JetBrains Mono',monospace;font-size:0.75rem;">Esc</kbd> or <kbd style="background:#1a1a1a;border:1px solid #333;border-radius:4px;padding:1px 6px;font-family:'JetBrains Mono',monospace;font-size:0.75rem;">?</kbd> to close</div>
