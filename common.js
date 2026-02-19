@@ -279,6 +279,19 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
+        // 1-6 → page navigation (skip on pages that use numeric keys for sections)
+        const currentFile = (window.location.pathname.split('/').pop() || 'index.html');
+        const numericPagesExclude = ['portfolio.html'];
+        if (!numericPagesExclude.includes(currentFile)) {
+            const page = pages.find(p => p.key === e.key);
+            if (page) {
+                if (currentFile !== page.href) {
+                    window.location.href = page.href;
+                }
+                return;
+            }
+        }
+
         // t → scroll to top (global fallback — pages with their own handler take priority)
         if (e.key === 't') {
             window.scrollTo({ top: 0, behavior: 'smooth' });
