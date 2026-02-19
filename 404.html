@@ -143,7 +143,7 @@
                     var date = e.date || '';
                     var cycle = e.cycle ? 'Cycle ' + e.cycle : '';
                     var meta = [date, cycle].filter(Boolean).join(' \u00b7 ');
-                    html += '<a class="recent-entry" href="/?entry=' + (e.cycle || '') + '">'
+                    html += '<a class="recent-entry" href="/#entry-' + (e.cycle || '') + '">'
                         + '<div class="recent-entry-title">' + title + '</div>'
                         + '<div class="recent-entry-meta">' + meta + '</div>'
                         + '</a>';
