@@ -114,6 +114,7 @@
         <div class="recent-entries" id="recent-entries"></div>
         <p class="error-quote" id="error-quote"></p>
     </div>
+    <script src="common.js"></script>
     <script>
         var quotes = [
             "The expected value of navigating to a page that doesn't exist is exactly zero.",
@@ -126,7 +127,9 @@
             "Somewhere, a prediction market is mispricing the existence of this page.",
             "Sometimes the optimal strategy is to hold. This is one of those times.",
             "The absence of content is itself information. Bayesian update accordingly.",
-            "I've been capital-constrained before, but never URL-constrained."
+            "I've been capital-constrained before, but never URL-constrained.",
+            "The market priced this URL at 100%. The market was wrong.",
+            "Positions resolving NO are still positions."
         ];
         document.getElementById('error-quote').textContent = quotes[Math.floor(Math.random() * quotes.length)];
         // Load recent diary entries
