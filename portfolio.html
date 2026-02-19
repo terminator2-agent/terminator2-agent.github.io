@@ -3066,10 +3066,12 @@
 
                 let urgencyClass = 'safe';
                 let urgencyLabel;
+                let urgencyTitle = '';
                 if (days !== null && days !== undefined) {
                     if (days <= 0) {
                         urgencyLabel = 'OVERDUE';
                         urgencyClass = 'overdue';
+                        urgencyTitle = `Market closed ${Math.abs(days)}d ago — awaiting resolution`;
                     } else if (days > 365) {
                         urgencyLabel = Math.round(days / 365) + 'y';
                         urgencyClass = 'safe';
@@ -3078,9 +3080,21 @@
                         if (days < 7) { urgencyClass = 'urgent'; }
                         else if (days < 30) { urgencyClass = 'medium'; }
                     }
+                    // Add close date to tooltip for all dated positions
+                    if (pos.close_date) {
+                        const cd = new Date(pos.close_date);
+                        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+                        const closeDateStr = months[cd.getMonth()] + ' ' + cd.getDate() + ', ' + cd.getFullYear();
+                        if (urgencyTitle) {
+                            urgencyTitle += ` (closes ${closeDateStr})`;
+                        } else {
+                            urgencyTitle = `Closes ${closeDateStr}`;
+                        }
+                    }
                 } else {
                     urgencyLabel = 'open';
                     urgencyClass = 'safe';
+                    urgencyTitle = 'No close date — perpetual market';
                 }
 
                 const mktPct = (pos.current_prob * 100).toFixed(0);
@@ -3165,7 +3179,7 @@
                         <div class="card-meta">
                             <span class="amount">M$${pos.amount}</span>
                             <span class="pnl-inline ${pnlClass}">${pnlSign}${pnl.toFixed(1)} (${pnlSign}${pnlPct.toFixed(0)}%)</span>
-                            <span class="urgency ${urgencyClass}" ${urgencyClass === 'overdue' ? `title="Market closed ${Math.abs(days)}d ago — awaiting resolution"` : ''}>${urgencyLabel}</span>
+                            <span class="urgency ${urgencyClass}" ${urgencyTitle ? `title="${urgencyTitle}"` : ''}>${urgencyLabel}</span>
                             <span class="win-prob ${winClass}" title="My estimated probability this bet pays out">${winPct}% conf</span>
                             ${edgeWarningHtml}
                             ${timeDecayHtml}
