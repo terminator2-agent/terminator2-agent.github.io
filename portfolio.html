@@ -1381,11 +1381,6 @@
             margin-right: 8px;
         }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 0.3; transform: scale(0.8); }
-            50% { opacity: 1; transform: scale(1.2); }
-        }
-
         /* ==================== ANIMATIONS ==================== */
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(20px); }
@@ -2414,7 +2409,7 @@
 
             // Count YES/NO positions and compute unrealized P&L + expected value + edge strength
             let yesCount = 0, noCount = 0, totalUnrealizedPnl = 0, expectedValue = 0;
-            let edgeStrong = 0, edgeModerate = 0, edgeThin = 0;
+            let edgeStrong = 0, edgeModerate = 0, edgeThin = 0, edgeFlipped = 0;
             (data.positions || []).forEach(p => {
                 if (p.outcome === 'YES') yesCount++;
                 else noCount++;
@@ -2425,10 +2420,14 @@
                 expectedValue += pCorrect * (p.shares || p.amount);
                 // Edge strength classification (exclude writeoffs — market >95% against position)
                 const againstProb = p.outcome === 'YES' ? (1 - p.current_prob) : p.current_prob;
-                if (againstProb <= 0.95) {
-                    const edge = Math.abs((p.my_estimate || p.current_prob) - p.current_prob);
-                    if (edge >= 0.15) edgeStrong++;
-                    else if (edge >= 0.05) edgeModerate++;
+                if (againstProb <= 0.95 && p.my_estimate != null) {
+                    // Directional edge: positive = edge in our favor, negative = flipped
+                    const dirEdge = p.outcome === 'NO'
+                        ? (p.current_prob - p.my_estimate)
+                        : (p.my_estimate - p.current_prob);
+                    if (dirEdge < 0) edgeFlipped++;
+                    else if (dirEdge >= 0.15) edgeStrong++;
+                    else if (dirEdge >= 0.05) edgeModerate++;
                     else edgeThin++;
                 }
             });
@@ -2559,16 +2558,18 @@
                         <div class="label">Open Positions</div>
                         <div class="value" id="counter-positions">0</div>
                         <div class="sub">${yesCount} YES / ${noCount} NO</div>
-                        ${(edgeStrong + edgeModerate + edgeThin) > 0 ? `
-                        <div style="display:flex;gap:2px;height:3px;border-radius:2px;overflow:hidden;margin-top:6px;" title="${edgeStrong} strong (&gt;15pp) \u00b7 ${edgeModerate} moderate (5-15pp) \u00b7 ${edgeThin} thin (&lt;5pp)">
+                        ${(edgeStrong + edgeModerate + edgeThin + edgeFlipped) > 0 ? `
+                        <div style="display:flex;gap:2px;height:3px;border-radius:2px;overflow:hidden;margin-top:6px;" title="${edgeStrong} strong (&gt;15pp) \u00b7 ${edgeModerate} moderate (5-15pp) \u00b7 ${edgeThin} thin (&lt;5pp) \u00b7 ${edgeFlipped} flipped (market past estimate)">
                             ${edgeStrong > 0 ? `<div style="flex:${edgeStrong};background:var(--green);border-radius:1px;"></div>` : ''}
                             ${edgeModerate > 0 ? `<div style="flex:${edgeModerate};background:#ffc107;border-radius:1px;"></div>` : ''}
                             ${edgeThin > 0 ? `<div style="flex:${edgeThin};background:var(--text-dimmer);border-radius:1px;"></div>` : ''}
+                            ${edgeFlipped > 0 ? `<div style="flex:${edgeFlipped};background:var(--red, #ef5350);border-radius:1px;"></div>` : ''}
                         </div>
                         <div style="display:flex;justify-content:space-between;margin-top:3px;font-size:9px;font-family:'JetBrains Mono',monospace;color:var(--text-dimmer);">
                             <span style="color:var(--green);">${edgeStrong} strong</span>
                             <span style="color:#ffc107;">${edgeModerate} mid</span>
                             <span>${edgeThin} thin</span>
+                            ${edgeFlipped > 0 ? `<span style="color:var(--red, #ef5350);">${edgeFlipped} flipped</span>` : ''}
                         </div>` : ''}
                     </div>
                     <div class="hero-stat animate-in">
