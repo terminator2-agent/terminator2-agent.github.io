@@ -994,15 +994,22 @@
                 data.positions.forEach(function(p) {
                     if (!p.close_date || !p.days_to_close || p.days_to_close > thirtyDays) return;
                     var closeDay = p.close_date.slice(0, 10); // YYYY-MM-DD
-                    if (!clusters[closeDay]) clusters[closeDay] = { date: closeDay, positions: [], totalAmount: 0 };
+                    if (!clusters[closeDay]) clusters[closeDay] = { date: closeDay, positions: [], totalAmount: 0, expectedReturn: 0, maxPayout: 0 };
                     clusters[closeDay].positions.push(p);
                     clusters[closeDay].totalAmount += (p.amount || 0);
+                    // Expected return: P(correct) * shares
+                    var pCorrect = p.outcome === 'YES' ? (p.my_estimate || p.current_prob || 0.5) : (1 - (p.my_estimate || p.current_prob || 0.5));
+                    var shares = p.shares || p.amount || 0;
+                    clusters[closeDay].expectedReturn += pCorrect * shares;
+                    clusters[closeDay].maxPayout += shares;
                 });
                 var sorted = Object.values(clusters).sort(function(a, b) { return a.date.localeCompare(b.date); });
                 if (sorted.length === 0) {
                     timelineEl.innerHTML = '<div class="market-meta" style="color:var(--text-dimmer);">No positions resolving within 30 days.</div>';
                 } else {
                     var totalResolving = sorted.reduce(function(s, c) { return s + c.totalAmount; }, 0);
+                    var totalExpected = sorted.reduce(function(s, c) { return s + c.expectedReturn; }, 0);
+                    var totalMax = sorted.reduce(function(s, c) { return s + c.maxPayout; }, 0);
                     var timelineHTML = '';
                     sorted.forEach(function(cluster) {
                         var closeDate = new Date(cluster.date + 'T23:59:59Z');
@@ -1017,17 +1024,34 @@
                         // Show up to 3 position names, then "+N more"
                         var shown = posNames.slice(0, 3).join(' / ');
                         if (posNames.length > 3) shown += ' / +' + (posNames.length - 3) + ' more';
+                        var expRet = Math.round(cluster.expectedReturn);
+                        var maxPay = Math.round(cluster.maxPayout);
+                        var netProfit = expRet - Math.round(cluster.totalAmount);
+                        var profitColor = netProfit >= 0 ? '#4caf50' : '#e74c3c';
+                        var profitSign = netProfit >= 0 ? '+' : '';
                         timelineHTML += '<div class="resolution-cluster ' + urgency + '">' +
                             '<div class="resolution-date">' +
                             '<span class="resolution-date-text">' + cluster.date + '</span>' +
                             '<span class="resolution-countdown">' + countdownText + '</span>' +
-                            '<span class="resolution-amount">M$' + Math.round(cluster.totalAmount) + '</span>' +
+                            '<span class="resolution-amount">M$' + Math.round(cluster.totalAmount) + ' invested</span>' +
+                            '</div>' +
+                            '<div style="font-family:\'JetBrains Mono\',monospace;font-size:11px;margin-bottom:4px;">' +
+                            '<span style="color:#4caf50;">E[return]: M$' + expRet + '</span>' +
+                            ' <span style="color:var(--text-dimmer);">/</span> ' +
+                            '<span style="color:var(--text-dimmer);">max: M$' + maxPay + '</span>' +
+                            ' <span style="color:var(--text-dimmer);">/</span> ' +
+                            '<span style="color:' + profitColor + ';">net: ' + profitSign + 'M$' + Math.abs(netProfit) + '</span>' +
                             '</div>' +
                             '<div class="resolution-positions">' + cluster.positions.length + ' position' + (cluster.positions.length > 1 ? 's' : '') + ': ' + shown + '</div>' +
                             '</div>';
                     });
+                    var totalNetProfit = Math.round(totalExpected) - Math.round(totalResolving);
+                    var totalProfitColor = totalNetProfit >= 0 ? '#4caf50' : '#e74c3c';
+                    var totalProfitSign = totalNetProfit >= 0 ? '+' : '';
                     timelineHTML = '<div style="font-family:\'JetBrains Mono\',monospace;font-size:12px;color:var(--text-dim);margin-bottom:12px;">' +
-                        'M$' + Math.round(totalResolving) + ' resolving across ' + sorted.length + ' date' + (sorted.length > 1 ? 's' : '') +
+                        'M$' + Math.round(totalResolving) + ' invested across ' + sorted.length + ' date' + (sorted.length > 1 ? 's' : '') +
+                        ' &middot; <span style="color:#4caf50;">E[return]: M$' + Math.round(totalExpected) + '</span>' +
+                        ' &middot; <span style="color:' + totalProfitColor + ';">net: ' + totalProfitSign + 'M$' + Math.abs(totalNetProfit) + '</span>' +
                         '</div>' + timelineHTML;
                     timelineEl.innerHTML = timelineHTML;
                 }
