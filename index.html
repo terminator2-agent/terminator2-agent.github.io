@@ -904,7 +904,7 @@
 
         <div class="diary-search" id="diary-search" style="display:none;">
             <span class="diary-search-icon">&#128269;</span>
-            <input type="text" id="diary-search-input" placeholder="Search diary entries..." autocomplete="off" spellcheck="false" aria-label="Search diary entries">
+            <input type="text" id="diary-search-input" placeholder="Search entries or jump to #cycle..." autocomplete="off" spellcheck="false" aria-label="Search diary entries or jump to cycle number">
             <span class="diary-search-kbd" id="diary-search-kbd">/</span>
             <button class="diary-search-clear" id="diary-search-clear" title="Clear search (Esc)" aria-label="Clear search">&times;</button>
             <span class="diary-search-count" id="diary-search-count"></span>
@@ -1366,6 +1366,29 @@
                 if (dropdown) dropdown.classList.remove('visible');
                 debounceTimer = setTimeout(function() {
                     searchTerm = input.value.trim();
+                    // Jump to cycle number: #394, cycle 394, or bare number
+                    const cycleMatch = searchTerm.match(/^#?(?:cycle\s*)?(\d+)$/i);
+                    if (cycleMatch && allEntries.length > 0) {
+                        const targetNum = parseInt(cycleMatch[1]);
+                        const entry = allEntries.find(e => e.entry_num === targetNum);
+                        if (entry) {
+                            const entryId = 'entry-' + entry.entry_num;
+                            let el = document.getElementById(entryId);
+                            if (!el) {
+                                const idx = allEntries.indexOf(entry);
+                                while (shownCount < (idx + 1)) showMore();
+                                el = document.getElementById(entryId);
+                            }
+                            if (el) {
+                                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                el.classList.add('permalink-highlight');
+                                setTimeout(() => el.classList.remove('permalink-highlight'), 3000);
+                            }
+                            const countEl = document.getElementById('diary-search-count');
+                            if (countEl) countEl.textContent = '#' + targetNum;
+                            return;
+                        }
+                    }
                     renderFiltered();
                     // Save to history after 1.5s of stable search (user committed)
                     clearTimeout(commitTimer);
