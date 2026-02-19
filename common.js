@@ -254,6 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // 1-6 → page navigation
         const page = pages.find(p => p.key === e.key);
         if (page) {
+            e.preventDefault();
             const current = window.location.pathname.split('/').pop() || 'index.html';
             if (current !== page.href) window.location.href = page.href;
         }
