@@ -2162,7 +2162,7 @@
         <div id="resolution-wave-banner" class="resolution-wave-banner" role="alert">
             <div class="banner-content">
                 <span class="countdown-timer" id="wave-countdown">—</span>
-                <span class="at-stake">until next resolution wave — <span class="amount" id="wave-amount">M$0</span> across <span class="amount" id="wave-count">0</span> positions (<span class="amount" id="wave-pct">0</span>% of portfolio) — expected <span class="amount" id="wave-return">M$0</span></span>
+                <span class="at-stake">until next resolution wave — <span class="amount" id="wave-amount">M$0</span> across <span class="amount" id="wave-count">0</span> positions (<span class="amount" id="wave-pct">0</span>% of portfolio) — expected <span class="amount" id="wave-return">M$0</span> — <span class="amount" id="wave-projected" title="Projected balance after wave resolves at current prices" style="cursor:help;text-decoration:underline dotted;text-underline-offset:2px;">M$0</span> projected balance</span>
             </div>
         </div>
 
@@ -2329,6 +2329,19 @@
                 const ret = Math.round(nextWave.expectedReturn);
                 returnEl.textContent = (ret >= 0 ? '+' : '') + 'M$' + ret;
                 returnEl.style.color = ret >= 0 ? 'var(--green)' : 'var(--red)';
+            }
+
+            // Projected balance: current balance + shares value of all resolving positions
+            const projectedEl = document.getElementById('wave-projected');
+            if (projectedEl) {
+                // Sum unrealized_value (shares payout at current prob) for all positions in all waves
+                let totalSharesValue = 0;
+                positions.forEach(p => {
+                    totalSharesValue += p.unrealized_value != null ? p.unrealized_value : (p.amount || 0);
+                });
+                const projectedBalance = Math.round((data.balance || 0) + totalSharesValue);
+                projectedEl.textContent = 'M$' + projectedBalance;
+                projectedEl.title = 'Projected balance if all ' + positions.length + ' resolving positions pay out at current prices. Current balance: M$' + Math.round(data.balance || 0) + ' + M$' + Math.round(totalSharesValue) + ' from resolved positions.';
             }
 
             // Countdown update function
