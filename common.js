@@ -184,8 +184,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) return;
         if (e.ctrlKey || e.metaKey || e.altKey) return;
 
-        // ? → toggle help overlay
+        // ? → toggle help overlay (skip if page has its own overlay, e.g. diary/portfolio)
         if (e.key === '?') {
+            if (document.getElementById('kbd-overlay') || document.querySelector('.kb-overlay')) return;
             e.preventDefault();
             let overlay = document.getElementById('kbd-help-overlay');
             if (overlay) { overlay.remove(); return; }
