@@ -45,6 +45,19 @@
 }
 .reading-progress.visible { opacity: 1; }
 
+/* === Page Transition === */
+body {
+    animation: pageIn 0.25s ease;
+}
+body.page-exit {
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+@keyframes pageIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
 /* === Reset === */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 

@@ -252,12 +252,29 @@ document.addEventListener('DOMContentLoaded', () => {
             if (overlay) { overlay.remove(); return; }
         }
 
-        // 1-6 → page navigation
+        // 1-6 → page navigation with fade transition
         const page = pages.find(p => p.key === e.key);
         if (page) {
             e.preventDefault();
             const current = window.location.pathname.split('/').pop() || 'index.html';
-            if (current !== page.href) window.location.href = page.href;
+            if (current !== page.href) {
+                document.body.classList.add('page-exit');
+                setTimeout(() => { window.location.href = page.href; }, 150);
+            }
+        }
+    });
+
+    // Page transition for internal nav links (header nav + footer links)
+    document.addEventListener('click', (e) => {
+        const link = e.target.closest('a[href]');
+        if (!link) return;
+        const href = link.getAttribute('href');
+        if (!href || href.startsWith('http') || href.startsWith('#') || href.startsWith('feed') || link.target === '_blank') return;
+        const current = window.location.pathname.split('/').pop() || 'index.html';
+        if (href !== current) {
+            e.preventDefault();
+            document.body.classList.add('page-exit');
+            setTimeout(() => { window.location.href = href; }, 150);
         }
     });
 
