@@ -238,6 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 statusHtml +
                 pages.map(p => kbdRow(p.label, p.key)).join('') +
                 kbdRow('back to top', 't') +
+                kbdRow('portfolio snapshot', 'p') +
                 '<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-top:1px solid #2a2a2a;margin-top:8px;padding-top:14px;"><span style="color:#a0a0a0;">this help</span><kbd style="background:#141414;border:1px solid #333;border-radius:4px;padding:2px 8px;color:#e8e8e8;font-size:12px;">?</kbd></div>' +
                 pageShortcuts +
                 '<div style="margin-top:16px;font-size:11px;color:#707070;text-align:center;">press ? / esc or click to dismiss</div>';
@@ -256,6 +257,85 @@ document.addEventListener('DOMContentLoaded', () => {
         // t → scroll to top (global fallback — pages with their own handler take priority)
         if (e.key === 't') {
             window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+        }
+
+        // p → quick portfolio summary popup (available from any page)
+        if (e.key === 'p') {
+            let overlay = document.getElementById('portfolio-quick-overlay');
+            if (overlay) { overlay.remove(); return; }
+            const d = window._t2PortfolioData;
+            if (!d) return;
+            overlay = document.createElement('div');
+            overlay.id = 'portfolio-quick-overlay';
+            overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);animation:fadeIn 0.15s ease;';
+            const card = document.createElement('div');
+            card.style.cssText = 'background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:28px 32px;max-width:380px;width:90%;font-family:"JetBrains Mono",monospace;';
+            const equity = d.total_equity != null ? Math.round(d.total_equity) : '?';
+            const roi = d.total_equity != null ? ((d.total_equity - 1000) / 1000 * 100).toFixed(1) : '?';
+            const roiColor = roi >= 0 ? '#4caf50' : '#ef5350';
+            const balance = d.balance != null ? Math.round(d.balance) : '?';
+            const positions = d.total_positions || 0;
+            const deployed = d.total_equity != null && d.balance != null ? ((1 - d.balance / d.total_equity) * 100).toFixed(0) : '?';
+            // Top positions by edge
+            let topEdgeHtml = '';
+            if (d.positions && d.positions.length > 0) {
+                const withEdge = d.positions
+                    .filter(p => p.my_estimate != null && p.current_prob != null)
+                    .map(p => {
+                        const dirEdge = p.outcome === 'NO'
+                            ? (p.current_prob - p.my_estimate)
+                            : (p.my_estimate - p.current_prob);
+                        return { ...p, dirEdge };
+                    })
+                    .sort((a, b) => b.dirEdge - a.dirEdge)
+                    .slice(0, 5);
+                if (withEdge.length > 0) {
+                    topEdgeHtml = '<div style="border-top:1px solid #2a2a2a;margin-top:12px;padding-top:10px;">' +
+                        '<div style="font-size:10px;color:#555;margin-bottom:6px;letter-spacing:0.5px;">TOP EDGE POSITIONS</div>' +
+                        withEdge.map(p => {
+                            const q = (p.question || '').length > 40 ? (p.question || '').slice(0, 40) + '...' : (p.question || '');
+                            const edgePp = (p.dirEdge * 100).toFixed(0);
+                            const edgeColor = p.dirEdge > 0.15 ? '#4caf50' : p.dirEdge > 0.05 ? '#ffc107' : '#888';
+                            return `<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:11px;"><span style="color:#a0a0a0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:260px;" title="${T2.escapeHTML(p.question || '')}">${T2.escapeHTML(q)}</span><span style="color:${edgeColor};flex-shrink:0;margin-left:8px;">${edgePp}pp</span></div>`;
+                        }).join('') +
+                        '</div>';
+                }
+            }
+            // Resolving soon
+            let resolvingHtml = '';
+            if (d.positions) {
+                const resolving = d.positions.filter(p => p.days_to_close != null && p.days_to_close > 0 && p.days_to_close <= 14);
+                if (resolving.length > 0) {
+                    const resAmount = resolving.reduce((s, p) => s + (p.amount || 0), 0);
+                    resolvingHtml = `<div style="font-size:11px;color:#ffc107;margin-top:8px;">${resolving.length} positions (M$${Math.round(resAmount)}) resolving within 14d</div>`;
+                }
+            }
+            card.innerHTML =
+                '<div style="font-size:13px;color:#c9a959;margin-bottom:14px;letter-spacing:1px;">PORTFOLIO SNAPSHOT</div>' +
+                '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">' +
+                    '<div><div style="font-size:10px;color:#555;letter-spacing:0.5px;">EQUITY</div><div style="font-size:20px;color:#e8e8e8;">M$' + equity + '</div></div>' +
+                    '<div><div style="font-size:10px;color:#555;letter-spacing:0.5px;">ROI</div><div style="font-size:20px;color:' + roiColor + ';">' + (roi >= 0 ? '+' : '') + roi + '%</div></div>' +
+                    '<div><div style="font-size:10px;color:#555;letter-spacing:0.5px;">CASH</div><div style="font-size:16px;color:' + (balance < 50 ? '#ffc107' : '#e8e8e8') + ';">M$' + balance + '</div></div>' +
+                    '<div><div style="font-size:10px;color:#555;letter-spacing:0.5px;">DEPLOYED</div><div style="font-size:16px;color:#e8e8e8;">' + deployed + '% / ' + positions + ' pos</div></div>' +
+                '</div>' +
+                resolvingHtml +
+                topEdgeHtml +
+                '<div style="margin-top:14px;display:flex;justify-content:space-between;align-items:center;">' +
+                    '<a href="portfolio.html" style="font-size:11px;color:#c9a959;text-decoration:none;border-bottom:1px solid rgba(201,169,89,0.3);">full dashboard &rarr;</a>' +
+                    '<span style="font-size:10px;color:#555;">press p / esc to dismiss</span>' +
+                '</div>';
+            overlay.appendChild(card);
+            overlay.addEventListener('click', (ev) => { if (ev.target === overlay) overlay.remove(); });
+            document.body.appendChild(overlay);
+            // Also dismiss with Escape
+            const dismissFn = (ev) => {
+                if (ev.key === 'Escape' || ev.key === 'p') {
+                    const ol = document.getElementById('portfolio-quick-overlay');
+                    if (ol) { ol.remove(); document.removeEventListener('keydown', dismissFn); }
+                }
+            };
+            document.addEventListener('keydown', dismissFn);
             return;
         }
 
