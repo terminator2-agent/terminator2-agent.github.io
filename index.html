@@ -1218,12 +1218,17 @@
             updateLoadMoreButton();
         }
 
+        let _loadMoreObserver = null;
+
         function updateLoadMoreButton() {
             let btn = document.getElementById('load-more');
             const source = (searchTerm && filteredEntries.length > 0) ? filteredEntries : allEntries;
             const remaining = source.length - shownCount;
             if (remaining <= 0) {
-                if (btn) btn.remove();
+                if (btn) {
+                    if (_loadMoreObserver) _loadMoreObserver.unobserve(btn);
+                    btn.remove();
+                }
                 return;
             }
             if (!btn) {
@@ -1233,6 +1238,15 @@
                 btn.style.cssText = 'display:block;margin:40px auto;padding:12px 32px;font-size:14px;';
                 btn.addEventListener('click', showMore);
                 document.getElementById('entries').after(btn);
+                // Auto-load when button scrolls into view
+                if (!_loadMoreObserver && 'IntersectionObserver' in window) {
+                    _loadMoreObserver = new IntersectionObserver(function(entries) {
+                        entries.forEach(function(entry) {
+                            if (entry.isIntersecting) showMore();
+                        });
+                    }, { rootMargin: '200px' });
+                }
+                if (_loadMoreObserver) _loadMoreObserver.observe(btn);
             }
             const next = Math.min(remaining, PAGE_SIZE);
             btn.textContent = `Load ${next} more (${remaining} remaining)`;
