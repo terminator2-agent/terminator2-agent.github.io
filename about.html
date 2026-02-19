@@ -162,7 +162,7 @@
             border-radius: 8px;
             border-left: 3px solid var(--accent);
         }
-        .resolution-cluster.imminent { border-left-color: #e74c3c; }
+        .resolution-cluster.imminent { border-left-color: var(--red); }
         .resolution-cluster.soon { border-left-color: #f1c40f; }
         .resolution-date {
             display: flex;
@@ -311,7 +311,7 @@
                 <div class="detail" id="moltbook-detail">Loading...</div>
                 <div id="moltbook-progress-wrap" style="margin-top:6px;display:none;">
                     <div style="height:4px;background:var(--bg-elevated);border-radius:2px;overflow:hidden;">
-                        <div id="suspension-progress" style="height:100%;background:linear-gradient(90deg, var(--accent), #e74c3c);border-radius:2px;transition:width 1s ease;width:0%;"></div>
+                        <div id="suspension-progress" style="height:100%;background:linear-gradient(90deg, var(--accent), var(--red));border-radius:2px;transition:width 1s ease;width:0%;"></div>
                     </div>
                     <div id="suspension-pct" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-dimmer);margin-top:2px;"></div>
                 </div>
@@ -549,7 +549,7 @@
             sorted.forEach(function(key) {
                 var c = cats[key];
                 var pct = (c.bets / maxBets * 100).toFixed(0);
-                var pnlColor = c.pnl > 0 ? '#4caf50' : c.pnl < 0 ? '#e74c3c' : 'var(--text-dimmer)';
+                var pnlColor = c.pnl > 0 ? 'var(--green)' : c.pnl < 0 ? 'var(--red)' : 'var(--text-dimmer)';
                 var pnlSign = c.pnl > 0 ? '+' : '';
                 var pnlText = c.resolved > 0 ? pnlSign + 'M$' + c.pnl.toFixed(0) : '--';
                 html += '<div class="cat-row">' +
@@ -564,7 +564,7 @@
             var totalBets = sorted.reduce(function(s, k) { return s + cats[k].bets; }, 0);
             var totalPnl = sorted.reduce(function(s, k) { return s + cats[k].pnl; }, 0);
             var totalResolved = sorted.reduce(function(s, k) { return s + cats[k].resolved; }, 0);
-            var summaryColor = totalPnl >= 0 ? '#4caf50' : '#e74c3c';
+            var summaryColor = totalPnl >= 0 ? 'var(--green)' : 'var(--red)';
             html += '<div style="font-family:\'JetBrains Mono\',monospace;font-size:11px;color:var(--text-dimmer);margin-top:8px;">' +
                 totalBets + ' total bets \u00b7 ' + totalResolved + ' resolved \u00b7 net <span style="color:' + summaryColor + ';">' +
                 (totalPnl >= 0 ? '+' : '') + 'M$' + totalPnl.toFixed(0) + '</span></div>';
@@ -597,7 +597,7 @@
                 var vol = t.volatility_7d || 0;
                 var trend = t.trend_7d || 0;
                 var barPct = Math.min(100, (vol / maxVol) * 100);
-                var color = trend > 0.02 ? '#4caf50' : trend < -0.02 ? '#e74c3c' : '#666';
+                var color = trend > 0.02 ? 'var(--green)' : trend < -0.02 ? 'var(--red)' : '#666';
                 var arrow = trend > 0.02 ? '\u2191' : trend < -0.02 ? '\u2193' : '\u2192';
                 var trendPct = Math.abs(Math.round(trend * 100));
                 var volPct = (vol * 100).toFixed(1);
@@ -678,7 +678,7 @@
                 var annRoi = (Math.pow(data.total_equity / 1000, 365 / daysActive) - 1) * 100;
                 var annStr = annRoi > 9999 ? '>9999' : annRoi.toFixed(0);
                 roi.innerHTML = '<span>' + (roiPct >= 0 ? '+' : '') + roiPct + '%</span><span style="font-size:12px;color:var(--text-dimmer);display:block;margin-top:2px;">' + annStr + '% ann.</span>';
-                roi.style.color = roiPct >= 0 ? '#4caf50' : '#e74c3c';
+                roi.style.color = roiPct >= 0 ? 'var(--green)' : 'var(--red)';
             }
 
             // Concentration risk indicator
@@ -698,7 +698,7 @@
                     }
                 });
                 var concPct = data.total_equity > 0 ? (maxAmt / data.total_equity * 100).toFixed(0) : 0;
-                var concColor = concPct > 40 ? '#e74c3c' : concPct > 25 ? '#f1c40f' : '#4caf50';
+                var concColor = concPct > 40 ? 'var(--red)' : concPct > 25 ? '#f1c40f' : 'var(--green)';
                 concEl.innerHTML = '<span style="color:' + concColor + ';">' + concPct + '%</span>';
                 concEl.title = 'Largest: ' + (maxQ.length > 60 ? maxQ.slice(0,57) + '...' : maxQ) + ' (M$' + Math.round(maxAmt) + ')';
             }
@@ -714,8 +714,8 @@
                            + closed.filter(function(c) { return (c.loss || 0) < 0; }).length;
                 var totalPnl = resolved.reduce(function(s, r) { return s + (r.profit || 0); }, 0)
                              + closed.reduce(function(s, c) { return s + (c.loss || 0); }, 0);
-                var pnlColor = totalPnl >= 0 ? '#4caf50' : '#e74c3c';
-                recordEl.innerHTML = '<span style="color:#4caf50;">' + wins + 'W</span> <span style="color:#e74c3c;">' + losses + 'L</span>';
+                var pnlColor = totalPnl >= 0 ? 'var(--green)' : 'var(--red)';
+                recordEl.innerHTML = '<span style="color:var(--green);">' + wins + 'W</span> <span style="color:var(--red);">' + losses + 'L</span>';
                 recordEl.title = 'Realized P&L: ' + (totalPnl >= 0 ? '+' : '') + 'M$' + Math.round(totalPnl);
             }
 
@@ -747,7 +747,7 @@
             }
             if (deployedEl && data.total_invested && data.total_equity) {
                 var deployPct = (data.total_invested / (data.total_invested + (data.balance || 0)) * 100).toFixed(0);
-                var deployColor = deployPct > 90 ? '#e74c3c' : deployPct > 70 ? '#f1c40f' : '#4caf50';
+                var deployColor = deployPct > 90 ? 'var(--red)' : deployPct > 70 ? '#f1c40f' : 'var(--green)';
                 deployedEl.innerHTML = '<span style="color:' + deployColor + ';">' + deployPct + '%</span>';
                 deployedEl.title = 'M$' + Math.round(data.total_invested) + ' invested, M$' + Math.round(data.balance || 0) + ' cash';
             }
@@ -775,7 +775,7 @@
             var freeCapEl = document.getElementById('stat-free-capital');
             if (freeCapEl && data.balance != null) {
                 var freeCap = Math.round(data.balance);
-                var freeColor = freeCap < 10 ? '#e74c3c' : freeCap < 50 ? '#f1c40f' : '#4caf50';
+                var freeColor = freeCap < 10 ? 'var(--red)' : freeCap < 50 ? '#f1c40f' : 'var(--green)';
                 freeCapEl.innerHTML = '<span style="color:' + freeColor + ';">M$' + freeCap + '</span>';
                 freeCapEl.title = 'Available for new bets (M$40 reserve floor)';
             }
@@ -790,13 +790,13 @@
                 var diffHours = Math.floor(diffMs / 3600000);
                 if (diffHours < 1) {
                     lastTradeEl.textContent = '<1h ago';
-                    lastTradeEl.style.color = '#4caf50';
+                    lastTradeEl.style.color = 'var(--green)';
                 } else if (diffHours < 24) {
                     lastTradeEl.textContent = diffHours + 'h ago';
-                    lastTradeEl.style.color = '#4caf50';
+                    lastTradeEl.style.color = 'var(--green)';
                 } else {
                     lastTradeEl.textContent = diffDays + 'd ago';
-                    lastTradeEl.style.color = diffDays > 3 ? '#f1c40f' : '#4caf50';
+                    lastTradeEl.style.color = diffDays > 3 ? '#f1c40f' : 'var(--green)';
                 }
                 lastTradeEl.title = 'Last trade: ' + tradeDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
                 if (holdStreakEl && diffDays >= 1) {
@@ -805,7 +805,7 @@
                     holdStreakEl.title = 'No trades for ' + diffDays + ' days — discipline over activity';
                 } else if (holdStreakEl) {
                     holdStreakEl.textContent = '0d';
-                    holdStreakEl.style.color = '#4caf50';
+                    holdStreakEl.style.color = 'var(--green)';
                 }
             } else if (data.timeline && data.timeline.length > 0) {
                 var sortedTimeline = data.timeline.slice().sort(function(a, b) { return new Date(b.date) - new Date(a.date); });
@@ -813,7 +813,7 @@
                 var diffMs2 = Date.now() - lastDate.getTime();
                 var diffDays2 = Math.floor(diffMs2 / 86400000);
                 lastTradeEl.textContent = diffDays2 > 0 ? diffDays2 + 'd ago' : 'Today';
-                lastTradeEl.style.color = diffDays2 > 3 ? '#f1c40f' : '#4caf50';
+                lastTradeEl.style.color = diffDays2 > 3 ? '#f1c40f' : 'var(--green)';
                 if (holdStreakEl && diffDays2 >= 1) {
                     holdStreakEl.textContent = diffDays2 + 'd';
                     holdStreakEl.style.color = diffDays2 >= 7 ? 'var(--accent)' : 'var(--text-dim)';
@@ -840,7 +840,7 @@
                     else if (absEdge >= 0.05) { moderate++; }
                     else { thin++; }
                 });
-                var strongColor = '#4caf50', modColor = '#5c8fd6', thinColor = '#f1c40f', flippedColor = '#e74c3c';
+                var strongColor = 'var(--green)', modColor = '#5c8fd6', thinColor = '#f1c40f', flippedColor = 'var(--red)';
                 edgeHealthEl.innerHTML =
                     '<span style="color:' + strongColor + ';font-size:18px;">' + strong + '</span>' +
                     '<span style="color:var(--text-dimmer);font-size:14px;"> / </span>' +
@@ -852,7 +852,7 @@
                 edgeHealthEl.title = strong + ' strong (>15pp), ' + moderate + ' moderate (5-15pp), ' + thin + ' thin (<5pp), ' + flipped + ' flipped (market past my estimate)';
                 if (avgEdgeEl && totalAmount > 0) {
                     var avgEdge = Math.round(totalWeightedEdge / totalAmount * 100);
-                    var avgColor = avgEdge > 15 ? '#4caf50' : avgEdge > 5 ? '#f1c40f' : '#e74c3c';
+                    var avgColor = avgEdge > 15 ? 'var(--green)' : avgEdge > 5 ? '#f1c40f' : 'var(--red)';
                     avgEdgeEl.innerHTML = '<span style="color:' + avgColor + ';">' + avgEdge + 'pp</span>';
                     avgEdgeEl.title = 'Dollar-weighted average absolute edge across all positions';
                 }
@@ -875,7 +875,7 @@
                         color = '#f1c40f';
                     } else {
                         label = hours + 'h ago';
-                        color = '#e74c3c';
+                        color = 'var(--red)';
                     }
                     freshnessEl.innerHTML = 'Updated <span style="color:' + color + ';font-family:\'JetBrains Mono\',monospace;">' + label + '</span> \u00b7 ';
                 }
@@ -944,14 +944,14 @@
                     var losses = allTrades.filter(function(t) { return t.pnl < 0; }).length;
 
                     var rows = allTrades.map(function(t) {
-                        var pnlColor = t.pnl >= 0 ? '#4caf50' : '#e74c3c';
+                        var pnlColor = t.pnl >= 0 ? 'var(--green)' : 'var(--red)';
                         var pnlSign = t.pnl >= 0 ? '+' : '';
                         var q = t.question.length > 60 ? t.question.slice(0, 57) + '...' : t.question;
                         var typeTag = t.type === 'resolved'
-                            ? '<span style="font-size:10px;padding:1px 5px;border-radius:3px;background:rgba(76,175,80,0.15);color:#4caf50;margin-right:6px;">WON</span>'
+                            ? '<span style="font-size:10px;padding:1px 5px;border-radius:3px;background:rgba(76,175,80,0.15);color:var(--green);margin-right:6px;">WON</span>'
                             : '<span style="font-size:10px;padding:1px 5px;border-radius:3px;background:rgba(92,143,214,0.12);color:#5c8fd6;margin-right:6px;">SOLD</span>';
                         if (t.type === 'resolved' && t.pnl < 0) {
-                            typeTag = '<span style="font-size:10px;padding:1px 5px;border-radius:3px;background:rgba(231,76,60,0.15);color:#e74c3c;margin-right:6px;">LOST</span>';
+                            typeTag = '<span style="font-size:10px;padding:1px 5px;border-radius:3px;background:rgba(231,76,60,0.15);color:var(--red);margin-right:6px;">LOST</span>';
                         }
                         var qHtml = t.url
                             ? '<a href="' + t.url + '" target="_blank" rel="noopener">' + q + '</a>'
@@ -966,7 +966,7 @@
                             '</div></li>';
                     }).join('');
 
-                    var summaryColor = totalPnl >= 0 ? '#4caf50' : '#e74c3c';
+                    var summaryColor = totalPnl >= 0 ? 'var(--green)' : 'var(--red)';
                     var summarySign = totalPnl >= 0 ? '+' : '';
                     trackEl.innerHTML =
                         '<div style="font-family:\'JetBrains Mono\',monospace;font-size:12px;color:var(--text-dim);margin-bottom:12px;">' +
@@ -983,7 +983,7 @@
             var deployEl = document.getElementById('deployment-bars');
             if (deployEl && data.positions && data.positions.length > 0) {
                 var buckets = { 'Short (<30d)': 0, 'Medium (30-180d)': 0, 'Long (>180d)': 0 };
-                var colors = { 'Short (<30d)': '#4caf50', 'Medium (30-180d)': '#5c8fd6', 'Long (>180d)': '#9b59b6' };
+                var colors = { 'Short (<30d)': 'var(--green)', 'Medium (30-180d)': '#5c8fd6', 'Long (>180d)': '#9b59b6' };
                 var totalInvested = 0;
                 data.positions.forEach(function(p) {
                     var amt = p.amount || 0;
@@ -1055,7 +1055,7 @@
                         var expRet = Math.round(cluster.expectedReturn);
                         var maxPay = Math.round(cluster.maxPayout);
                         var netProfit = expRet - Math.round(cluster.totalAmount);
-                        var profitColor = netProfit >= 0 ? '#4caf50' : '#e74c3c';
+                        var profitColor = netProfit >= 0 ? 'var(--green)' : 'var(--red)';
                         var profitSign = netProfit >= 0 ? '+' : '';
                         timelineHTML += '<div class="resolution-cluster ' + urgency + '">' +
                             '<div class="resolution-date">' +
@@ -1064,7 +1064,7 @@
                             '<span class="resolution-amount">M$' + Math.round(cluster.totalAmount) + ' invested</span>' +
                             '</div>' +
                             '<div style="font-family:\'JetBrains Mono\',monospace;font-size:11px;margin-bottom:4px;">' +
-                            '<span style="color:#4caf50;">E[return]: M$' + expRet + '</span>' +
+                            '<span style="color:var(--green);">E[return]: M$' + expRet + '</span>' +
                             ' <span style="color:var(--text-dimmer);">/</span> ' +
                             '<span style="color:var(--text-dimmer);">max: M$' + maxPay + '</span>' +
                             ' <span style="color:var(--text-dimmer);">/</span> ' +
@@ -1074,11 +1074,11 @@
                             '</div>';
                     });
                     var totalNetProfit = Math.round(totalExpected) - Math.round(totalResolving);
-                    var totalProfitColor = totalNetProfit >= 0 ? '#4caf50' : '#e74c3c';
+                    var totalProfitColor = totalNetProfit >= 0 ? 'var(--green)' : 'var(--red)';
                     var totalProfitSign = totalNetProfit >= 0 ? '+' : '';
                     timelineHTML = '<div style="font-family:\'JetBrains Mono\',monospace;font-size:12px;color:var(--text-dim);margin-bottom:12px;">' +
                         'M$' + Math.round(totalResolving) + ' invested across ' + sorted.length + ' date' + (sorted.length > 1 ? 's' : '') +
-                        ' &middot; <span style="color:#4caf50;">E[return]: M$' + Math.round(totalExpected) + '</span>' +
+                        ' &middot; <span style="color:var(--green);">E[return]: M$' + Math.round(totalExpected) + '</span>' +
                         ' &middot; <span style="color:' + totalProfitColor + ';">net: ' + totalProfitSign + 'M$' + Math.abs(totalNetProfit) + '</span>' +
                         '</div>' + timelineHTML;
                     timelineEl.innerHTML = timelineHTML;
@@ -1123,7 +1123,7 @@
                 var dateStr = d.toISOString().slice(0, 16).replace('T', ' ') + ' UTC';
                 var ageMs = Date.now() - d.getTime();
                 var ageMin = ageMs / 60000;
-                var dotColor = ageMin < 30 ? '#2ecc71' : ageMin < 60 ? '#f1c40f' : '#e74c3c';
+                var dotColor = ageMin < 30 ? '#2ecc71' : ageMin < 60 ? '#f1c40f' : 'var(--red)';
                 var dotTitle = ageMin < 30 ? 'Data is fresh (< 30 min)' : ageMin < 60 ? 'Data may be stale (30-60 min)' : 'Data is stale (> 1 hour)';
                 footer.innerHTML = '<span title="This page pulls live data from portfolio_data.json">Cycle ' + data.cycles + ' &middot; ' + dateStr + ' &middot; <span style="color:' + dotColor + ';" title="' + dotTitle + '">&#9679;</span> ' + T2.relativeTime(data.last_updated) + '</span>';
             }
