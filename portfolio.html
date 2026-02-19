@@ -3156,6 +3156,26 @@
                             })() : ''}
                             <span class="est ${isYes ? 'yes' : 'no'}">est ${estPct}%</span>
                         </div>
+                        ${(() => {
+                            // Time progress bar: shows how much time has elapsed toward resolution
+                            if (days == null || days < 0) return '';
+                            if (pos.close_date) {
+                                const closeMs = new Date(pos.close_date).getTime();
+                                const nowMs = Date.now();
+                                const remainMs = closeMs - nowMs;
+                                // Estimate total market duration from entry to close
+                                // Use 90-day default window if no entry context
+                                const totalDays = pos.prob_at_bet != null && days != null
+                                    ? Math.max(days + 7, 14) // rough estimate: at least 7 days since entry
+                                    : 90;
+                                if (totalDays > 730) return ''; // skip perpetual/very long markets
+                                const elapsedPct = Math.max(0, Math.min(100, ((totalDays - days) / totalDays) * 100));
+                                const barColor = days <= 3 ? 'var(--red)' : days <= 14 ? '#f1c40f' : 'rgba(201,169,89,0.5)';
+                                const title = days + ' day' + (days !== 1 ? 's' : '') + ' remaining';
+                                return '<div class="time-progress" title="' + title + '" style="height:2px;background:var(--bg-input);border-radius:1px;margin-top:4px;overflow:hidden;"><div style="height:100%;width:' + elapsedPct.toFixed(1) + '%;background:' + barColor + ';border-radius:1px;transition:width 0.5s ease;"></div></div>';
+                            }
+                            return '';
+                        })()}
                         <div class="position-reasoning">
                             ${pos.shares ? (() => {
                                 const ev = pos.shares * winProb - pos.amount;
