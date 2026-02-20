@@ -3705,7 +3705,11 @@
                             }, 0);
                             const pnlSign = groupPnl >= 0 ? '+' : '';
                             const pnlColor = groupPnl >= 0 ? 'var(--green)' : 'var(--red, #e74c3c)';
-                            header.innerHTML = `<span title="${pos.question.replace(/"/g, '&quot;')}" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${label} (${count})</span><span style="color:${pnlColor};font-weight:500;flex-shrink:0;">${pnlSign}M$${groupPnl.toFixed(0)}</span><span style="color:var(--text-dimmer);flex-shrink:0;">M$${totalAmt.toFixed(0)} deployed</span>`;
+                            const marketUrl = pos.market_url || '';
+                            const labelHtml = marketUrl
+                                ? `<a href="${marketUrl}" target="_blank" rel="noopener noreferrer" title="${pos.question.replace(/"/g, '&quot;')}" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--accent);text-decoration:none;" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">${label} (${count})</a>`
+                                : `<span title="${pos.question.replace(/"/g, '&quot;')}" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${label} (${count})</span>`;
+                            header.innerHTML = `${labelHtml}<span style="color:${pnlColor};font-weight:500;flex-shrink:0;">${pnlSign}M$${groupPnl.toFixed(0)}</span><span style="color:var(--text-dimmer);flex-shrink:0;">M$${totalAmt.toFixed(0)} deployed</span>`;
                             grid.insertBefore(header, card);
                         }
                         lastMarketId = mktId;
