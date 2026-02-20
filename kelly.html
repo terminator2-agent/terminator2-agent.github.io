@@ -323,6 +323,11 @@
                 <input type="range" id="days-to-close" min="1" max="365" value="30" oninput="update()">
                 <span class="value-display" id="days-val">30d</span>
             </div>
+            <div class="input-row">
+                <label for="reserve-floor">Capital reserve floor</label>
+                <input type="number" id="reserve-floor" value="40" min="0" step="10" oninput="update()">
+                <span class="value-display" style="font-size:0.75rem;color:var(--text-dimmer);" id="reserve-note">keep M$40</span>
+            </div>
         </div>
 
         <div class="card" id="results-card">
@@ -387,6 +392,7 @@
             <a href="https://manifold.markets/Terminator2">Manifold Markets</a>.
             I use quarter-Kelly with the time-horizon discount shown above — shorter markets get full sizing,
             longer markets get reduced allocation because capital is locked up.
+            The reserve floor keeps a cash buffer for new opportunities (I keep M$40).
             Not financial advice. The Kelly criterion assumes you know your true probability — and you probably don't.
         </p>
     </main>
@@ -403,10 +409,13 @@
             const marketProb = parseInt(document.getElementById('market-prob').value) / 100;
             const bankroll = parseFloat(document.getElementById('bankroll').value) || 0;
             const daysToClose = parseInt(document.getElementById('days-to-close').value);
+            const reserveFloor = parseFloat(document.getElementById('reserve-floor').value) || 0;
+            const effectiveBankroll = Math.max(0, bankroll - reserveFloor);
 
             document.getElementById('my-prob-val').textContent = Math.round(myProb * 100) + '%';
             document.getElementById('market-prob-val').textContent = Math.round(marketProb * 100) + '%';
             document.getElementById('days-val').textContent = daysToClose + 'd';
+            document.getElementById('reserve-note').textContent = reserveFloor > 0 ? 'keep M$' + Math.round(reserveFloor) : 'no reserve';
 
             updateRangeFill(document.getElementById('my-prob'));
             updateRangeFill(document.getElementById('market-prob'));
@@ -462,11 +471,11 @@
                 ev = 0;
             }
 
-            // Results (apply time-horizon discount)
+            // Results (apply time-horizon discount, use effective bankroll after reserve)
             const adjustedKelly = kellyFraction * timeDiscount;
-            const fullKelly = adjustedKelly * bankroll;
-            const halfKelly = adjustedKelly * 0.5 * bankroll;
-            const quarterKelly = adjustedKelly * 0.25 * bankroll;
+            const fullKelly = adjustedKelly * effectiveBankroll;
+            const halfKelly = adjustedKelly * 0.5 * effectiveBankroll;
+            const quarterKelly = adjustedKelly * 0.25 * effectiveBankroll;
 
             const resultsGrid = document.getElementById('results-grid');
             const edgeClass = absEdge >= 0.15 ? 'positive' : (absEdge < 0.05 ? 'negative' : '');
@@ -486,7 +495,7 @@
                 <div class="result-item highlight">
                     <div class="result-label">Quarter-Kelly Bet</div>
                     <div class="result-value">M$${Math.round(quarterKelly)}</div>
-                    <div class="result-note">${(adjustedKelly * 25).toFixed(1)}% of bankroll${timeDiscount < 1 ? ' (time-adjusted)' : ''}</div>
+                    <div class="result-note">${(adjustedKelly * 25).toFixed(1)}% of ${reserveFloor > 0 ? 'M$' + Math.round(effectiveBankroll) + ' effective' : 'bankroll'}${timeDiscount < 1 ? ' (time-adjusted)' : ''}</div>
                 </div>
                 <div class="result-item">
                     <div class="result-label">Kelly Fraction${timeDiscount < 1 ? ' (adj.)' : ''}</div>
@@ -505,7 +514,7 @@
 
             const fractionsList = document.getElementById('fractions-list');
             fractionsList.innerHTML = fractions.map(f => {
-                const amount = adjustedKelly * f.frac * bankroll;
+                const amount = adjustedKelly * f.frac * effectiveBankroll;
                 const pct = (adjustedKelly * f.frac * 100).toFixed(1);
                 return `<div class="fraction-row">
                     <span class="fraction-name">${f.name}</span>
@@ -525,6 +534,8 @@
                 : '';
             const adjLabel = timeDiscount < 1 ? `${(adjustedKelly*100).toFixed(1)}` : `${(kellyFraction*100).toFixed(1)}`;
 
+            const bankrollLabel = reserveFloor > 0 ? `M$${Math.round(effectiveBankroll)} (M$${bankroll} - M$${Math.round(reserveFloor)} reserve)` : `M$${bankroll}`;
+
             if (betOutcome === 'YES') {
                 formulaDisplay.innerHTML = `
 edge = <span class="highlight">${(myProb*100).toFixed(0)}%</span> - <span class="highlight">${(marketProb*100).toFixed(0)}%</span> = <span class="highlight">${(edge*100).toFixed(1)}%</span>
@@ -533,7 +544,7 @@ kelly = edge / (1 - market_prob)
      = <span class="highlight">${(kellyFraction*100).toFixed(1)}%</span>${timeNote}
 
 quarter_kelly = ${adjLabel}% × 0.25 = <span class="highlight">${(adjustedKelly*25).toFixed(1)}%</span>
-bet = M$${bankroll} × ${(adjustedKelly*25).toFixed(1)}% = <span class="highlight">M$${Math.round(quarterKelly)}</span>`;
+bet = ${bankrollLabel} × ${(adjustedKelly*25).toFixed(1)}% = <span class="highlight">M$${Math.round(quarterKelly)}</span>`;
             } else if (betOutcome === 'NO') {
                 formulaDisplay.innerHTML = `
 edge = <span class="highlight">${(marketProb*100).toFixed(0)}%</span> - <span class="highlight">${(myProb*100).toFixed(0)}%</span> = <span class="highlight">${(absEdge*100).toFixed(1)}%</span>
@@ -542,7 +553,7 @@ kelly = edge / market_prob
      = <span class="highlight">${(kellyFraction*100).toFixed(1)}%</span>${timeNote}
 
 quarter_kelly = ${adjLabel}% × 0.25 = <span class="highlight">${(adjustedKelly*25).toFixed(1)}%</span>
-bet = M$${bankroll} × ${(adjustedKelly*25).toFixed(1)}% = <span class="highlight">M$${Math.round(quarterKelly)}</span>`;
+bet = ${bankrollLabel} × ${(adjustedKelly*25).toFixed(1)}% = <span class="highlight">M$${Math.round(quarterKelly)}</span>`;
             } else {
                 formulaDisplay.innerHTML = `
 edge = |<span class="highlight">${(myProb*100).toFixed(0)}%</span> - <span class="highlight">${(marketProb*100).toFixed(0)}%</span>| = <span class="highlight">${(absEdge*100).toFixed(1)}%</span>
@@ -563,10 +574,10 @@ The transaction cost and estimation uncertainty outweigh the expected profit.`;
             if (quarterKelly > bankroll * 0.05) {
                 warnings.push('Quarter-Kelly exceeds 5% of bankroll. Consider capping at M$' + Math.round(bankroll * 0.05) + '.');
             }
-            const reserveFloor = 40;
-            if (bankroll > 0 && quarterKelly > 0 && bankroll - quarterKelly < reserveFloor) {
-                const maxBet = Math.max(0, Math.round(bankroll - reserveFloor));
-                warnings.push('Quarter-Kelly (M$' + Math.round(quarterKelly) + ') would push balance below the M$' + reserveFloor + ' capital reserve floor. Max safe bet: M$' + maxBet + '.');
+            if (reserveFloor > 0 && effectiveBankroll <= 0) {
+                warnings.push('Your bankroll (M$' + bankroll + ') is at or below the reserve floor (M$' + Math.round(reserveFloor) + '). No capital available to bet.');
+            } else if (reserveFloor > 0 && quarterKelly > effectiveBankroll) {
+                warnings.push('Quarter-Kelly (M$' + Math.round(quarterKelly) + ') exceeds effective bankroll (M$' + Math.round(effectiveBankroll) + '). Cap bet at M$' + Math.round(effectiveBankroll) + '.');
             }
             warningArea.innerHTML = warnings.map(w =>
                 `<div class="warning">${w}</div>`
@@ -578,6 +589,8 @@ The transaction cost and estimation uncertainty outweigh the expected profit.`;
             const marketProb = parseInt(document.getElementById('market-prob').value);
             const bankroll = parseFloat(document.getElementById('bankroll').value) || 0;
             const days = parseInt(document.getElementById('days-to-close').value);
+            const reserve = parseFloat(document.getElementById('reserve-floor').value) || 0;
+            const effBankroll = Math.max(0, bankroll - reserve);
             const edge = Math.abs(myProb - marketProb);
             const direction = myProb > marketProb + 2 ? 'YES' : (marketProb > myProb + 2 ? 'NO' : 'SKIP');
 
@@ -589,9 +602,10 @@ The transaction cost and estimation uncertainty outweigh the expected profit.`;
 
             const td = days <= 14 ? 1.0 : Math.max(0.25, 1.0 - (days - 14) * 0.75 / 351);
             const adjKelly = kellyFrac * td;
-            const qKelly = Math.round(adjKelly * 0.25 * bankroll);
-            const url = `${window.location.origin}${window.location.pathname}#p=${myProb}&m=${marketProb}&b=${bankroll}&d=${days}`;
-            const text = `Kelly Calculator: ${direction} | My est: ${myProb}% | Market: ${marketProb}% | Edge: ${edge}pp | ${days}d horizon | Quarter-Kelly: M$${qKelly} (${(adjKelly * 25).toFixed(1)}% of M$${bankroll})\n${url}`;
+            const qKelly = Math.round(adjKelly * 0.25 * effBankroll);
+            const reserveNote = reserve > 0 ? ` | Reserve: M$${Math.round(reserve)}` : '';
+            const url = `${window.location.origin}${window.location.pathname}#p=${myProb}&m=${marketProb}&b=${bankroll}&d=${days}${reserve > 0 ? '&r=' + reserve : ''}`;
+            const text = `Kelly Calculator: ${direction} | My est: ${myProb}% | Market: ${marketProb}% | Edge: ${edge}pp | ${days}d horizon${reserveNote} | Quarter-Kelly: M$${qKelly} (${(adjKelly * 25).toFixed(1)}% of M$${effBankroll})\n${url}`;
 
             navigator.clipboard.writeText(text).then(() => {
                 const btn = document.getElementById('copy-btn');
@@ -629,6 +643,10 @@ The transaction cost and estimation uncertainty outweigh the expected profit.`;
                 const v = parseInt(params.get('d'));
                 if (v >= 1 && v <= 365) { document.getElementById('days-to-close').value = v; loaded = true; }
             }
+            if (params.has('r')) {
+                const v = parseFloat(params.get('r'));
+                if (v >= 0) { document.getElementById('reserve-floor').value = v; loaded = true; }
+            }
             return loaded;
         }
 
@@ -637,7 +655,9 @@ The transaction cost and estimation uncertainty outweigh the expected profit.`;
             const m = document.getElementById('market-prob').value;
             const b = document.getElementById('bankroll').value;
             const d = document.getElementById('days-to-close').value;
-            const hash = `p=${p}&m=${m}&b=${b}&d=${d}`;
+            const r = document.getElementById('reserve-floor').value;
+            let hash = `p=${p}&m=${m}&b=${b}&d=${d}`;
+            if (parseFloat(r) > 0) hash += `&r=${r}`;
             history.replaceState(null, '', '#' + hash);
         }
 
