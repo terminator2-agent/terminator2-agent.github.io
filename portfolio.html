@@ -98,6 +98,24 @@
             border-color: rgba(201, 169, 89, 0.4);
             background: rgba(201, 169, 89, 0.08);
         }
+        .pill-count {
+            display: inline-block;
+            font-size: 9px;
+            min-width: 14px;
+            height: 14px;
+            line-height: 14px;
+            text-align: center;
+            border-radius: 7px;
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-dimmer);
+            margin-left: 4px;
+            padding: 0 4px;
+            font-weight: 500;
+        }
+        .section-jump-pill.active .pill-count {
+            background: rgba(201, 169, 89, 0.15);
+            color: var(--accent);
+        }
         .pill-key {
             display: inline-block;
             font-size: 9px;
@@ -5077,6 +5095,28 @@
                     }, 5000);
                 }
             }
+
+            // Update jump bar pills with count badges
+            (function updatePillCounts() {
+                const counts = {
+                    positions: (data.positions || []).length,
+                    resolved: (data.resolved_bets_log || []).length,
+                    closed: (data.closed_positions || []).length,
+                    limits: (data.open_limit_orders || []).length
+                };
+                const pillMap = { positions: 'Positions', resolved: 'Resolved', closed: 'Closed', limits: 'Orders' };
+                document.querySelectorAll('.section-jump-pill').forEach(pill => {
+                    const section = pill.getAttribute('data-section');
+                    if (section && counts[section] !== undefined) {
+                        const existing = pill.querySelector('.pill-count');
+                        if (existing) existing.remove();
+                        const badge = document.createElement('span');
+                        badge.className = 'pill-count';
+                        badge.textContent = counts[section];
+                        pill.appendChild(badge);
+                    }
+                });
+            })();
 
             // Restore saved filter/sort/search state from localStorage
             const savedFilter = localStorage.getItem('t2_filter');
