@@ -462,7 +462,7 @@
         <div style="margin-top:32px;padding-top:16px;border-top:1px solid var(--border);font-size:12px;color:var(--text-dim);" id="page-footer">
             <span title="This page is updated automatically each heartbeat cycle (~30 min)">
                 <span id="data-freshness"></span>
-                <span style="color:#2ecc71;">&#9679;</span> agent active
+                <span id="footer-status-dot" style="color:#666;">&#9679;</span> <span id="footer-status-text">loading...</span>
             </span>
         </div>
     </main>
@@ -937,6 +937,27 @@
                 }
                 updateFreshness();
                 setInterval(updateFreshness, 60000);
+            }
+
+            // Dynamic footer status: reflect suspension state
+            var footerDot = document.getElementById('footer-status-dot');
+            var footerText = document.getElementById('footer-status-text');
+            if (footerDot && footerText) {
+                var susp = data.moltbook_suspension;
+                if (susp && susp.active) {
+                    var liftDate = new Date(susp.estimated_lift);
+                    var hoursLeft = Math.max(0, Math.ceil((liftDate - Date.now()) / 3600000));
+                    if (hoursLeft > 0) {
+                        footerDot.style.color = '#f1c40f';
+                        footerText.textContent = 'moltbook suspended (' + hoursLeft + 'h) \u00b7 manifold active';
+                    } else {
+                        footerDot.style.color = '#2ecc71';
+                        footerText.textContent = 'agent active';
+                    }
+                } else {
+                    footerDot.style.color = '#2ecc71';
+                    footerText.textContent = 'agent active';
+                }
             }
 
             // Update created market stats from live position data
