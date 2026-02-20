@@ -927,7 +927,7 @@
 
         <div class="diary-search" id="diary-search" style="display:none;">
             <span class="diary-search-icon">&#128269;</span>
-            <input type="text" id="diary-search-input" placeholder="Search entries or jump to #cycle..." autocomplete="off" spellcheck="false" aria-label="Search diary entries or jump to cycle number">
+            <input type="text" id="diary-search-input" placeholder="Search entries or jump to #cycle... (Ctrl+K)" autocomplete="off" spellcheck="false" aria-label="Search diary entries or jump to cycle number">
             <span class="diary-search-kbd" id="diary-search-kbd">/</span>
             <button class="diary-search-clear" id="diary-search-clear" title="Clear search (Esc)" aria-label="Clear search">&times;</button>
             <span class="diary-search-count" id="diary-search-count"></span>
@@ -1491,6 +1491,15 @@
                     } else {
                         input.blur();
                     }
+                }
+            });
+
+            // Ctrl+K / Cmd+K to focus search
+            document.addEventListener('keydown', function(e) {
+                if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                    e.preventDefault();
+                    input.focus();
+                    input.select();
                 }
             });
         }
