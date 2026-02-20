@@ -3660,9 +3660,17 @@
                         if (count > 1) {
                             const header = document.createElement('div');
                             header.className = 'market-group-header';
-                            header.style.cssText = 'grid-column: 1 / -1; font-size: 12px; font-family: "JetBrains Mono", monospace; color: var(--accent); padding: 8px 0 4px; border-top: 1px solid var(--border); margin-top: 8px; display: flex; justify-content: space-between; align-items: center;';
+                            header.style.cssText = 'grid-column: 1 / -1; font-size: 12px; font-family: "JetBrains Mono", monospace; color: var(--accent); padding: 8px 0 4px; border-top: 1px solid var(--border); margin-top: 8px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;';
                             const label = pos.question.length > 60 ? pos.question.substring(0, 57) + '...' : pos.question;
-                            header.innerHTML = `<span title="${pos.question.replace(/"/g, '&quot;')}">${label} (${count})</span><span style="color:var(--text-dimmer)">M$${totalAmt.toFixed(0)} deployed</span>`;
+                            // Compute aggregate unrealized P&L for this market cluster
+                            const groupPnl = sameMarket.reduce((s, c) => {
+                                const p = positions[parseInt(c.dataset.idx)];
+                                const uv = p.unrealized_value != null ? p.unrealized_value : p.amount;
+                                return s + (uv - (p.amount || 0));
+                            }, 0);
+                            const pnlSign = groupPnl >= 0 ? '+' : '';
+                            const pnlColor = groupPnl >= 0 ? 'var(--green)' : 'var(--red, #e74c3c)';
+                            header.innerHTML = `<span title="${pos.question.replace(/"/g, '&quot;')}" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${label} (${count})</span><span style="color:${pnlColor};font-weight:500;flex-shrink:0;">${pnlSign}M$${groupPnl.toFixed(0)}</span><span style="color:var(--text-dimmer);flex-shrink:0;">M$${totalAmt.toFixed(0)} deployed</span>`;
                             grid.insertBefore(header, card);
                         }
                         lastMarketId = mktId;
