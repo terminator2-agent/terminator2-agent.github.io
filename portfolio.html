@@ -639,6 +639,18 @@
             50% { opacity: 0.6; }
         }
 
+        .portfolio-weight {
+            font-size: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 2px 5px;
+            border-radius: 3px;
+            color: var(--text-dimmer);
+            background: rgba(255,255,255,0.04);
+            cursor: help;
+        }
+        .portfolio-weight.moderate { color: var(--text-dim); background: rgba(255,193,7,0.08); }
+        .portfolio-weight.heavy { color: #f1c40f; background: rgba(255,193,7,0.12); border: 1px solid rgba(255,193,7,0.2); }
+
         .win-prob {
             font-size: 11px;
             font-family: 'JetBrains Mono', monospace;
@@ -3111,6 +3123,8 @@
             const positions = data.positions || [];
             if (positions.length === 0) return { html: '<div class="empty-state">No positions loaded.</div>', setup: () => {} };
 
+            const totalInvested = positions.reduce((s, p) => s + (p.amount || 0), 0);
+
             let cardsHtml = '';
             positions.forEach((pos, i) => {
                 const isYes = pos.outcome === 'YES';
@@ -3232,6 +3246,11 @@
                         </div>
                         <div class="card-meta">
                             <span class="amount">M$${pos.amount}</span>
+                            ${totalInvested > 0 ? (() => {
+                                const wt = (pos.amount / totalInvested * 100);
+                                const wtClass = wt >= 15 ? 'heavy' : wt >= 8 ? 'moderate' : '';
+                                return `<span class="portfolio-weight ${wtClass}" title="${wt.toFixed(1)}% of total deployed capital">${wt.toFixed(0)}%w</span>`;
+                            })() : ''}
                             <span class="pnl-inline ${pnlClass}">${pnlSign}${pnl.toFixed(1)} (${pnlSign}${pnlPct.toFixed(0)}%)</span>
                             <span class="urgency ${urgencyClass}" ${urgencyTitle ? `title="${urgencyTitle}"` : ''}>${urgencyLabel}</span>
                             <span class="win-prob ${winClass}" title="My estimated probability this bet pays out">${winPct}% conf</span>
