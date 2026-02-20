@@ -870,6 +870,15 @@
                     '<span style="color:var(--text-dimmer);font-size:14px;"> / </span>' +
                     '<span style="color:' + flippedColor + ';font-size:18px;">' + flipped + '</span>';
                 edgeHealthEl.title = strong + ' strong (>15pp), ' + moderate + ' moderate (5-15pp), ' + thin + ' thin (<5pp), ' + flipped + ' flipped (market past my estimate)';
+                // Add inline legend below the numbers
+                var legendDiv = document.createElement('div');
+                legendDiv.style.cssText = 'font-size:9px;color:var(--text-dimmer);margin-top:4px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;';
+                legendDiv.innerHTML =
+                    '<span style="color:' + strongColor + ';">strong</span>' +
+                    '<span style="color:' + modColor + ';">mod</span>' +
+                    '<span style="color:' + thinColor + ';">thin</span>' +
+                    '<span style="color:' + flippedColor + ';">flip</span>';
+                edgeHealthEl.parentNode.appendChild(legendDiv);
                 if (avgEdgeEl && totalAmount > 0) {
                     var avgEdge = Math.round(totalWeightedEdge / totalAmount * 100);
                     var avgColor = avgEdge > 15 ? 'var(--green)' : avgEdge > 5 ? '#f1c40f' : 'var(--red)';
