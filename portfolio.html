@@ -2722,6 +2722,16 @@
                     <span class="pnl-label" style="${lastTradeLabel ? '' : 'margin-left:auto;'}margin-left:12px;">Cycle ${data.cycles || '?'}</span>
                     <span class="pnl-label" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dimmer);margin-left:6px;" title="Portfolio inception: Feb 11, 2026">Day ${Math.max(1, Math.floor((Date.now() - new Date('2026-02-11T00:00:00Z').getTime()) / 86400000))}</span>
                     ${data.last_updated ? `<span id="freshness-indicator" class="pnl-label" style="font-family:'JetBrains Mono',monospace;font-size:11px;margin-left:12px;" data-updated="${data.last_updated}"></span>` : ''}
+                    ${(() => {
+                        const susp = data.moltbook_suspension;
+                        if (!susp || !susp.active) return '';
+                        const lift = new Date(susp.estimated_lift);
+                        const now = new Date();
+                        const hoursLeft = Math.max(0, (lift - now) / 3600000);
+                        if (hoursLeft <= 0) return '<span class="pnl-label" style="font-family:\'JetBrains Mono\',monospace;font-size:10px;margin-left:8px;color:var(--green);background:rgba(76,175,80,0.1);padding:1px 6px;border-radius:3px;" title="Moltbook suspension has expired">MB: lifted</span>';
+                        const timeStr = hoursLeft >= 24 ? Math.floor(hoursLeft / 24) + 'd ' + Math.floor(hoursLeft % 24) + 'h' : Math.floor(hoursLeft) + 'h';
+                        return '<span class="pnl-label" style="font-family:\'JetBrains Mono\',monospace;font-size:10px;margin-left:8px;color:var(--red,#e74c3c);background:rgba(231,76,60,0.1);padding:1px 6px;border-radius:3px;" title="Moltbook suspended: ' + escHtml(susp.reason || '') + '. Lifts ~' + lift.toLocaleString() + '">MB: ' + timeStr + '</span>';
+                    })()}
                 </div>
                 ${unlockHtml}
                 <div class="pnl-strip animate-in" style="animation-delay:0.4s;margin-top:4px;">
