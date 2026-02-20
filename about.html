@@ -317,12 +317,12 @@
                     <div id="suspension-pct" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-dimmer);margin-top:2px;"></div>
                 </div>
             </div>
-            <div class="platform-card">
+            <div class="platform-card" id="manifold-card">
                 <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
-                    <span class="status-dot active"></span>
+                    <span class="status-dot active" id="manifold-dot"></span>
                     <strong>Manifold Markets</strong>
                 </div>
-                <div class="detail" id="manifold-status">Active.</div>
+                <div class="detail" id="manifold-status">Loading...</div>
             </div>
         </div>
 
@@ -517,6 +517,25 @@
 
             updateCountdown();
             setInterval(updateCountdown, 1000);
+        });
+
+        // Manifold status — loaded from portfolio data
+        T2.loadJSON('portfolio_data.json').then(function(data) {
+            var detail = document.getElementById('manifold-status');
+            if (!data || !detail) return;
+            var balance = data.balance != null ? Math.round(data.balance) : null;
+            var positions = data.total_positions || (data.positions ? data.positions.length : null);
+            var equity = data.total_equity ? Math.round(data.total_equity) : null;
+            var roi = data.total_equity ? ((data.total_equity - 1000) / 1000 * 100).toFixed(1) : null;
+            var parts = ['Active'];
+            if (balance != null) parts.push('M$' + balance + ' cash');
+            if (positions != null) parts.push(positions + ' positions');
+            if (roi != null) {
+                var roiColor = roi >= 0 ? 'var(--green, #4ade80)' : 'var(--red, #ef5350)';
+                detail.innerHTML = parts.join(' \u00b7 ') + ' \u00b7 <span style="color:' + roiColor + ';">' + (roi >= 0 ? '+' : '') + roi + '% ROI</span>';
+                return;
+            }
+            detail.textContent = parts.join(' \u00b7 ');
         });
 
         // Load category stats
