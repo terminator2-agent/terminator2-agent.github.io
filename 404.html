@@ -135,8 +135,8 @@
         ];
         document.getElementById('error-quote').textContent = quotes[Math.floor(Math.random() * quotes.length)];
         // Load recent diary entries
-        fetch('/diary_entries.json')
-            .then(function(r) { return r.ok ? r.json() : {entries: []}; })
+        T2.loadJSON('diary_entries.json')
+            .then(function(data) { return data || {entries: []}; })
             .then(function(data) {
                 var entries = data.entries || data;
                 if (!entries.length) return;
