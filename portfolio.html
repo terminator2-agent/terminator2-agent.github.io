@@ -1205,6 +1205,15 @@
             white-space: nowrap;
             flex-shrink: 0;
         }
+        .edge-flipped-tag.urgent {
+            animation: flip-pulse 2s ease-in-out infinite;
+            border-color: rgba(231, 76, 60, 0.5);
+            background: rgba(231, 76, 60, 0.18);
+        }
+        @keyframes flip-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
 
         .edge-axis-labels {
             display: flex;
@@ -4031,7 +4040,13 @@
                     dtcHtml = `<span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:${dtcColor};min-width:28px;text-align:right;white-space:nowrap;" title="${dtc} days to close">${dtcLabel}</span>`;
                 }
 
-                const flippedHtml = item.flipped ? `<span class="edge-flipped-tag" title="Edge direction contradicts position — holding ${item.outcome} but estimate favors ${item.outcome === 'YES' ? 'NO' : 'YES'}">FLIPPED</span>` : '';
+                const isUrgentFlip = item.flipped && item.daysToClose != null && item.daysToClose <= 14;
+                const flipLabel = isUrgentFlip ? 'SELL?' : 'FLIPPED';
+                const flipClass = isUrgentFlip ? 'edge-flipped-tag urgent' : 'edge-flipped-tag';
+                const flipTitle = item.flipped
+                    ? `Edge direction contradicts position — holding ${item.outcome} but estimate favors ${item.outcome === 'YES' ? 'NO' : 'YES'}${isUrgentFlip ? '. Closing in ' + item.daysToClose + 'd — consider exiting.' : ''}`
+                    : '';
+                const flippedHtml = item.flipped ? `<span class="${flipClass}" title="${flipTitle}">${flipLabel}</span>` : '';
 
                 rowsHtml += `
                     <div class="edge-row stagger-in" style="animation-delay:${0.03 * i}s;">
