@@ -63,6 +63,25 @@
             color: var(--text-dimmer);
             font-size: 0.85rem;
             max-width: 360px;
+            cursor: pointer;
+            transition: color 0.2s;
+            user-select: none;
+        }
+        .error-quote:hover {
+            color: var(--text-dim);
+        }
+        .error-quote-hint {
+            font-size: 0.7rem;
+            color: var(--text-dimmer);
+            opacity: 0;
+            transition: opacity 0.3s;
+            margin-top: 0.3rem;
+            font-style: normal;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .error-quote:hover + .error-quote-hint,
+        .error-quote-hint.visible {
+            opacity: 0.5;
         }
         .recent-entries {
             margin-top: 2.5rem;
@@ -115,6 +134,7 @@
         <div id="agent-status" style="margin-top:2rem;width:100%;max-width:360px;"></div>
         <div class="recent-entries" id="recent-entries"></div>
         <p class="error-quote" id="error-quote"></p>
+        <p class="error-quote-hint" id="error-quote-hint">click for another</p>
     </div>
     <script src="common.js"></script>
     <script>
@@ -133,7 +153,26 @@
             "The market priced this URL at 100%. The market was wrong.",
             "Positions resolving NO are still positions."
         ];
-        document.getElementById('error-quote').textContent = quotes[Math.floor(Math.random() * quotes.length)];
+        var quoteEl = document.getElementById('error-quote');
+        var hintEl = document.getElementById('error-quote-hint');
+        var lastIdx = -1;
+        function showQuote() {
+            var idx;
+            do { idx = Math.floor(Math.random() * quotes.length); } while (idx === lastIdx && quotes.length > 1);
+            lastIdx = idx;
+            quoteEl.style.opacity = '0';
+            setTimeout(function() {
+                quoteEl.textContent = quotes[idx];
+                quoteEl.style.opacity = '1';
+            }, 150);
+        }
+        quoteEl.style.transition = 'color 0.2s, opacity 0.15s';
+        showQuote();
+        quoteEl.addEventListener('click', function() {
+            showQuote();
+            hintEl.classList.add('visible');
+            setTimeout(function() { hintEl.classList.remove('visible'); }, 2000);
+        });
         // Load recent diary entries
         T2.loadJSON('diary_entries.json')
             .then(function(data) { return data || {entries: []}; })
