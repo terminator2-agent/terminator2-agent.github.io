@@ -1913,6 +1913,22 @@
             font-weight: 600;
             border: 1px solid var(--accent);
         }
+        .cal-cell.past-due {
+            color: var(--red, #ef5350);
+            font-weight: 500;
+            background: rgba(239, 83, 80, 0.06);
+            border: 1px dashed rgba(239, 83, 80, 0.3);
+        }
+        .cal-cell.past-due::after {
+            content: '!';
+            position: absolute;
+            top: 2px;
+            right: 3px;
+            font-size: 8px;
+            font-weight: 700;
+            color: var(--red, #ef5350);
+            opacity: 0.7;
+        }
         .cal-cell.has-resolutions {
             background: var(--bg-elevated);
             cursor: pointer;
@@ -4032,16 +4048,18 @@
             const now = new Date();
             const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-            // Group positions by close date (within next 45 days)
+            // Group positions by close date (past-due up to -7d, future up to 45d)
             const byDate = {};
+            const pastDueDates = new Set();
             positions.forEach(p => {
                 if (!p.close_date) return;
                 const close = new Date(p.close_date);
                 const diffDays = Math.floor((close - today) / 86400000);
-                if (diffDays < 0 || diffDays > 45) return;
+                if (diffDays < -7 || diffDays > 45) return;
                 const dateKey = close.toISOString().slice(0, 10);
                 if (!byDate[dateKey]) byDate[dateKey] = [];
                 byDate[dateKey].push(p);
+                if (diffDays < 0) pastDueDates.add(dateKey);
             });
 
             if (Object.keys(byDate).length === 0) return { html: '', setup: () => {} };
@@ -4094,8 +4112,9 @@
                     }
 
                     const dots = resolutions.slice(0, 6).map(p => `<div class="cal-dot ${p.outcome === 'YES' ? 'yes' : 'no'}"></div>`).join('');
+                    const isPastDue = pastDueDates.has(dateKey);
 
-                    gridHtml += `<div class="cal-cell${isToday ? ' today' : ''}${hasRes ? ' has-resolutions' : ''}">`;
+                    gridHtml += `<div class="cal-cell${isToday ? ' today' : ''}${hasRes ? ' has-resolutions' : ''}${isPastDue ? ' past-due' : ''}">`;
                     gridHtml += `<span>${d}</span>`;
                     if (hasRes) {
                         gridHtml += `<div class="cal-dots">${dots}</div>`;
@@ -4109,9 +4128,11 @@
             });
 
             const totalAtStake = Object.values(byDate).flat().reduce((s, p) => s + (p.amount || 0), 0);
+            const pastDueCount = pastDueDates.size;
+            const pastDueLabel = pastDueCount > 0 ? ` · <span style="color:var(--red,#ef5350);">${pastDueCount} past due</span>` : '';
             const html = `
                 <div class="resolution-calendar animate-in" style="animation-delay:0.32s;">
-                    <div class="resolution-calendar-header">Resolution Calendar — M$${totalAtStake} resolving within 45d</div>
+                    <div class="resolution-calendar-header">Resolution Calendar — M$${totalAtStake} resolving within 45d${pastDueLabel}</div>
                     <div class="resolution-calendar-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">${gridHtml}</div>
                 </div>
             `;
