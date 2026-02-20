@@ -2650,6 +2650,7 @@
                         <div class="label">Total Equity</div>
                         <div class="value accent" id="counter-equity">M$0</div>
                         <div class="sub" id="roi-sub" style="color:${roiPct >= 0 ? 'var(--green)' : 'var(--red)'}">ROI: ${roiPct >= 0 ? '+' : ''}${roiPct.toFixed(1)}%${milestoneBadge}</div>
+                        <div class="sub" style="font-size:11px;color:${roiPct >= 0 ? 'var(--green)' : 'var(--red)'};margin-top:2px;font-family:'JetBrains Mono',monospace;" title="Absolute profit from M$1,000 starting capital">${roiPct >= 0 ? '+' : ''}M$${Math.round(totalEquity - 1000)} profit</div>
                         <div class="sub" style="font-size:10px;color:var(--text-dimmer);margin-top:2px;" title="Annualized return over ${daysActive} days">${annualizedRoi >= 0 ? '+' : ''}${annualizedRoi > 9999 ? '>9999' : annualizedRoi.toFixed(0)}% ann. (${daysActive}d)</div>
                     </div>
                     <div class="hero-stat animate-in">
