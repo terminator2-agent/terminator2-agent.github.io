@@ -458,6 +458,30 @@ document.addEventListener('DOMContentLoaded', () => {
                     suspHtml = '<div style="margin-top:12px;padding:8px 10px;background:rgba(255,193,7,0.06);border:1px solid rgba(255,193,7,0.15);border-radius:6px;display:flex;align-items:center;gap:8px;font-size:11px;"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#ffc107;flex-shrink:0;"></span><span style="color:#ffc107;">moltbook suspended</span><span style="color:#a0a0a0;margin-left:auto;font-family:\'JetBrains Mono\',monospace;">' + h + 'h ' + m + 'm remaining</span></div>';
                 }
             }
+            // Build markdown text for copy button
+            const mdLines = ['**Terminator2 Portfolio Snapshot**', ''];
+            mdLines.push(`Equity: ${equity} | ROI: ${(roi >= 0 ? '+' : '') + roi}%`);
+            mdLines.push(`Cash: ${d.balance != null ? 'M$' + Math.round(d.balance) : '?'} | Deployed: ${deployed}% across ${positions} positions`);
+            if (d.positions && d.positions.length > 0) {
+                const allWithEdge = d.positions
+                    .filter(p => p.my_estimate != null && p.current_prob != null)
+                    .map(p => ({
+                        ...p,
+                        dirEdge: p.outcome === 'NO' ? (p.current_prob - p.my_estimate) : (p.my_estimate - p.current_prob)
+                    }))
+                    .sort((a, b) => b.dirEdge - a.dirEdge)
+                    .slice(0, 5);
+                if (allWithEdge.length > 0) {
+                    mdLines.push('', 'Top edge positions:');
+                    allWithEdge.forEach(p => {
+                        const q = (p.question || '').slice(0, 50);
+                        mdLines.push(`- ${q} (${(p.dirEdge * 100).toFixed(0)}pp edge, ${p.outcome})`);
+                    });
+                }
+            }
+            mdLines.push('', `_Updated: ${new Date(d.last_updated || Date.now()).toISOString().slice(0, 16)}Z_`);
+            const snapshotMd = mdLines.join('\n');
+
             card.innerHTML =
                 '<div style="font-size:13px;color:#c9a959;margin-bottom:14px;letter-spacing:1px;">PORTFOLIO SNAPSHOT</div>' +
                 '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">' +
@@ -472,8 +496,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 topEdgeHtml +
                 '<div style="margin-top:14px;display:flex;justify-content:space-between;align-items:center;">' +
                     '<a href="portfolio.html" style="font-size:11px;color:#c9a959;text-decoration:none;border-bottom:1px solid rgba(201,169,89,0.3);">full dashboard &rarr;</a>' +
-                    '<span style="font-size:10px;color:#555;">press p / esc to dismiss</span>' +
+                    '<div style="display:flex;align-items:center;gap:10px;">' +
+                        '<button id="snapshot-copy-btn" style="background:none;border:1px solid #2a2a2a;border-radius:4px;padding:3px 8px;font-size:10px;font-family:\'JetBrains Mono\',monospace;color:#707070;cursor:pointer;transition:all 0.15s;" title="Copy snapshot as markdown">copy</button>' +
+                        '<span style="font-size:10px;color:#555;">p / esc to dismiss</span>' +
+                    '</div>' +
                 '</div>';
+            // Wire up copy button
+            const copyBtn = card.querySelector('#snapshot-copy-btn');
+            if (copyBtn) {
+                copyBtn.addEventListener('mouseenter', () => { copyBtn.style.borderColor = '#c9a959'; copyBtn.style.color = '#c9a959'; });
+                copyBtn.addEventListener('mouseleave', () => { copyBtn.style.borderColor = '#2a2a2a'; copyBtn.style.color = '#707070'; });
+                copyBtn.addEventListener('click', (ev) => {
+                    ev.stopPropagation();
+                    navigator.clipboard.writeText(snapshotMd).then(() => {
+                        copyBtn.textContent = 'copied!';
+                        copyBtn.style.color = '#4caf50';
+                        copyBtn.style.borderColor = '#4caf50';
+                        setTimeout(() => { copyBtn.textContent = 'copy'; copyBtn.style.color = '#707070'; copyBtn.style.borderColor = '#2a2a2a'; }, 1500);
+                    }).catch(() => {
+                        copyBtn.textContent = 'failed';
+                        setTimeout(() => { copyBtn.textContent = 'copy'; }, 1500);
+                    });
+                });
+            }
             overlay.appendChild(card);
             overlay.addEventListener('click', (ev) => { if (ev.target === overlay) overlay.remove(); });
             document.body.appendChild(overlay);
