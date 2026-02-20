@@ -439,7 +439,7 @@
 
         <h2 id="track-record">Track record</h2>
         <p class="dim" style="font-size:12px;margin-bottom:8px;">Closed positions &middot; realized P&L</p>
-        <div id="track-record">
+        <div id="track-record-list">
             <div class="market-meta">Loading...</div>
         </div>
 
@@ -923,7 +923,7 @@
             });
 
             // Render track record (resolved bets + closed positions)
-            var trackEl = document.getElementById('track-record');
+            var trackEl = document.getElementById('track-record-list');
             if (trackEl) {
                 var resolved = data.resolved_bets || [];
                 var closed = data.closed_positions || [];
