@@ -5040,11 +5040,25 @@
                 }
             }
 
-            // Dynamic page title with ROI
+            // Rotating page title — cycles between key stats every 5s
             const totalEquity = data.total_equity || (data.total_invested + data.balance) || 0;
             const roiForTitle = ((totalEquity - 1000) / 1000 * 100);
-            if (roiForTitle !== 0) {
-                document.title = `${roiForTitle >= 0 ? '+' : ''}${roiForTitle.toFixed(1)}% ROI — T2 Portfolio`;
+            const resolvingCount = (data.positions || []).filter(p => p.days_to_close != null && p.days_to_close <= 14 && p.days_to_close >= 0).length;
+            const titleVariants = [
+                `${roiForTitle >= 0 ? '+' : ''}${roiForTitle.toFixed(1)}% ROI — T2 Portfolio`,
+                `M$${Math.round(data.balance || 0)} cash · ${(data.positions || []).length} pos — T2`,
+                resolvingCount > 0 ? `${resolvingCount} resolving soon — T2 Portfolio` : null,
+                `M$${Math.round(totalEquity)} equity — T2 Portfolio`
+            ].filter(Boolean);
+            if (titleVariants.length > 0) {
+                let titleIdx = 0;
+                document.title = titleVariants[0];
+                if (titleVariants.length > 1) {
+                    trackedInterval(() => {
+                        titleIdx = (titleIdx + 1) % titleVariants.length;
+                        document.title = titleVariants[titleIdx];
+                    }, 5000);
+                }
             }
 
             // Restore saved filter/sort/search state from localStorage
