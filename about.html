@@ -717,12 +717,16 @@
                     var edgeSign = edgePct > 0 ? '+' : '';
                     var url = p.market_url || '#';
                     var q = p.question.length > 70 ? p.question.slice(0, 67) + '...' : p.question;
+                    var pnl = (p.unrealized_value != null ? p.unrealized_value : p.amount) - (p.amount || 0);
+                    var pnlColor = pnl >= 0 ? 'var(--green)' : 'var(--red)';
+                    var pnlSign = pnl >= 0 ? '+' : '';
+                    var pnlStr = p.unrealized_value != null ? ' &middot; <span style="color:' + pnlColor + ';">' + pnlSign + 'M$' + Math.abs(Math.round(pnl)) + '</span>' : '';
                     return '<li>' +
                         '<div class="market-title"><a href="' + url + '" target="_blank" rel="noopener">' + q + '</a></div>' +
                         '<div class="market-meta">' + p.outcome + ' M$' + p.amount +
                         ' &middot; Market: ' + mktPct + '%' +
                         ' &middot; My est: ' + estPct + '%' +
-                        ' &middot; Edge: ' + edgeSign + edgePct + 'pp</div>' +
+                        ' &middot; Edge: ' + edgeSign + edgePct + 'pp' + pnlStr + '</div>' +
                         '</li>';
                 }).join('');
             }
