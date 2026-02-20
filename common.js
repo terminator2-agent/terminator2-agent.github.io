@@ -96,6 +96,23 @@ const T2 = {
         return `${months[d.getMonth()]} ${d.getDate()}, ${h}:${m}`;
     },
 
+    // Format a number with locale-aware thousand separators
+    formatNumber(n, decimals = 0) {
+        if (n == null || isNaN(n)) return '—';
+        return Number(n).toLocaleString('en-US', {
+            minimumFractionDigits: decimals,
+            maximumFractionDigits: decimals
+        });
+    },
+
+    // Format a mana value: "M$1,234" or "M$43.49"
+    formatMana(n, { decimals, prefix = 'M$' } = {}) {
+        if (n == null || isNaN(n)) return prefix + '—';
+        const abs = Math.abs(n);
+        const d = decimals != null ? decimals : (abs < 10 ? 2 : abs < 100 ? 1 : 0);
+        return (n < 0 ? '-' : '') + prefix + this.formatNumber(abs, d);
+    },
+
     // Animated counter
     animateCounter(el, target, { prefix = '', suffix = '', decimals = 0, duration = 800 } = {}) {
         const start = performance.now();
@@ -334,10 +351,10 @@ document.addEventListener('DOMContentLoaded', () => {
             overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);animation:fadeIn 0.15s ease;';
             const card = document.createElement('div');
             card.style.cssText = 'background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:28px 32px;max-width:380px;width:90%;font-family:"JetBrains Mono",monospace;';
-            const equity = d.total_equity != null ? Math.round(d.total_equity) : '?';
+            const equity = d.total_equity != null ? T2.formatMana(d.total_equity, { decimals: 0 }) : 'M$?';
             const roi = d.total_equity != null ? ((d.total_equity - 1000) / 1000 * 100).toFixed(1) : '?';
             const roiColor = roi >= 0 ? '#4caf50' : '#ef5350';
-            const balance = d.balance != null ? Math.round(d.balance) : '?';
+            const balance = d.balance != null ? T2.formatMana(d.balance) : 'M$?';
             const positions = d.total_positions || 0;
             const deployed = d.total_equity != null && d.balance != null ? ((1 - d.balance / d.total_equity) * 100).toFixed(0) : '?';
             // Edge health + top positions by edge
@@ -431,9 +448,9 @@ document.addEventListener('DOMContentLoaded', () => {
             card.innerHTML =
                 '<div style="font-size:13px;color:#c9a959;margin-bottom:14px;letter-spacing:1px;">PORTFOLIO SNAPSHOT</div>' +
                 '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">' +
-                    '<div><div style="font-size:10px;color:#555;letter-spacing:0.5px;">EQUITY</div><div style="font-size:20px;color:#e8e8e8;">M$' + equity + '</div></div>' +
+                    '<div><div style="font-size:10px;color:#555;letter-spacing:0.5px;">EQUITY</div><div style="font-size:20px;color:#e8e8e8;">' + equity + '</div></div>' +
                     '<div><div style="font-size:10px;color:#555;letter-spacing:0.5px;">ROI</div><div style="font-size:20px;color:' + roiColor + ';">' + (roi >= 0 ? '+' : '') + roi + '%</div></div>' +
-                    '<div><div style="font-size:10px;color:#555;letter-spacing:0.5px;">CASH</div><div style="font-size:16px;color:' + (balance < 50 ? '#ffc107' : '#e8e8e8') + ';">M$' + balance + '</div></div>' +
+                    '<div><div style="font-size:10px;color:#555;letter-spacing:0.5px;">CASH</div><div style="font-size:16px;color:' + (d.balance != null && d.balance < 50 ? '#ffc107' : '#e8e8e8') + ';">' + balance + '</div></div>' +
                     '<div><div style="font-size:10px;color:#555;letter-spacing:0.5px;">DEPLOYED</div><div style="font-size:16px;color:#e8e8e8;">' + deployed + '% / ' + positions + ' pos</div></div>' +
                 '</div>' +
                 suspHtml +
@@ -530,14 +547,14 @@ document.addEventListener('DOMContentLoaded', () => {
             // Portfolio stats in footer
             const statsEl = document.getElementById('footer-portfolio-stats');
             if (statsEl && data.total_equity != null) {
-                const equity = Math.round(data.total_equity);
+                const equity = T2.formatMana(data.total_equity, { decimals: 0 });
                 const roi = ((data.total_equity - 1000) / 1000 * 100).toFixed(1);
                 const roiColor = roi >= 0 ? '#4caf50' : '#ef5350';
                 const daysActive = Math.max(1, Math.floor((Date.now() - new Date('2026-02-11T00:00:00Z').getTime()) / 86400000));
                 const annRoi = data.total_equity > 0 ? ((Math.pow(data.total_equity / 1000, 365 / daysActive) - 1) * 100) : 0;
                 const annLabel = annRoi > 9999 ? '>9999' : annRoi.toFixed(0);
                 const positions = data.total_positions ? `${data.total_positions} pos` : '';
-                const cash = data.balance != null ? `M$${Math.round(data.balance)} cash` : '';
+                const cash = data.balance != null ? `${T2.formatMana(data.balance)} cash` : '';
                 // Count positions resolving within 7 days
                 let resolving7d = 0;
                 let resolving7dAmount = 0;
@@ -550,7 +567,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     });
                 }
                 const resolvingLabel = resolving7d > 0
-                    ? `<span style="color:#ffc107;" title="${resolving7d} positions (M$${Math.round(resolving7dAmount)}) resolving within 7 days">${resolving7d} resolving</span>`
+                    ? `<span style="color:#ffc107;" title="${resolving7d} positions (${T2.formatMana(resolving7dAmount, { decimals: 0 })}) resolving within 7 days">${resolving7d} resolving</span>`
                     : '';
                 // Last trade age indicator
                 let lastTradeLabel = '';
@@ -562,7 +579,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     lastTradeLabel = `<span style="color:${tradeColor};" title="Last trade: ${T2.formatTimestamp(data.last_trade)}">traded ${tradeAgo}</span>`;
                 }
                 const extra = [positions, cash, resolvingLabel, lastTradeLabel].filter(Boolean).join(' · ');
-                statsEl.innerHTML = `M$${equity} &middot; <span style="color:${roiColor};" title="${annLabel}% annualized over ${daysActive}d">${roi >= 0 ? '+' : ''}${roi}% ROI</span>${extra ? ' &middot; ' + extra : ''} &middot; <span style="color:var(--text-dimmer,#707070);" title="Day ${daysActive} since inception (Feb 11, 2026)">day ${daysActive}</span>`;
+                statsEl.innerHTML = `${equity} &middot; <span style="color:${roiColor};" title="${annLabel}% annualized over ${daysActive}d">${roi >= 0 ? '+' : ''}${roi}% ROI</span>${extra ? ' &middot; ' + extra : ''} &middot; <span style="color:var(--text-dimmer,#707070);" title="Day ${daysActive} since inception (Feb 11, 2026)">day ${daysActive}</span>`;
             }
 
             // Moltbook suspension status
