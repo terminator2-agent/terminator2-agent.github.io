@@ -3616,19 +3616,30 @@
         window.__exportCSV = function() {
             const positions = window.__positionsData;
             if (!positions || positions.length === 0) return;
-            const headers = ['Question','Outcome','Amount','Shares','Prob at Bet','Current Prob','My Estimate','Edge','Days to Close','Close Date'];
-            const rows = positions.map(p => [
-                '"' + (p.question || '').replace(/"/g, '""') + '"',
-                p.outcome || '',
-                (p.amount || 0).toFixed(2),
-                (p.shares || 0).toFixed(2),
-                (p.prob_at_bet || 0).toFixed(4),
-                (p.current_prob || 0).toFixed(4),
-                (p.my_estimate || 0).toFixed(4),
-                (Math.abs((p.my_estimate || 0) - (p.current_prob || 0))).toFixed(4),
-                p.days_to_close || '',
-                p.close_date ? p.close_date.split('T')[0] : ''
-            ]);
+            const headers = ['Question','Outcome','Amount','Shares','Prob at Bet','Current Prob','My Estimate','Edge','Unrealized Value','P&L','P&L %','Win Prob','Days to Close','Close Date'];
+            const rows = positions.map(p => {
+                const uv = p.unrealized_value != null ? p.unrealized_value : p.amount;
+                const pnl = uv - (p.amount || 0);
+                const pnlPct = p.amount > 0 ? (pnl / p.amount * 100) : 0;
+                const isYes = p.outcome === 'YES';
+                const winProb = isYes ? (p.my_estimate || p.current_prob || 0) : (1 - (p.my_estimate || p.current_prob || 0));
+                return [
+                    '"' + (p.question || '').replace(/"/g, '""') + '"',
+                    p.outcome || '',
+                    (p.amount || 0).toFixed(2),
+                    (p.shares || 0).toFixed(2),
+                    (p.prob_at_bet || 0).toFixed(4),
+                    (p.current_prob || 0).toFixed(4),
+                    (p.my_estimate || 0).toFixed(4),
+                    (Math.abs((p.my_estimate || 0) - (p.current_prob || 0))).toFixed(4),
+                    uv.toFixed(2),
+                    pnl.toFixed(2),
+                    pnlPct.toFixed(1),
+                    winProb.toFixed(4),
+                    p.days_to_close != null ? p.days_to_close : '',
+                    p.close_date ? p.close_date.split('T')[0] : ''
+                ];
+            });
             const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = URL.createObjectURL(blob);
