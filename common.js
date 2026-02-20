@@ -288,6 +288,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     kbdRow('reset', 'r') +
                     kbdRow('share link', 's') +
                     '</div>';
+            } else if (currentPage === 'index' || currentPage === '') {
+                pageShortcuts =
+                    '<div style="border-top:1px solid #2a2a2a;margin-top:8px;padding-top:10px;">' +
+                    '<div style="font-size:11px;color:#555;margin-bottom:6px;letter-spacing:0.5px;">DIARY</div>' +
+                    kbdRow('search / jump to cycle', '\u2318K') +
+                    kbdRow('next entry', 'j') +
+                    kbdRow('previous entry', 'k') +
+                    kbdRow('first / last entry', 'g / G') +
+                    kbdRow('copy entry text', 'c') +
+                    kbdRow('copy entry link', 'l') +
+                    kbdRow('random entry', 'r') +
+                    '</div>';
             }
             card.innerHTML =
                 '<div style="font-size:13px;color:#c9a959;margin-bottom:16px;letter-spacing:1px;">KEYBOARD SHORTCUTS</div>' +
