@@ -3934,6 +3934,20 @@
 
             const maxEdge = Math.max(...sorted.map(s => Math.abs(s.edge)), 0.01);
 
+            // Edge summary stats
+            const totalAmount = sorted.reduce((s, p) => s + (p.amount || 0), 0);
+            const weightedEdge = totalAmount > 0
+                ? sorted.reduce((s, p) => {
+                    // Signed edge: positive when position direction aligns with estimate direction
+                    const aligned = (p.outcome === 'YES' && p.edge > 0) || (p.outcome === 'NO' && p.edge < 0);
+                    return s + Math.abs(p.edge) * (p.amount || 0) * (aligned ? 1 : -1);
+                }, 0) / totalAmount
+                : 0;
+            const alignedCount = sorted.filter(p =>
+                (p.outcome === 'YES' && p.edge > 0) || (p.outcome === 'NO' && p.edge < 0)
+            ).length;
+            const flippedCount = sorted.filter(p => p.flipped).length;
+
             let rowsHtml = '';
             sorted.forEach((item, i) => {
                 const isPositive = item.edge > 0;
@@ -3979,7 +3993,14 @@
                 `;
             });
 
+            const weColor = weightedEdge >= 0 ? 'var(--green)' : 'var(--red, #ef5350)';
+            const weSign = weightedEdge >= 0 ? '+' : '';
             const html = `
+                <div style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:16px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dimmer);">
+                    <span title="Capital-weighted average edge across all positions. Positive = your estimates favor your positions on average.">Weighted edge: <span style="color:${weColor};font-weight:500;">${weSign}${(weightedEdge * 100).toFixed(1)}pp</span></span>
+                    <span title="${alignedCount} positions where market agrees with your direction">${alignedCount}/${sorted.length} aligned</span>
+                    ${flippedCount > 0 ? `<span style="color:var(--red, #ef5350);" title="${flippedCount} positions where your estimate contradicts your position direction">${flippedCount} flipped</span>` : ''}
+                </div>
                 <div class="edge-axis-labels">
                     <span>market too high</span>
                     <span>0</span>
