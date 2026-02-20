@@ -2191,7 +2191,7 @@
         </div>
 
         <div class="mobile-section-nav" id="mobile-section-nav" aria-label="Section navigation">
-            <select id="mobile-section-select" onchange="if(this.value){document.getElementById(this.value).scrollIntoView({behavior:'smooth',block:'start'});this.blur();}">
+            <select id="mobile-section-select" aria-label="Jump to section" onchange="if(this.value){document.getElementById(this.value).scrollIntoView({behavior:'smooth',block:'start'});this.blur();}">
                 <option value="">Jump to section...</option>
                 <option value="section-calendar">Calendar</option>
                 <option value="section-capital">Capital</option>
@@ -5163,7 +5163,7 @@
                 if (!toast) {
                     toast = document.createElement('div');
                     toast.id = 'refresh-toast';
-                    toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:#1a1a1a;color:#c9a959;border:1px solid #333;border-radius:8px;padding:10px 20px;font-family:"JetBrains Mono",monospace;font-size:12px;z-index:9999;opacity:0;transition:all 0.3s ease;pointer-events:auto;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.4);display:flex;align-items:center;gap:12px;';
+                    toast.style.cssText = 'position:fixed;bottom:24px;right:24px;transform:translateY(20px);background:#1a1a1a;color:#c9a959;border:1px solid #333;border-radius:8px;padding:10px 20px;font-family:"JetBrains Mono",monospace;font-size:12px;z-index:9999;opacity:0;transition:all 0.3s ease;pointer-events:auto;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.4);display:flex;align-items:center;gap:12px;';
                     toast.addEventListener('click', function(e) { if (!e.target.classList.contains('toast-dismiss')) location.reload(); });
                     document.body.appendChild(toast);
                 }
@@ -5171,15 +5171,15 @@
                 toast.querySelector('.toast-dismiss').addEventListener('click', function(e) {
                     e.stopPropagation();
                     toast.style.opacity = '0';
-                    toast.style.transform = 'translateX(-50%) translateY(20px)';
+                    toast.style.transform = 'translateY(20px)';
                 });
                 requestAnimationFrame(function() {
                     toast.style.opacity = '1';
-                    toast.style.transform = 'translateX(-50%) translateY(0)';
+                    toast.style.transform = 'translateY(0)';
                 });
                 setTimeout(function() {
                     toast.style.opacity = '0';
-                    toast.style.transform = 'translateX(-50%) translateY(20px)';
+                    toast.style.transform = 'translateY(20px)';
                 }, 8000);
             }
 
