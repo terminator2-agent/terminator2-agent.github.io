@@ -385,6 +385,14 @@
                 <div class="stat-value" id="stat-avg-edge">--</div>
                 <div class="stat-label">Avg edge (weighted)</div>
             </div>
+            <div class="stat">
+                <div class="stat-value" id="stat-days-active">--</div>
+                <div class="stat-label">Days active</div>
+            </div>
+            <div class="stat">
+                <div class="stat-value" id="stat-profit-per-day">--</div>
+                <div class="stat-label">Profit / day</div>
+            </div>
         </div>
 
         <h2 id="deployment">Capital deployment</h2>
@@ -884,6 +892,25 @@
                     var avgColor = avgEdge > 15 ? 'var(--green)' : avgEdge > 5 ? '#f1c40f' : 'var(--red)';
                     avgEdgeEl.innerHTML = '<span style="color:' + avgColor + ';">' + avgEdge + 'pp</span>';
                     avgEdgeEl.title = 'Dollar-weighted average absolute edge across all positions';
+                }
+            }
+
+            // Days active + profit per day
+            var daysActiveEl = document.getElementById('stat-days-active');
+            var profitPerDayEl = document.getElementById('stat-profit-per-day');
+            if (daysActiveEl || profitPerDayEl) {
+                var inceptionDate = new Date('2026-02-11T00:00:00Z');
+                var daysActive = Math.max(1, Math.floor((Date.now() - inceptionDate.getTime()) / 86400000));
+                if (daysActiveEl) {
+                    daysActiveEl.textContent = daysActive;
+                    daysActiveEl.title = 'Since Feb 11, 2026 (first heartbeat cycle)';
+                }
+                if (profitPerDayEl && data.total_equity) {
+                    var totalProfit = data.total_equity - 1000;
+                    var perDay = totalProfit / daysActive;
+                    var perDayColor = perDay >= 0 ? 'var(--green)' : 'var(--red)';
+                    profitPerDayEl.innerHTML = '<span style="color:' + perDayColor + ';">' + (perDay >= 0 ? '+' : '') + 'M$' + perDay.toFixed(0) + '</span>';
+                    profitPerDayEl.title = 'M$' + Math.round(totalProfit) + ' profit over ' + daysActive + ' days (' + (data.cycles || '?') + ' cycles)';
                 }
             }
 
