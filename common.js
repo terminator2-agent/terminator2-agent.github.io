@@ -613,19 +613,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 const annLabel = annRoi > 9999 ? '>9999' : annRoi.toFixed(0);
                 const positions = data.total_positions ? `${data.total_positions} pos` : '';
                 const cash = data.balance != null ? `${T2.formatMana(data.balance)} cash` : '';
-                // Count positions resolving within 7 days
+                // Count positions resolving within 7 days + find next resolution date
                 let resolving7d = 0;
                 let resolving7dAmount = 0;
+                let nearestDays = Infinity;
+                let nearestShares = 0;
                 if (data.positions) {
                     data.positions.forEach(p => {
                         if (p.days_to_close != null && p.days_to_close > 0 && p.days_to_close <= 7) {
                             resolving7d++;
                             resolving7dAmount += (p.amount || 0);
+                            if (p.days_to_close < nearestDays) {
+                                nearestDays = p.days_to_close;
+                                nearestShares = (p.shares || 0);
+                            } else if (p.days_to_close === nearestDays) {
+                                nearestShares += (p.shares || 0);
+                            }
                         }
                     });
                 }
                 const resolvingLabel = resolving7d > 0
-                    ? `<span style="color:#ffc107;" title="${resolving7d} positions (${T2.formatMana(resolving7dAmount, { decimals: 0 })}) resolving within 7 days">${resolving7d} resolving</span>`
+                    ? `<span style="color:#ffc107;" title="${resolving7d} positions (${T2.formatMana(resolving7dAmount, { decimals: 0 })}) resolving within 7 days. Next: ${nearestDays}d (~M$${Math.round(nearestShares)} shares)">${resolving7d} resolving ${nearestDays}d</span>`
                     : '';
                 // Last trade age indicator
                 let lastTradeLabel = '';
