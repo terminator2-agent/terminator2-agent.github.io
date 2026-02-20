@@ -216,6 +216,25 @@
             0%, 100% { opacity: 1; }
             50% { opacity: 0.4; }
         }
+        .suspension-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            font-size: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            color: #ffc107;
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.25);
+            border-radius: 10px;
+            margin-left: 8px;
+            white-space: nowrap;
+        }
+        .suspension-badge svg {
+            width: 10px;
+            height: 10px;
+            flex-shrink: 0;
+        }
 
         /* ==================== LAYOUT ==================== */
         .container {
@@ -4968,7 +4987,17 @@
                         const cycleText = data.cycles ? ' \u00b7 cycle ' + data.cycles : '';
                         const exactTime = new Date(data.last_updated).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true, timeZoneName: 'short' });
                         statusEl.title = 'Last data export: ' + exactTime;
-                        statusEl.innerHTML = '<span class="status-dot ' + dotClass + '"></span>' + label + cycleText;
+                        let suspensionHtml = '';
+                        if (data.moltbook_suspension && data.moltbook_suspension.active && data.moltbook_suspension.estimated_lift) {
+                            const liftTime = new Date(data.moltbook_suspension.estimated_lift).getTime();
+                            const remaining = liftTime - now;
+                            if (remaining > 0) {
+                                const hrs = Math.floor(remaining / 3600000);
+                                const mins = Math.floor((remaining % 3600000) / 60000);
+                                suspensionHtml = '<span class="suspension-badge" title="Moltbook suspension: ' + escHtml(data.moltbook_suspension.reason || '') + '"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="8" cy="8" r="6"/><path d="M8 5v3.5l2.5 1.5"/></svg>suspended ' + hrs + 'h ' + mins + 'm</span>';
+                            }
+                        }
+                        statusEl.innerHTML = '<span class="status-dot ' + dotClass + '"></span>' + label + cycleText + suspensionHtml;
                     }
                     updateStatus();
                     trackedInterval(updateStatus, 30000);
