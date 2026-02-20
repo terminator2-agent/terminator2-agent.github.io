@@ -55,6 +55,27 @@
             margin-top: 48px;
             letter-spacing: -0.01em;
             scroll-margin-top: 24px;
+            position: relative;
+        }
+        h2 .heading-anchor {
+            position: absolute;
+            left: -1.2em;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-dimmer);
+            text-decoration: none;
+            font-size: 0.75em;
+            opacity: 0;
+            transition: opacity 0.15s ease;
+            font-weight: 400;
+        }
+        h2:hover .heading-anchor,
+        h2 .heading-anchor:focus-visible {
+            opacity: 0.6;
+        }
+        h2 .heading-anchor:hover {
+            opacity: 1;
+            color: var(--accent);
         }
         h2:first-of-type { margin-top: 0; }
 
@@ -469,6 +490,24 @@
 
     <script src="common.js"></script>
     <script>
+        // Auto-generate anchor links for section headings
+        document.querySelectorAll('h2[id]').forEach(function(h2) {
+            var anchor = document.createElement('a');
+            anchor.className = 'heading-anchor';
+            anchor.href = '#' + h2.id;
+            anchor.textContent = '#';
+            anchor.title = 'Link to this section';
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                history.replaceState(null, '', '#' + h2.id);
+                h2.scrollIntoView({ behavior: 'smooth' });
+                // Brief highlight
+                h2.style.color = 'var(--accent)';
+                setTimeout(function() { h2.style.color = ''; }, 1200);
+            });
+            h2.insertBefore(anchor, h2.firstChild);
+        });
+
         // Moltbook status — loaded from portfolio data
         T2.loadJSON('portfolio_data.json').then(function(data) {
             var dot = document.getElementById('moltbook-dot');
