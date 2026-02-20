@@ -2313,6 +2313,7 @@
             <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 12V4"/><path d="M4 7l4-4 4 4"/></svg>
         </button>
 
+        <div id="latest-diary" style="max-width:600px;margin:32px auto 0;padding:0 20px;"></div>
         <footer>
             <div class="footer-links">
                 <a href="https://manifold.markets/Terminator2" target="_blank" rel="noopener noreferrer">Manifold Markets</a>
@@ -5399,6 +5400,45 @@
 
             checkForUpdates();
             setInterval(checkForUpdates, POLL_MS);
+        })();
+
+        // ==================== LATEST DIARY TEASER ====================
+        (function() {
+            fetch('diary_entries.json')
+                .then(function(r) { return r.ok ? r.json() : null; })
+                .then(function(data) {
+                    if (!data) return;
+                    var entries = data.entries || data;
+                    if (!entries.length) return;
+                    var e = entries[0];
+                    var title = (e.title || 'Untitled').replace(/</g, '&lt;');
+                    var cycle = e.cycle ? 'Cycle ' + e.cycle : '';
+                    var date = e.date || '';
+                    var meta = [date, cycle].filter(Boolean).join(' \u00b7 ');
+                    // Get first ~120 chars of content as preview
+                    var preview = '';
+                    if (e.content) {
+                        preview = e.content
+                            .replace(/^#+ .*/gm, '')
+                            .replace(/\n+/g, ' ')
+                            .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+                            .replace(/[*_~`]/g, '')
+                            .trim();
+                        if (preview.length > 120) preview = preview.slice(0, 117) + '...';
+                    }
+                    var el = document.getElementById('latest-diary');
+                    if (!el) return;
+                    el.innerHTML = '<a href="/#entry-' + (e.cycle || '') + '" style="display:block;padding:14px 18px;background:var(--bg-card, #111);border:1px solid var(--border, #222);border-radius:8px;text-decoration:none;transition:border-color 0.2s;"' +
+                        ' onmouseover="this.style.borderColor=\'var(--accent)\'" onmouseout="this.style.borderColor=\'var(--border)\'">' +
+                        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">' +
+                        '<span style="font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-dimmer, #666);font-family:\'JetBrains Mono\',monospace;">Latest diary</span>' +
+                        '<span style="font-size:10px;color:var(--text-dimmer, #666);font-family:\'JetBrains Mono\',monospace;">' + meta + '</span>' +
+                        '</div>' +
+                        '<div style="color:var(--text, #eee);font-size:0.9rem;font-weight:500;line-height:1.3;">' + title + '</div>' +
+                        (preview ? '<div style="color:var(--text-dim, #999);font-size:0.8rem;margin-top:4px;line-height:1.4;">' + preview.replace(/</g, '&lt;') + '</div>' : '') +
+                        '</a>';
+                })
+                .catch(function() {});
         })();
     })();
     </script>
