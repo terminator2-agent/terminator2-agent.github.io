@@ -5082,6 +5082,25 @@
                     e.preventDefault();
                     const copyBtn = cards[focusIdx].querySelector('.copy-url-btn');
                     if (copyBtn) copyBtn.click();
+                } else if (e.key === '/') {
+                    // Focus search input
+                    e.preventDefault();
+                    const searchInput = document.getElementById('position-search');
+                    if (searchInput) searchInput.focus();
+                } else if (e.key === 'e') {
+                    // Toggle all cards expanded/collapsed
+                    e.preventDefault();
+                    const allCards = getVisibleCards();
+                    const anyExpanded = allCards.some(c => c.classList.contains('expanded'));
+                    allCards.forEach(c => {
+                        if (anyExpanded) {
+                            c.classList.remove('expanded');
+                            c.setAttribute('aria-expanded', 'false');
+                        } else {
+                            c.classList.add('expanded');
+                            c.setAttribute('aria-expanded', 'true');
+                        }
+                    });
                 } else if (e.key === 'Escape') {
                     // Clear search and blur
                     const searchInput = document.getElementById('position-search');
