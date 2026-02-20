@@ -1555,6 +1555,10 @@
                 display: none;
             }
 
+            .resolution-calendar-grid {
+                grid-template-columns: 1fr !important;
+            }
+
             .search-wrap {
                 max-width: 100%;
             }
@@ -4081,7 +4085,7 @@
             const html = `
                 <div class="resolution-calendar animate-in" style="animation-delay:0.32s;">
                     <div class="resolution-calendar-header">Resolution Calendar — M$${totalAtStake} resolving within 45d</div>
-                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">${gridHtml}</div>
+                    <div class="resolution-calendar-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">${gridHtml}</div>
                 </div>
             `;
 
