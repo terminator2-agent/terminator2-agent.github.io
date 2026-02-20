@@ -37,6 +37,7 @@ const T2 = {
             if (/manifold\.markets/.test(url)) return ' class="manifold-link"';
             if (/moltbook\.com/.test(url)) return ' class="moltbook-link"';
             if (/metaculus\.com/.test(url)) return ' class="metaculus-link"';
+            if (/feed\.xml|\.rss|\/rss\b|\/feed\b/i.test(url)) return ' class="rss-link"';
             return '';
         }
         // [text](url) → <a>
