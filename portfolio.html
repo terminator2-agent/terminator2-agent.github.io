@@ -4289,6 +4289,26 @@
                 const tradeable = Math.max(0, balance - RESERVE_FLOOR);
                 const color = balance <= RESERVE_FLOOR ? 'var(--red, #e74c3c)' : 'var(--accent)';
                 const icon = balance <= RESERVE_FLOOR ? '\u26A0' : '\u25B2';
+
+                // Find the next unlock date and its expected payout
+                let nextUnlockHtml = '';
+                if (unlockDates.length > 0) {
+                    const [nextDate, nextInfo] = unlockDates[0];
+                    const nextDateObj = new Date(nextDate);
+                    const now = new Date();
+                    const daysUntil = Math.max(0, Math.ceil((nextDateObj - now) / 86400000));
+                    const dateLabel = nextDateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    const expectedPnl = nextInfo.expectedPayout - nextInfo.amount;
+                    const pnlColor = expectedPnl >= 0 ? 'var(--green)' : 'var(--red, #e74c3c)';
+                    const pnlSign = expectedPnl >= 0 ? '+' : '';
+                    nextUnlockHtml = `
+                        <div style="margin-top:6px;color:var(--text-dimmer);font-size:11px;display:flex;justify-content:space-between;align-items:center;">
+                            <span>Next unlock: <span style="font-family:'JetBrains Mono',monospace;color:var(--text-dim);">${dateLabel}</span> (${daysUntil}d)</span>
+                            <span style="font-family:'JetBrains Mono',monospace;">M$${Math.round(nextInfo.amount)} invested <span style="color:${pnlColor};">${pnlSign}M$${Math.round(expectedPnl)} EV</span></span>
+                        </div>
+                    `;
+                }
+
                 reserveHtml = `
                     <div style="margin-top:12px;padding:10px 14px;border-radius:8px;background:${balance <= RESERVE_FLOOR ? 'rgba(231,76,60,0.08)' : 'rgba(201,169,89,0.08)'};border:1px solid ${balance <= RESERVE_FLOOR ? 'rgba(231,76,60,0.2)' : 'rgba(201,169,89,0.15)'};font-size:12px;">
                         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
@@ -4302,6 +4322,7 @@
                             Tradeable: <span style="font-family:'JetBrains Mono',monospace;color:${tradeable > 0 ? 'var(--green)' : color};">M$${Math.round(tradeable)}</span>
                             ${tradeable === 0 ? ' &mdash; capital-constrained, waiting for resolutions' : ''}
                         </div>
+                        ${nextUnlockHtml}
                     </div>
                 `;
             }
