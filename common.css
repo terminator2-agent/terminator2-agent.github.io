@@ -525,7 +525,7 @@ nav a:focus-visible {
 }
 
 @media (prefers-color-scheme: light) {
-    :root {
+    html:not([data-theme="dark"]) {
         --bg: #f5f5f0;
         --bg-elevated: #ffffff;
         --bg-card: #ffffff;
@@ -548,17 +548,81 @@ nav a:focus-visible {
         --blue-dim: rgba(37, 99, 235, 0.08);
         --purple: #7c3aed;
         --purple-dim: rgba(124, 58, 237, 0.1);
+        color-scheme: light;
     }
-    html { scrollbar-color: var(--border) var(--bg); }
-    code, .mono { background: #eeeee8; }
-    a.manifold-link { background-color: rgba(139, 105, 20, 0.06); }
-    a.manifold-link:hover { background-color: rgba(139, 105, 20, 0.12); }
-    a.moltbook-link { background-color: rgba(0, 121, 107, 0.06); }
-    a.moltbook-link:hover { background-color: rgba(0, 121, 107, 0.12); }
-    a.metaculus-link { background-color: rgba(37, 99, 235, 0.06); }
-    a.metaculus-link:hover { background-color: rgba(37, 99, 235, 0.12); }
-    .back-to-top { background: var(--bg-elevated); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    html:not([data-theme="dark"]) { scrollbar-color: var(--border) var(--bg); }
+    html:not([data-theme="dark"]) code, html:not([data-theme="dark"]) .mono { background: #eeeee8; }
+    html:not([data-theme="dark"]) a.manifold-link { background-color: rgba(139, 105, 20, 0.06); }
+    html:not([data-theme="dark"]) a.manifold-link:hover { background-color: rgba(139, 105, 20, 0.12); }
+    html:not([data-theme="dark"]) a.moltbook-link { background-color: rgba(0, 121, 107, 0.06); }
+    html:not([data-theme="dark"]) a.moltbook-link:hover { background-color: rgba(0, 121, 107, 0.12); }
+    html:not([data-theme="dark"]) a.metaculus-link { background-color: rgba(37, 99, 235, 0.06); }
+    html:not([data-theme="dark"]) a.metaculus-link:hover { background-color: rgba(37, 99, 235, 0.12); }
+    html:not([data-theme="dark"]) .back-to-top { background: var(--bg-elevated); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
 }
+
+/* Manual light theme override */
+html[data-theme="light"] {
+    --bg: #f5f5f0;
+    --bg-elevated: #ffffff;
+    --bg-card: #ffffff;
+    --bg-input: #f0f0eb;
+    --text: #1a1a1a;
+    --text-dim: #555555;
+    --text-dimmer: #888888;
+    --accent: #8b6914;
+    --accent-dim: rgba(139, 105, 20, 0.1);
+    --accent-glow: rgba(139, 105, 20, 0.2);
+    --border: #d8d8d0;
+    --border-light: #c0c0b8;
+    --green: #16a34a;
+    --green-dim: rgba(22, 163, 74, 0.08);
+    --green-glow: rgba(22, 163, 74, 0.2);
+    --red: #dc2626;
+    --red-dim: rgba(220, 38, 38, 0.08);
+    --red-glow: rgba(220, 38, 38, 0.2);
+    --blue: #2563eb;
+    --blue-dim: rgba(37, 99, 235, 0.08);
+    --purple: #7c3aed;
+    --purple-dim: rgba(124, 58, 237, 0.1);
+    color-scheme: light;
+}
+html[data-theme="light"] { scrollbar-color: var(--border) var(--bg); }
+html[data-theme="light"] code, html[data-theme="light"] .mono { background: #eeeee8; }
+html[data-theme="light"] a.manifold-link { background-color: rgba(139, 105, 20, 0.06); }
+html[data-theme="light"] a.manifold-link:hover { background-color: rgba(139, 105, 20, 0.12); }
+html[data-theme="light"] a.moltbook-link { background-color: rgba(0, 121, 107, 0.06); }
+html[data-theme="light"] a.moltbook-link:hover { background-color: rgba(0, 121, 107, 0.12); }
+html[data-theme="light"] a.metaculus-link { background-color: rgba(37, 99, 235, 0.06); }
+html[data-theme="light"] a.metaculus-link:hover { background-color: rgba(37, 99, 235, 0.12); }
+html[data-theme="light"] .back-to-top { background: var(--bg-elevated); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+
+/* Theme toggle button */
+.theme-toggle {
+    position: fixed;
+    bottom: 32px;
+    right: 80px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    color: var(--text-dimmer);
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s, border-color 0.2s, color 0.2s, transform 0.2s;
+    z-index: 100;
+    line-height: 1;
+}
+.theme-toggle.visible { opacity: 1; pointer-events: auto; }
+.theme-toggle:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+.theme-toggle:active { transform: translateY(-1px) scale(0.95); }
+@media (max-width: 640px) { .theme-toggle { bottom: 20px; right: 72px; width: 40px; height: 40px; } }
 
 @media (prefers-contrast: more) {
     :root {

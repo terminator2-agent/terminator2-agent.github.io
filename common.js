@@ -190,6 +190,14 @@ const T2 = {
     }
 };
 
+// Apply saved theme before paint (prevent flash)
+(function() {
+    var saved = localStorage.getItem('t2_theme');
+    if (saved === 'light' || saved === 'dark') {
+        document.documentElement.setAttribute('data-theme', saved);
+    }
+})();
+
 // Auto-init nav + favicon + back-to-top + footer + keyboard shortcuts on load
 document.addEventListener('DOMContentLoaded', () => {
     T2.initNav();
@@ -306,6 +314,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 statusHtml +
                 pages.map(p => kbdRow(p.label, p.key)).join('') +
                 kbdRow('back to top', 't') +
+                kbdRow('toggle theme', 'd') +
                 kbdRow('portfolio snapshot', 'p') +
                 kbdRow('focus search', '/') +
                 '<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-top:1px solid #2a2a2a;margin-top:8px;padding-top:14px;"><span style="color:#a0a0a0;">this help</span><kbd style="background:#141414;border:1px solid #333;border-radius:4px;padding:2px 8px;color:#e8e8e8;font-size:12px;">?</kbd></div>' +
@@ -350,6 +359,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // t → scroll to top (global fallback — pages with their own handler take priority)
         if (e.key === 't') {
             window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
+        }
+
+        // d → toggle dark/light theme
+        if (e.key === 'd') {
+            const toggleBtn = document.querySelector('.theme-toggle');
+            if (toggleBtn) toggleBtn.click();
             return;
         }
 
@@ -704,16 +720,46 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
         document.body.appendChild(btn);
     }
+    // Theme toggle button
+    let themeBtn = document.querySelector('.theme-toggle');
+    if (!themeBtn) {
+        themeBtn = document.createElement('button');
+        themeBtn.className = 'theme-toggle';
+        themeBtn.setAttribute('aria-label', 'Toggle light/dark theme');
+        themeBtn.setAttribute('title', 'Toggle theme (d)');
+        function updateThemeIcon() {
+            const isDark = !document.documentElement.getAttribute('data-theme') ||
+                           document.documentElement.getAttribute('data-theme') === 'dark' ||
+                           (!document.documentElement.getAttribute('data-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            themeBtn.textContent = isDark ? '\u2600' : '\u263E';
+        }
+        updateThemeIcon();
+        themeBtn.addEventListener('click', () => {
+            const current = document.documentElement.getAttribute('data-theme');
+            const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const isDark = current === 'dark' || (!current && systemDark);
+            const next = isDark ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', next);
+            localStorage.setItem('t2_theme', next);
+            updateThemeIcon();
+        });
+        document.body.appendChild(themeBtn);
+    }
+
     let ticking = false;
     window.addEventListener('scroll', () => {
         if (!ticking) {
             requestAnimationFrame(() => {
-                btn.classList.toggle('visible', window.scrollY > 400);
+                const show = window.scrollY > 400;
+                btn.classList.toggle('visible', show);
+                themeBtn.classList.toggle('visible', show);
                 ticking = false;
             });
             ticking = true;
         }
     }, { passive: true });
+    // Show theme toggle immediately if page is already scrolled
+    if (window.scrollY > 400) { themeBtn.classList.add('visible'); }
     // Dynamic SVG favicon — T2 monogram
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
         <rect width="32" height="32" rx="6" fill="#0a0a0a"/>
