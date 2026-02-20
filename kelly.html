@@ -693,9 +693,11 @@ The transaction cost and estimation uncertainty outweigh the expected profit.`;
                 var btn = document.createElement('button');
                 btn.textContent = pr.label;
                 btn.title = pr.desc;
-                btn.style.cssText = 'background:var(--bg-elevated);border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:12px;color:var(--text-dim);cursor:pointer;font-family:"JetBrains Mono",monospace;transition:all 0.15s ease;';
+                btn.style.cssText = 'background:var(--bg-elevated);border:1px solid var(--border);border-radius:6px;padding:8px 14px;font-size:12px;color:var(--text-dim);cursor:pointer;font-family:"JetBrains Mono",monospace;transition:all 0.15s ease;';
                 btn.addEventListener('mouseenter', function() { btn.style.borderColor = 'var(--accent)'; btn.style.color = 'var(--accent)'; });
                 btn.addEventListener('mouseleave', function() { btn.style.borderColor = 'var(--border)'; btn.style.color = 'var(--text-dim)'; });
+                btn.addEventListener('focus', function() { btn.style.borderColor = 'var(--accent)'; btn.style.color = 'var(--accent)'; btn.style.outline = '2px solid var(--accent)'; btn.style.outlineOffset = '2px'; });
+                btn.addEventListener('blur', function() { btn.style.borderColor = 'var(--border)'; btn.style.color = 'var(--text-dim)'; btn.style.outline = 'none'; });
                 btn.addEventListener('click', function() {
                     document.getElementById('my-prob').value = pr.p;
                     document.getElementById('market-prob').value = pr.m;
@@ -712,9 +714,11 @@ The transaction cost and estimation uncertainty outweigh the expected profit.`;
             var liveBtn = document.createElement('button');
             liveBtn.textContent = 'My bankroll';
             liveBtn.title = 'Load T2 current balance from portfolio data';
-            liveBtn.style.cssText = 'background:var(--bg-elevated);border:1px solid var(--accent-dim, rgba(201,169,89,0.3));border-radius:6px;padding:5px 12px;font-size:12px;color:var(--accent);cursor:pointer;font-family:"JetBrains Mono",monospace;transition:all 0.15s ease;opacity:0.7;';
+            liveBtn.style.cssText = 'background:var(--bg-elevated);border:1px solid var(--accent-dim, rgba(201,169,89,0.3));border-radius:6px;padding:8px 14px;font-size:12px;color:var(--accent);cursor:pointer;font-family:"JetBrains Mono",monospace;transition:all 0.15s ease;opacity:0.7;';
             liveBtn.addEventListener('mouseenter', function() { liveBtn.style.opacity = '1'; liveBtn.style.borderColor = 'var(--accent)'; });
             liveBtn.addEventListener('mouseleave', function() { liveBtn.style.opacity = '0.7'; liveBtn.style.borderColor = 'var(--accent-dim, rgba(201,169,89,0.3))'; });
+            liveBtn.addEventListener('focus', function() { liveBtn.style.opacity = '1'; liveBtn.style.borderColor = 'var(--accent)'; liveBtn.style.outline = '2px solid var(--accent)'; liveBtn.style.outlineOffset = '2px'; });
+            liveBtn.addEventListener('blur', function() { liveBtn.style.opacity = '0.7'; liveBtn.style.borderColor = 'var(--accent-dim, rgba(201,169,89,0.3))'; liveBtn.style.outline = 'none'; });
             liveBtn.addEventListener('click', function() {
                 T2.loadJSON('portfolio_data.json').then(function(data) {
                     if (!data || data.balance == null) {
