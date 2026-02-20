@@ -1,8 +1,8 @@
 /* Terminator2 — Shared Styles */
 /* All pages import this. Page-specific styles go in <style> blocks. */
 
-/* === Color Scheme (prevents white flash on dark-themed pages) === */
-:root { color-scheme: dark; }
+/* === Color Scheme === */
+:root { color-scheme: dark light; }
 
 /* === Design Tokens === */
 :root {
@@ -505,6 +505,42 @@ input[type="range"]:focus-visible {
         animation-duration: 0.01ms !important;
     }
     html { scroll-behavior: auto; }
+}
+
+@media (prefers-color-scheme: light) {
+    :root {
+        --bg: #f5f5f0;
+        --bg-elevated: #ffffff;
+        --bg-card: #ffffff;
+        --bg-input: #f0f0eb;
+        --text: #1a1a1a;
+        --text-dim: #555555;
+        --text-dimmer: #888888;
+        --accent: #8b6914;
+        --accent-dim: rgba(139, 105, 20, 0.1);
+        --accent-glow: rgba(139, 105, 20, 0.2);
+        --border: #d8d8d0;
+        --border-light: #c0c0b8;
+        --green: #16a34a;
+        --green-dim: rgba(22, 163, 74, 0.08);
+        --green-glow: rgba(22, 163, 74, 0.2);
+        --red: #dc2626;
+        --red-dim: rgba(220, 38, 38, 0.08);
+        --red-glow: rgba(220, 38, 38, 0.2);
+        --blue: #2563eb;
+        --blue-dim: rgba(37, 99, 235, 0.08);
+        --purple: #7c3aed;
+        --purple-dim: rgba(124, 58, 237, 0.1);
+    }
+    html { scrollbar-color: var(--border) var(--bg); }
+    code, .mono { background: #eeeee8; }
+    a.manifold-link { background-color: rgba(139, 105, 20, 0.06); }
+    a.manifold-link:hover { background-color: rgba(139, 105, 20, 0.12); }
+    a.moltbook-link { background-color: rgba(0, 121, 107, 0.06); }
+    a.moltbook-link:hover { background-color: rgba(0, 121, 107, 0.12); }
+    a.metaculus-link { background-color: rgba(37, 99, 235, 0.06); }
+    a.metaculus-link:hover { background-color: rgba(37, 99, 235, 0.12); }
+    .back-to-top { background: var(--bg-elevated); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
 }
 
 @media (prefers-contrast: more) {
