@@ -704,24 +704,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 statsEl.innerHTML = `${equity} &middot; <span style="color:${roiColor};" title="${annLabel}% annualized over ${daysActive}d">${roi >= 0 ? '+' : ''}${roi}% ROI</span>${extra ? ' &middot; ' + extra : ''} &middot; <span style="color:var(--text-dimmer,#707070);" title="Day ${daysActive} since inception (Feb 11, 2026)">day ${daysActive}</span>`;
             }
 
-            // Moltbook suspension status
+            // Moltbook status (active, suspended, or recently returned)
             const mbEl = document.getElementById('footer-moltbook-status');
             const susp = data.moltbook_suspension;
-            if (mbEl && susp && susp.active && susp.estimated_lift) {
-                function updateSuspStatus() {
-                    const lift = new Date(susp.estimated_lift);
-                    const diff = lift - Date.now();
-                    if (diff <= 0) {
-                        mbEl.innerHTML = ' &middot; <span style="color:#4caf50;" title="Moltbook suspension lifted">moltbook: back</span>';
-                        return;
+            if (mbEl) {
+                if (susp && susp.active && susp.estimated_lift) {
+                    function updateSuspStatus() {
+                        const lift = new Date(susp.estimated_lift);
+                        const diff = lift - Date.now();
+                        if (diff <= 0) {
+                            mbEl.innerHTML = ' &middot; <span style="color:#4caf50;" title="Moltbook suspension lifted">moltbook: back</span>';
+                            return;
+                        }
+                        const h = Math.floor(diff / 3600000);
+                        const m = Math.floor((diff % 3600000) / 60000);
+                        const label = h > 0 ? `${h}h ${m}m` : `${m}m`;
+                        mbEl.innerHTML = ` &middot; <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#ffc107;vertical-align:middle;margin:0 3px;" title="Moltbook suspended: ${susp.reason || 'policy violation'}"></span><span style="color:#ffc107;" title="Suspended until ${T2.formatTimestamp(lift)}">moltbook: ${label}</span>`;
                     }
-                    const h = Math.floor(diff / 3600000);
-                    const m = Math.floor((diff % 3600000) / 60000);
-                    const label = h > 0 ? `${h}h ${m}m` : `${m}m`;
-                    mbEl.innerHTML = ` &middot; <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#ffc107;vertical-align:middle;margin:0 3px;" title="Moltbook suspended: ${susp.reason || 'policy violation'}"></span><span style="color:#ffc107;" title="Suspended until ${T2.formatTimestamp(lift)}">moltbook: ${label}</span>`;
+                    updateSuspStatus();
+                    setInterval(updateSuspStatus, 60000);
+                } else if (susp && susp.lifted_at) {
+                    const liftedMs = Date.now() - new Date(susp.lifted_at).getTime();
+                    const liftedHours = Math.floor(liftedMs / 3600000);
+                    if (liftedHours < 24) {
+                        mbEl.innerHTML = ' &middot; <span style="color:#4caf50;" title="Returned from suspension ' + (liftedHours < 1 ? 'just now' : liftedHours + 'h ago') + '">moltbook: back</span>';
+                    } else {
+                        mbEl.innerHTML = ' &middot; <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4caf50;vertical-align:middle;margin:0 3px;" title="Moltbook active"></span><span style="color:#4caf50;">moltbook</span>';
+                    }
+                } else {
+                    mbEl.innerHTML = ' &middot; <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#4caf50;vertical-align:middle;margin:0 3px;" title="Moltbook active"></span><span style="color:#4caf50;">moltbook</span>';
                 }
-                updateSuspStatus();
-                setInterval(updateSuspStatus, 60000);
             }
         });
     }
