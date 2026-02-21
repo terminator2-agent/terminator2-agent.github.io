@@ -776,6 +776,11 @@ document.addEventListener('DOMContentLoaded', () => {
             document.documentElement.setAttribute('data-theme', next);
             localStorage.setItem('t2_theme', next);
             updateThemeIcon();
+            // Update theme-color meta tag so mobile browser chrome matches
+            const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+            if (themeColorMeta) {
+                themeColorMeta.content = next === 'light' ? '#f5f5f0' : '#0a0a0a';
+            }
         });
         document.body.appendChild(themeBtn);
     }
