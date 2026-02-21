@@ -2400,10 +2400,11 @@
         </div>
 
         <div id="app">
-            <div class="loading-state" role="status" aria-live="polite">
+            <div class="loading-state" id="loading-indicator" role="status" aria-live="polite">
                 <span class="loading-pulse"></span>
-                Loading portfolio data...
+                <span id="loading-text">Loading portfolio data...</span>
             </div>
+            <script>setTimeout(function(){var t=document.getElementById('loading-text');if(t&&t.textContent==='Loading portfolio data...')t.textContent='Still loading \u2014 this may take a moment...';},5000)</script>
             <noscript>
                 <div style="text-align:center;padding:40px 20px;color:var(--text-dim);">
                     <p style="font-size:1.1rem;margin-bottom:12px;">JavaScript is required to load the portfolio dashboard.</p>
@@ -2470,7 +2471,10 @@
         // ==================== DATA LOADING ====================
         async function loadData() {
             try {
-                const resp = await fetch('portfolio_data.json');
+                const controller = new AbortController();
+                const timeout = setTimeout(() => controller.abort(), 10000);
+                const resp = await fetch('portfolio_data.json', { signal: controller.signal });
+                clearTimeout(timeout);
                 if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
                 return await resp.json();
             } catch (err) {
