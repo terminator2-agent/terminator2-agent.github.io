@@ -471,6 +471,30 @@ document.addEventListener('DOMContentLoaded', () => {
                     resolvingHtml = `<div style="border-top:1px solid #2a2a2a;margin-top:12px;padding-top:10px;"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;"><span style="font-size:10px;color:#555;letter-spacing:0.5px;">CAPITAL LIBERATION</span><span style="font-size:10px;color:#ffc107;">${resolving.length} pos &middot; ~M$${Math.round(resShares)} incoming</span></div>${waveRows}</div>`;
                 }
             }
+            // Capital floor warning
+            let capitalFloorHtml = '';
+            if (d.balance != null && d.balance < 50) {
+                // Find nearest resolution wave for "unlocks" message
+                let nearestDays = null;
+                let nearestShares = 0;
+                if (d.positions) {
+                    d.positions.forEach(p => {
+                        if (p.days_to_close != null && p.days_to_close > 0 && p.days_to_close <= 30) {
+                            if (nearestDays === null || p.days_to_close < nearestDays) {
+                                nearestDays = p.days_to_close;
+                                nearestShares = (p.shares || 0);
+                            } else if (p.days_to_close === nearestDays) {
+                                nearestShares += (p.shares || 0);
+                            }
+                        }
+                    });
+                }
+                const unlockMsg = nearestDays != null
+                    ? ` Next capital unlock: ~${nearestDays}d (~M$${Math.round(nearestShares)})`
+                    : '';
+                capitalFloorHtml = '<div style="margin-top:12px;padding:8px 10px;background:rgba(239,83,80,0.06);border:1px solid rgba(239,83,80,0.15);border-radius:6px;display:flex;align-items:center;gap:8px;font-size:11px;"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:#ef5350;flex-shrink:0;"></span><span style="color:#ef5350;">capital floor</span><span style="color:#a0a0a0;font-family:\'JetBrains Mono\',monospace;font-size:10px;">No new trades until balance > M$50.' + unlockMsg + '</span></div>';
+            }
+
             // Moltbook suspension status for overlay
             let suspHtml = '';
             const susp = d.moltbook_suspension;
@@ -516,6 +540,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     '<div><div style="font-size:10px;color:#555;letter-spacing:0.5px;">DEPLOYED</div><div style="font-size:16px;color:#e8e8e8;">' + deployed + '% / ' + positions + ' pos</div></div>' +
                 '</div>' +
                 suspHtml +
+                capitalFloorHtml +
                 edgeHealthHtml +
                 resolvingHtml +
                 topEdgeHtml +
