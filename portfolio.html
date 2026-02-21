@@ -2334,6 +2334,7 @@
             <div class="banner-content">
                 <span class="countdown-timer" id="wave-countdown">—</span>
                 <span class="at-stake">until next resolution wave — <span class="amount" id="wave-amount">M$0</span> across <span class="amount" id="wave-count">0</span> positions (<span class="amount" id="wave-pct">0</span>% of portfolio) — expected <span class="amount" id="wave-return">M$0</span> — <span class="amount" id="wave-projected" title="Projected balance after wave resolves at current prices" style="cursor:help;text-decoration:underline dotted;text-underline-offset:2px;">M$0</span> projected balance</span>
+                <span id="wave-outcomes" style="font-size:11px;margin-left:4px;"></span>
             </div>
         </div>
 
@@ -2539,6 +2540,26 @@
                 const projectedBalance = Math.round((data.balance || 0) + totalSharesValue);
                 projectedEl.textContent = 'M$' + projectedBalance;
                 projectedEl.title = 'Projected balance if all ' + positions.length + ' resolving positions pay out at current prices. Current balance: M$' + Math.round(data.balance || 0) + ' + M$' + Math.round(totalSharesValue) + ' from resolved positions.';
+            }
+
+            // Win/loss breakdown for all resolving positions
+            const outcomeEl = document.getElementById('wave-outcomes');
+            if (outcomeEl) {
+                let wins = 0, losses = 0, uncertain = 0;
+                positions.forEach(p => {
+                    const prob = p.current_prob;
+                    if (prob == null) { uncertain++; return; }
+                    const isYes = p.outcome === 'YES';
+                    const winProb = isYes ? prob : 1 - prob;
+                    if (winProb >= 0.7) wins++;
+                    else if (winProb <= 0.3) losses++;
+                    else uncertain++;
+                });
+                const parts = [];
+                if (wins > 0) parts.push('<span style="color:var(--green)">' + wins + ' likely win' + (wins > 1 ? 's' : '') + '</span>');
+                if (losses > 0) parts.push('<span style="color:var(--red, #e74c3c)">' + losses + ' loss' + (losses > 1 ? 'es' : '') + '</span>');
+                if (uncertain > 0) parts.push('<span style="color:var(--text-dim)">' + uncertain + ' uncertain</span>');
+                outcomeEl.innerHTML = parts.join(' · ');
             }
 
             // Countdown update function
