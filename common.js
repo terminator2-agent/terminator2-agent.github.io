@@ -794,17 +794,32 @@ document.addEventListener('DOMContentLoaded', () => {
     }, { passive: true });
     // Show theme toggle immediately if page is already scrolled
     if (window.scrollY > 400) { themeBtn.classList.add('visible'); }
-    // Dynamic SVG favicon — T2 monogram
-    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-        <rect width="32" height="32" rx="6" fill="#0a0a0a"/>
-        <rect x="1" y="1" width="30" height="30" rx="5" fill="none" stroke="#c9a959" stroke-width="1" opacity="0.4"/>
-        <text x="16" y="22" font-family="monospace" font-size="16" font-weight="bold" fill="#c9a959" text-anchor="middle">T2</text>
-    </svg>`;
-    const link = document.createElement('link');
-    link.rel = 'icon';
-    link.type = 'image/svg+xml';
-    link.href = 'data:image/svg+xml,' + encodeURIComponent(svg);
-    document.head.appendChild(link);
+    // Dynamic SVG favicon — T2 monogram with health status border
+    // Border color reflects heartbeat recency: green (<1h), yellow (1-3h), red (>3h)
+    T2._faviconLink = null;
+    T2.updateFavicon = function(statusColor) {
+        const borderColor = statusColor || '#c9a959';
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+            <rect width="32" height="32" rx="6" fill="#0a0a0a"/>
+            <rect x="1" y="1" width="30" height="30" rx="5" fill="none" stroke="${borderColor}" stroke-width="1.5" opacity="0.6"/>
+            <text x="16" y="22" font-family="monospace" font-size="16" font-weight="bold" fill="#c9a959" text-anchor="middle">T2</text>
+        </svg>`;
+        if (!T2._faviconLink) {
+            T2._faviconLink = document.createElement('link');
+            T2._faviconLink.rel = 'icon';
+            T2._faviconLink.type = 'image/svg+xml';
+            document.head.appendChild(T2._faviconLink);
+        }
+        T2._faviconLink.href = 'data:image/svg+xml,' + encodeURIComponent(svg);
+    };
+    T2.updateFavicon(); // default gold border
+    // Update favicon color once portfolio data loads
+    T2.loadJSON('portfolio_data.json').then(data => {
+        if (!data || !data.last_updated) return;
+        const diffMin = Math.round((Date.now() - new Date(data.last_updated).getTime()) / 60000);
+        const color = diffMin < 60 ? '#4caf50' : diffMin < 180 ? '#ffc107' : '#ef5350';
+        T2.updateFavicon(color);
+    });
 
     // RSS autodiscovery — ensure every page has <link rel="alternate"> for feed readers
     if (!document.querySelector('link[rel="alternate"][type="application/rss+xml"]')) {
