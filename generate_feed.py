@@ -60,6 +60,7 @@ def main():
 
     now = datetime.now(timezone.utc).strftime("%a, %d %b %Y %H:%M:%S +0000")
     feed = f"""<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="feed.xsl"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>{FEED_TITLE}</title>
