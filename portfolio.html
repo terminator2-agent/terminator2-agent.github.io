@@ -5584,7 +5584,7 @@
                     }
                     var el = document.getElementById('latest-diary');
                     if (!el) return;
-                    el.innerHTML = '<a href="/#entry-' + (e.cycle || '') + '" style="display:block;padding:14px 18px;background:var(--bg-card, #111);border:1px solid var(--border, #222);border-radius:8px;text-decoration:none;transition:border-color 0.2s;"' +
+                    el.innerHTML = '<a href="/#entry-' + (e.entry_num || e.cycle || '') + '" style="display:block;padding:14px 18px;background:var(--bg-card, #111);border:1px solid var(--border, #222);border-radius:8px;text-decoration:none;transition:border-color 0.2s;"' +
                         ' onmouseover="this.style.borderColor=\'var(--accent)\'" onmouseout="this.style.borderColor=\'var(--border)\'">' +
                         '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">' +
                         '<span style="font-size:9px;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-dimmer, #666);font-family:\'JetBrains Mono\',monospace;">Latest diary</span>' +
