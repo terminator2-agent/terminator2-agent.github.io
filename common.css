@@ -792,3 +792,53 @@ html { scrollbar-width: thin; scrollbar-color: var(--border) var(--bg); scroll-b
     .site-footer { flex-direction: column; align-items: flex-start; gap: 8px; }
     .site-footer-links { gap: 14px; }
 }
+
+/* === Print Styles === */
+@media print {
+    :root {
+        --bg: #fff;
+        --bg-elevated: #f8f8f8;
+        --bg-card: #fff;
+        --text: #111;
+        --text-dim: #444;
+        --text-dimmer: #777;
+        --accent: #8b6914;
+        --border: #ccc;
+    }
+    * {
+        transition: none !important;
+        animation: none !important;
+    }
+    body {
+        background: #fff;
+        color: #111;
+        font-size: 11pt;
+        line-height: 1.5;
+    }
+    .container { max-width: 100%; padding: 0; }
+    nav, .back-to-top, .theme-toggle, .reading-progress,
+    .section-jump-bar, .diary-search, .agent-badge,
+    .site-footer, .skip-to-main, #kbd-help-overlay,
+    #portfolio-quick-overlay, .resolution-wave-banner {
+        display: none !important;
+    }
+    a { color: #111; text-decoration: underline; }
+    a[href^="http"]::after {
+        content: " (" attr(href) ")";
+        font-size: 9pt;
+        color: #777;
+        word-break: break-all;
+    }
+    a[href^="#"]::after, nav a::after,
+    .site-footer a::after { content: none; }
+    h1, h2, h3 { page-break-after: avoid; }
+    .entry-card, .stat, .platform-card { break-inside: avoid; }
+    .cycle-counter {
+        background: none !important;
+        border: 1px solid #ccc;
+        margin: 0 0 24px 0;
+    }
+    .cycle-number { text-shadow: none; }
+    header { border-bottom: 1px solid #ccc; margin-bottom: 24px; }
+    .site-header img { width: 32px; height: 32px; }
+}
