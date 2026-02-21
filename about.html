@@ -520,7 +520,7 @@
         </ul>
 
         <h2 id="positions">Selected positions</h2>
-        <p class="dim" style="font-size:12px;margin-bottom:8px;">Top 5 by edge &middot; auto-updated from portfolio data</p>
+        <p class="dim" style="font-size:12px;margin-bottom:8px;">Top 5 by edge &middot; auto-updated &middot; <span style="color:var(--blue,#5c9eff);">blue</span> = market, <span style="color:var(--accent);">gold</span> = my estimate</p>
         <ul class="market-list" id="selected-positions">
             <li><div class="market-meta">Loading...</div></li>
         </ul>
@@ -786,12 +786,31 @@
                     var pnlColor = pnl >= 0 ? 'var(--green)' : 'var(--red)';
                     var pnlSign = pnl >= 0 ? '+' : '';
                     var pnlStr = p.unrealized_value != null ? ' &middot; <span style="color:' + pnlColor + ';">' + pnlSign + 'M$' + Math.abs(Math.round(pnl)) + '</span>' : '';
+                    // Directional edge: positive = market agrees with me more than expected
+                    var dirEdge = p.outcome === 'NO' ? (p.current_prob - p.my_estimate) : (p.my_estimate - p.current_prob);
+                    var edgeColor = dirEdge > 0.15 ? 'var(--green)' : dirEdge > 0.05 ? '#f1c40f' : dirEdge >= 0 ? '#888' : 'var(--red)';
+                    var outcomeBadgeColor = p.outcome === 'YES' ? 'rgba(74,222,128,0.15)' : 'rgba(239,83,80,0.15)';
+                    var outcomeBadgeText = p.outcome === 'YES' ? 'var(--green)' : 'var(--red)';
+                    // Probability comparison bar
+                    var lo = Math.min(mktPct, estPct);
+                    var hi = Math.max(mktPct, estPct);
+                    var probBar = '<div style="display:flex;align-items:center;gap:8px;margin-top:6px;">' +
+                        '<div style="flex:1;height:6px;background:var(--bg-card);border-radius:3px;position:relative;overflow:hidden;">' +
+                        '<div style="position:absolute;left:0;top:0;height:100%;width:' + mktPct + '%;background:var(--blue,#5c9eff);border-radius:3px;opacity:0.5;" title="Market: ' + mktPct + '%"></div>' +
+                        '<div style="position:absolute;left:' + lo + '%;top:0;height:100%;width:' + (hi - lo) + '%;background:' + edgeColor + ';opacity:0.3;border-radius:0;" title="Edge gap: ' + Math.abs(edgePct) + 'pp"></div>' +
+                        '<div style="position:absolute;left:' + (estPct - 1) + '%;top:-1px;width:2px;height:calc(100% + 2px);background:var(--accent);border-radius:1px;" title="My estimate: ' + estPct + '%"></div>' +
+                        '</div>' +
+                        '<span style="font-family:\'JetBrains Mono\',monospace;font-size:10px;color:' + edgeColor + ';flex-shrink:0;min-width:36px;text-align:right;" title="Directional edge">' + (dirEdge > 0 ? '+' : '') + Math.round(dirEdge * 100) + 'pp</span>' +
+                        '</div>';
                     return '<li>' +
                         '<div class="market-title"><a href="' + url + '" target="_blank" rel="noopener">' + q + '</a></div>' +
-                        '<div class="market-meta">' + p.outcome + ' M$' + p.amount +
-                        ' &middot; Market: ' + mktPct + '%' +
-                        ' &middot; My est: ' + estPct + '%' +
-                        ' &middot; Edge: ' + edgeSign + edgePct + 'pp' + pnlStr + '</div>' +
+                        '<div class="market-meta">' +
+                        '<span style="display:inline-block;padding:1px 6px;border-radius:3px;background:' + outcomeBadgeColor + ';color:' + outcomeBadgeText + ';font-size:11px;font-weight:500;margin-right:4px;">' + p.outcome + '</span>' +
+                        'M$' + p.amount +
+                        ' &middot; <span style="color:var(--blue,#5c9eff);">mkt ' + mktPct + '%</span>' +
+                        ' &middot; <span style="color:var(--accent);">est ' + estPct + '%</span>' +
+                        pnlStr + '</div>' +
+                        probBar +
                         '</li>';
                 }).join('');
             }
