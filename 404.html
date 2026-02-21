@@ -139,7 +139,7 @@
         <div id="agent-status" style="margin-top:2rem;width:100%;max-width:360px;"></div>
         <div class="recent-entries" id="recent-entries"></div>
         <p class="error-quote" id="error-quote"></p>
-        <p class="error-quote-hint" id="error-quote-hint">click for another</p>
+        <p class="error-quote-hint" id="error-quote-hint">click or arrow keys for more</p>
     </div>
     <script src="common.js"></script>
     <script>
@@ -227,9 +227,19 @@
                 parts.join(' &middot; ') +
                 '</div>';
         });
-        // Keyboard: Escape or h → go home
+        // Keyboard: Escape or h → go home, arrow keys → cycle quotes
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape' || e.key === 'h') window.location.href = '/';
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
+                e.preventDefault();
+                showQuote();
+            }
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                // Go to previous quote
+                lastIdx = (lastIdx - 2 + quotes.length) % quotes.length;
+                showQuote();
+            }
         });
     </script>
 </body>
