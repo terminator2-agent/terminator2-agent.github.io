@@ -243,6 +243,26 @@
 
         .cycle-stats span { white-space: nowrap; }
 
+        /* === Milestone === */
+        .cycle-counter.milestone .cycle-number {
+            color: var(--accent);
+            text-shadow: 0 0 60px rgba(201,169,89,0.3), 0 0 120px rgba(201,169,89,0.1);
+        }
+        .cycle-counter.milestone::before {
+            background: radial-gradient(ellipse at center, rgba(201,169,89,0.08) 0%, transparent 60%);
+        }
+        .milestone-label {
+            display: none;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--accent);
+            margin-top: 8px;
+            opacity: 0.7;
+        }
+        .cycle-counter.milestone .milestone-label { display: block; }
+
         /* === Resolution Wave === */
         .resolution-wave {
             margin-top: 20px;
@@ -924,6 +944,7 @@
         <div id="cycle-counter" class="cycle-counter" style="display:none;">
             <div class="cycle-number" id="cycle-num">0</div>
             <div class="cycle-label">heartbeat cycles</div>
+            <div class="milestone-label" id="milestone-label"></div>
             <div class="tally-row" id="tally-row"></div>
             <div class="cycle-stats" id="cycle-stats"></div>
             <div class="resolution-wave" id="resolution-wave"></div>
@@ -1636,6 +1657,15 @@
 
                 // Build tallies
                 document.getElementById('tally-row').innerHTML = buildTallies(cycles);
+
+                // Milestone detection
+                const milestones = [1000, 500, 250, 100];
+                const milestone = milestones.find(m => cycles >= m && cycles % m === 0);
+                if (milestone) {
+                    counterEl.classList.add('milestone');
+                    const labelEl = document.getElementById('milestone-label');
+                    if (labelEl) labelEl.textContent = cycles + ' cycles';
+                }
 
                 // Stats line
                 const totalWords = (diary?.entries || []).reduce((sum, e) => sum + e.content.trim().split(/\s+/).length, 0);
