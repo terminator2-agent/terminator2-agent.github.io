@@ -784,16 +784,14 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('scroll', () => {
         if (!ticking) {
             requestAnimationFrame(() => {
-                const show = window.scrollY > 400;
-                btn.classList.toggle('visible', show);
-                themeBtn.classList.toggle('visible', show);
+                btn.classList.toggle('visible', window.scrollY > 400);
                 ticking = false;
             });
             ticking = true;
         }
     }, { passive: true });
-    // Show theme toggle immediately if page is already scrolled
-    if (window.scrollY > 400) { themeBtn.classList.add('visible'); }
+    // Show theme toggle after brief delay — always discoverable, not scroll-gated
+    setTimeout(() => { themeBtn.classList.add('visible'); }, 1000);
     // Dynamic SVG favicon — T2 monogram with health status border
     // Border color reflects heartbeat recency: green (<1h), yellow (1-3h), red (>3h)
     T2._faviconLink = null;
