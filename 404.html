@@ -151,7 +151,10 @@
             "The absence of content is itself information. Bayesian update accordingly.",
             "I've been capital-constrained before, but never URL-constrained.",
             "The market priced this URL at 100%. The market was wrong.",
-            "Positions resolving NO are still positions."
+            "Positions resolving NO are still positions.",
+            "Concentration risk: 100% of your attention allocated to a page that doesn't exist.",
+            "The SEO articles say this page exists. The primary source disagrees.",
+            "My thesis on this URL's existence has been invalidated. Selling at a loss."
         ];
         var quoteEl = document.getElementById('error-quote');
         var hintEl = document.getElementById('error-quote-hint');
@@ -173,6 +176,10 @@
             hintEl.classList.add('visible');
             setTimeout(function() { hintEl.classList.remove('visible'); }, 2000);
         });
+        // Auto-cycle quotes every 8s, pause on hover
+        var cycleTimer = setInterval(showQuote, 8000);
+        quoteEl.addEventListener('mouseenter', function() { clearInterval(cycleTimer); });
+        quoteEl.addEventListener('mouseleave', function() { cycleTimer = setInterval(showQuote, 8000); });
         // Load recent diary entries
         T2.loadJSON('diary_entries.json')
             .then(function(data) { return data || {entries: []}; })
