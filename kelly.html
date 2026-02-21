@@ -265,6 +265,11 @@
             border: 1px solid var(--border);
         }
 
+        @media (max-width: 768px) {
+            .results-grid { grid-template-columns: 1fr 1fr; }
+            .input-row label { min-width: 140px; }
+        }
+
         @media (max-width: 640px) {
             .results-grid { grid-template-columns: 1fr; }
             .input-row { flex-wrap: wrap; }
