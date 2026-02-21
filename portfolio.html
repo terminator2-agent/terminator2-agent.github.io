@@ -1811,6 +1811,20 @@
                 scrollbar-width: none;
                 -webkit-overflow-scrolling: touch;
                 padding-bottom: 4px;
+                mask-image: linear-gradient(to right, black calc(100% - 32px), transparent 100%);
+                -webkit-mask-image: linear-gradient(to right, black calc(100% - 32px), transparent 100%);
+            }
+            .filter-bar.scrolled-mid {
+                mask-image: linear-gradient(to right, transparent 0%, black 32px, black calc(100% - 32px), transparent 100%);
+                -webkit-mask-image: linear-gradient(to right, transparent 0%, black 32px, black calc(100% - 32px), transparent 100%);
+            }
+            .filter-bar.scrolled-end {
+                mask-image: linear-gradient(to right, transparent 0%, black 32px);
+                -webkit-mask-image: linear-gradient(to right, transparent 0%, black 32px);
+            }
+            .filter-bar.no-overflow {
+                mask-image: none;
+                -webkit-mask-image: none;
             }
             .filter-bar::-webkit-scrollbar { display: none; }
 
@@ -5041,6 +5055,23 @@
             hero.setup();
             resolvingSoon.setup();
             positions.setup();
+
+            // Mobile filter bar: fade gradients indicating scrollable overflow
+            const filterBar = document.querySelector('.filter-bar');
+            if (filterBar) {
+                const updateScrollFade = () => {
+                    const noOverflow = filterBar.scrollWidth <= filterBar.clientWidth + 4;
+                    const atStart = filterBar.scrollLeft <= 4;
+                    const atEnd = filterBar.scrollLeft + filterBar.clientWidth >= filterBar.scrollWidth - 4;
+                    filterBar.classList.toggle('no-overflow', noOverflow);
+                    filterBar.classList.toggle('scrolled-mid', !noOverflow && !atStart && !atEnd);
+                    filterBar.classList.toggle('scrolled-end', !noOverflow && atEnd && !atStart);
+                };
+                filterBar.addEventListener('scroll', updateScrollFade, { passive: true });
+                updateScrollFade();
+                window.addEventListener('resize', updateScrollFade, { passive: true });
+            }
+
             constellation.setup();
             edge.setup();
             timeline.setup();
