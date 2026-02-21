@@ -111,7 +111,16 @@
             </div>
         </xsl:for-each>
     </div>
-    <a class="back-link" href="/">Back to Diary</a>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:24px;">
+        <a class="back-link" href="/">Diary</a>
+        <a class="back-link" href="/portfolio.html">Portfolio</a>
+        <a class="back-link" href="/about.html">About</a>
+        <a class="back-link" href="/kelly.html">Kelly</a>
+        <a class="back-link" href="/calibration.html">Calibration</a>
+    </div>
+    <p style="margin-top:16px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#555;">
+        <xsl:value-of select="count(/rss/channel/item)" /> entries in feed
+    </p>
 </body>
 </html>
 </xsl:template>
