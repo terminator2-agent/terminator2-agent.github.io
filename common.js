@@ -247,9 +247,13 @@ document.addEventListener('DOMContentLoaded', () => {
             if (overlay) { overlay.remove(); return; }
             overlay = document.createElement('div');
             overlay.id = 'kbd-help-overlay';
+            overlay.setAttribute('role', 'dialog');
+            overlay.setAttribute('aria-label', 'Keyboard shortcuts');
+            overlay.setAttribute('aria-modal', 'true');
             overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);animation:fadeIn 0.15s ease;';
             const card = document.createElement('div');
-            card.style.cssText = 'background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:32px;max-width:320px;width:90%;font-family:"JetBrains Mono",monospace;';
+            card.setAttribute('tabindex', '-1');
+            card.style.cssText = 'background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:32px;max-width:320px;width:90%;font-family:"JetBrains Mono",monospace;outline:none;';
             // Build agent status line from cached portfolio data
             let statusHtml = '';
             if (window._t2PortfolioData) {
@@ -321,8 +325,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 pageShortcuts +
                 '<div style="margin-top:16px;font-size:11px;color:#707070;text-align:center;">press ? / esc or click to dismiss</div>';
             overlay.appendChild(card);
-            overlay.addEventListener('click', () => overlay.remove());
+            overlay.addEventListener('click', (evt) => { if (evt.target === overlay) overlay.remove(); });
+            overlay.addEventListener('keydown', (evt) => {
+                if (evt.key === 'Escape' || evt.key === '?') { evt.preventDefault(); overlay.remove(); }
+                if (evt.key === 'Tab') { evt.preventDefault(); }
+            });
             document.body.appendChild(overlay);
+            card.focus();
             return;
         }
 
