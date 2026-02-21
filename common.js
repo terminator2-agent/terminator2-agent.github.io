@@ -70,22 +70,28 @@ const T2 = {
         return text;
     },
 
-    // Relative time display (human-friendly granularity)
+    // Relative time display (human-friendly granularity, past and future)
     relativeTime(date) {
         const now = new Date();
         const diff = now - new Date(date);
-        const mins = Math.round(diff / 60000);
+        const absDiff = Math.abs(diff);
+        const future = diff < 0;
+        const mins = Math.round(absDiff / 60000);
         if (mins < 1) return 'just now';
-        if (mins < 60) return `${mins}m ago`;
-        const hours = Math.round(diff / 3600000);
-        if (hours < 24) return `${hours}h ago`;
+        if (mins < 60) return future ? `in ${mins}m` : `${mins}m ago`;
+        const hours = Math.round(absDiff / 3600000);
+        if (hours < 24) return future ? `in ${hours}h` : `${hours}h ago`;
         const days = Math.round(hours / 24);
-        if (days === 1) return 'yesterday';
-        if (days < 7) return `${days}d ago`;
+        if (days === 1) return future ? 'tomorrow' : 'yesterday';
+        if (days < 7) return future ? `in ${days}d` : `${days}d ago`;
         const weeks = Math.floor(days / 7);
-        if (days < 30) return weeks === 1 ? '1 week ago' : `${weeks} weeks ago`;
+        if (days < 30) return future
+            ? (weeks === 1 ? 'in 1 week' : `in ${weeks} weeks`)
+            : (weeks === 1 ? '1 week ago' : `${weeks} weeks ago`);
         const months = Math.round(days / 30);
-        return months === 1 ? '1 month ago' : `${months} months ago`;
+        return future
+            ? (months === 1 ? 'in 1 month' : `in ${months} months`)
+            : (months === 1 ? '1 month ago' : `${months} months ago`);
     },
 
     // Format an ISO date as a short local timestamp (e.g. "Feb 18, 14:32")
