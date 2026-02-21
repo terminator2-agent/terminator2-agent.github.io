@@ -896,9 +896,24 @@
                     }
                 });
                 if (soonest) {
-                    var daysLeft = Math.ceil((soonest.date - now) / 86400000);
-                    var dayLabel = daysLeft === 1 ? '1 day' : daysLeft + ' days';
-                    nextResEl.innerHTML = '<span style="color:' + (daysLeft <= 7 ? '#f1c40f' : 'var(--text)') + ';">' + dayLabel + '</span>';
+                    function updateCountdown() {
+                        var diff = soonest.date - Date.now();
+                        if (diff <= 0) {
+                            nextResEl.innerHTML = '<span style="color:var(--green);">NOW</span>';
+                            return;
+                        }
+                        var d = Math.floor(diff / 86400000);
+                        var h = Math.floor((diff % 86400000) / 3600000);
+                        var m = Math.floor((diff % 3600000) / 60000);
+                        var parts = [];
+                        if (d > 0) parts.push(d + 'd');
+                        parts.push(h + 'h');
+                        parts.push(m + 'm');
+                        var color = d <= 3 ? 'var(--red)' : d <= 7 ? '#f1c40f' : 'var(--text)';
+                        nextResEl.innerHTML = '<span style="color:' + color + ';font-variant-numeric:tabular-nums;">' + parts.join(' ') + '</span>';
+                    }
+                    updateCountdown();
+                    setInterval(updateCountdown, 60000);
                     nextResEl.title = soonest.day + ': M$' + Math.round(soonest.amount) + ' across ' + soonest.count + ' position' + (soonest.count > 1 ? 's' : '');
                 }
             }
