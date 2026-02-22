@@ -174,6 +174,48 @@
         .resolution-wave-banner.visible {
             display: block;
         }
+        #wave-detail-list.visible {
+            display: block !important;
+        }
+        .wave-pos-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 2px 0;
+        }
+        .wave-pos-row .wave-pos-bar {
+            width: 40px;
+            height: 4px;
+            background: var(--bg-input);
+            border-radius: 2px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .wave-pos-row .wave-pos-bar-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+        .wave-pos-row .wave-pos-q {
+            color: var(--text-dim);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            flex: 1;
+            min-width: 0;
+        }
+        .wave-pos-row .wave-pos-side {
+            font-weight: 600;
+            flex-shrink: 0;
+            width: 24px;
+            text-align: center;
+        }
+        .wave-pos-row .wave-pos-amt {
+            color: var(--text-dimmer);
+            flex-shrink: 0;
+            width: 50px;
+            text-align: right;
+        }
         .resolution-wave-banner .banner-content {
             display: flex;
             align-items: center;
@@ -1879,6 +1921,13 @@
             .resolution-wave-banner #wave-outcomes {
                 margin-left: 0 !important;
             }
+            #wave-detail-toggle {
+                margin-left: 0 !important;
+                margin-top: 4px;
+            }
+            .wave-pos-row .wave-pos-q {
+                max-width: 140px;
+            }
 
             .edge-label {
                 flex: 0 0 80px;
@@ -2366,7 +2415,9 @@
                 <span class="countdown-timer" id="wave-countdown">—</span>
                 <span class="at-stake">until next resolution wave — <span class="amount" id="wave-amount">M$0</span> across <span class="amount" id="wave-count">0</span> positions (<span class="amount" id="wave-pct">0</span>% of portfolio) — expected <span class="amount" id="wave-return">M$0</span> — <span class="amount" id="wave-projected" title="Projected balance after wave resolves at current prices" style="cursor:help;text-decoration:underline dotted;text-underline-offset:2px;">M$0</span> projected balance</span>
                 <span id="wave-outcomes" style="font-size:11px;margin-left:4px;"></span>
+                <button id="wave-detail-toggle" onclick="document.getElementById('wave-detail-list').classList.toggle('visible');this.textContent=this.textContent==='▸ details'?'▾ details':'▸ details'" style="background:none;border:1px solid rgba(201,169,89,0.3);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:10px;padding:2px 8px;border-radius:4px;cursor:pointer;margin-left:auto;white-space:nowrap;">▸ details</button>
             </div>
+            <div id="wave-detail-list" style="display:none;margin-top:8px;font-size:11px;line-height:1.7;border-top:1px solid rgba(201,169,89,0.15);padding-top:8px;"></div>
         </div>
 
         <div class="section-jump-bar" id="section-jump-bar" role="navigation" aria-label="Section navigation">
@@ -2595,6 +2646,29 @@
                 if (losses > 0) parts.push('<span style="color:var(--red, #e74c3c)">' + losses + ' loss' + (losses > 1 ? 'es' : '') + '</span>');
                 if (uncertain > 0) parts.push('<span style="color:var(--text-dim)">' + uncertain + ' uncertain</span>');
                 outcomeEl.innerHTML = parts.join(' · ');
+            }
+
+            // Populate detail list with individual resolving positions
+            const detailEl = document.getElementById('wave-detail-list');
+            if (detailEl && positions.length > 0) {
+                const sorted = [...positions].sort((a, b) => (b.amount || 0) - (a.amount || 0));
+                const rows = sorted.map(p => {
+                    const isYes = p.outcome === 'YES';
+                    const prob = p.current_prob != null ? p.current_prob : 0.5;
+                    const winProb = isYes ? prob : 1 - prob;
+                    const winColor = winProb >= 0.7 ? 'var(--green)' : winProb <= 0.3 ? 'var(--red, #e74c3c)' : 'var(--text-dim)';
+                    const barPct = Math.round(winProb * 100);
+                    const q = (p.question || '').length > 60 ? (p.question || '').slice(0, 57) + '...' : (p.question || '');
+                    const sideColor = isYes ? 'var(--green)' : 'var(--red, #e74c3c)';
+                    return '<div class="wave-pos-row">' +
+                        '<span class="wave-pos-side" style="color:' + sideColor + '">' + p.outcome + '</span>' +
+                        '<span class="wave-pos-bar"><span class="wave-pos-bar-fill" style="width:' + barPct + '%;background:' + winColor + ';"></span></span>' +
+                        '<span style="color:' + winColor + ';flex-shrink:0;width:32px;text-align:right;">' + barPct + '%</span>' +
+                        '<span class="wave-pos-q" title="' + (p.question || '').replace(/"/g, '&quot;') + '">' + q.replace(/</g, '&lt;') + '</span>' +
+                        '<span class="wave-pos-amt">M$' + Math.round(p.amount || 0) + '</span>' +
+                    '</div>';
+                }).join('');
+                detailEl.innerHTML = rows;
             }
 
             // Countdown update function
