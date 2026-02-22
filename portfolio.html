@@ -3558,6 +3558,8 @@
                     btn.classList.remove('copied');
                     btn.title = 'Copy market URL';
                 }, 1500);
+            }).catch(function() {
+                window.__showToast('Copy failed \u2014 try using the link instead');
             });
         };
 
