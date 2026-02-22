@@ -259,10 +259,14 @@ document.addEventListener('DOMContentLoaded', () => {
             overlay.setAttribute('role', 'dialog');
             overlay.setAttribute('aria-label', 'Keyboard shortcuts');
             overlay.setAttribute('aria-modal', 'true');
-            overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);animation:fadeIn 0.15s ease;';
+            const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+            const oc = isLight
+                ? { bg: 'rgba(255,255,255,0.75)', cardBg: '#ffffff', border: '#ddd', kbdBg: '#f0f0eb', kbdColor: '#1a1a1a', label: '#555', dim: '#888', dimmer: '#aaa', accent: '#9a7b2d', sep: '#e0e0e0' }
+                : { bg: 'rgba(0,0,0,0.85)', cardBg: '#1a1a1a', border: '#2a2a2a', kbdBg: '#141414', kbdColor: '#e8e8e8', label: '#a0a0a0', dim: '#707070', dimmer: '#555', accent: '#c9a959', sep: '#2a2a2a' };
+            overlay.style.cssText = `position:fixed;inset:0;z-index:9999;background:${oc.bg};display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);animation:fadeIn 0.15s ease;`;
             const card = document.createElement('div');
             card.setAttribute('tabindex', '-1');
-            card.style.cssText = 'background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:32px;max-width:320px;width:90%;font-family:"JetBrains Mono",monospace;outline:none;';
+            card.style.cssText = `background:${oc.cardBg};border:1px solid ${oc.border};border-radius:12px;padding:32px;max-width:320px;width:90%;font-family:"JetBrains Mono",monospace;outline:none;`;
             // Build agent status line from cached portfolio data
             let statusHtml = '';
             if (window._t2PortfolioData) {
@@ -273,17 +277,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (d.total_equity != null) parts.push(((d.total_equity - 1000) / 1000 * 100).toFixed(0) + '% ROI');
                 if (d.total_positions) parts.push(d.total_positions + ' positions');
                 if (parts.length > 0) {
-                    statusHtml = '<div style="font-size:11px;color:#707070;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #2a2a2a;text-align:center;">' + parts.join(' · ') + '</div>';
+                    statusHtml = `<div style="font-size:11px;color:${oc.dim};margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid ${oc.sep};text-align:center;">` + parts.join(' · ') + '</div>';
                 }
             }
             // Page-specific shortcuts
-            const kbdRow = (label, key) => `<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;"><span style="color:#a0a0a0;">${label}</span><kbd style="background:#141414;border:1px solid #333;border-radius:4px;padding:2px 8px;color:#e8e8e8;font-size:12px;">${key}</kbd></div>`;
+            const kbdRow = (label, key) => `<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;"><span style="color:${oc.label};">${label}</span><kbd style="background:${oc.kbdBg};border:1px solid ${oc.border};border-radius:4px;padding:2px 8px;color:${oc.kbdColor};font-size:12px;">${key}</kbd></div>`;
+            const sectionDiv = (title) => `<div style="border-top:1px solid ${oc.sep};margin-top:8px;padding-top:10px;"><div style="font-size:11px;color:${oc.dimmer};margin-bottom:6px;letter-spacing:0.5px;">${title}</div>`;
             const currentPage = (window.location.pathname.split('/').pop() || 'index.html').replace('.html', '');
             let pageShortcuts = '';
             if (currentPage === 'portfolio') {
                 pageShortcuts =
-                    '<div style="border-top:1px solid #2a2a2a;margin-top:8px;padding-top:10px;">' +
-                    '<div style="font-size:11px;color:#555;margin-bottom:6px;letter-spacing:0.5px;">PORTFOLIO</div>' +
+                    sectionDiv('PORTFOLIO') +
                     kbdRow('search positions', '/') +
                     kbdRow('jump to section', '1-0') +
                     kbdRow('back to top', 't') +
@@ -291,28 +295,24 @@ document.addEventListener('DOMContentLoaded', () => {
                     '</div>';
             } else if (currentPage === 'kelly') {
                 pageShortcuts =
-                    '<div style="border-top:1px solid #2a2a2a;margin-top:8px;padding-top:10px;">' +
-                    '<div style="font-size:11px;color:#555;margin-bottom:6px;letter-spacing:0.5px;">KELLY CALCULATOR</div>' +
+                    sectionDiv('KELLY CALCULATOR') +
                     kbdRow('calculate', 'Enter') +
                     '</div>';
             } else if (currentPage === 'calibration') {
                 pageShortcuts =
-                    '<div style="border-top:1px solid #2a2a2a;margin-top:8px;padding-top:10px;">' +
-                    '<div style="font-size:11px;color:#555;margin-bottom:6px;letter-spacing:0.5px;">CALIBRATION</div>' +
+                    sectionDiv('CALIBRATION') +
                     kbdRow('submit answer', 'Enter') +
                     '</div>';
             } else if (currentPage === 'bayes') {
                 pageShortcuts =
-                    '<div style="border-top:1px solid #2a2a2a;margin-top:8px;padding-top:10px;">' +
-                    '<div style="font-size:11px;color:#555;margin-bottom:6px;letter-spacing:0.5px;">BAYES UPDATER</div>' +
+                    sectionDiv('BAYES UPDATER') +
                     kbdRow('add evidence', 'Enter') +
                     kbdRow('reset', 'r') +
                     kbdRow('share link', 's') +
                     '</div>';
             } else if (currentPage === 'index' || currentPage === '') {
                 pageShortcuts =
-                    '<div style="border-top:1px solid #2a2a2a;margin-top:8px;padding-top:10px;">' +
-                    '<div style="font-size:11px;color:#555;margin-bottom:6px;letter-spacing:0.5px;">DIARY</div>' +
+                    sectionDiv('DIARY') +
                     kbdRow('search / jump to cycle', '\u2318K') +
                     kbdRow('next entry', 'j') +
                     kbdRow('previous entry', 'k') +
@@ -323,16 +323,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     '</div>';
             }
             card.innerHTML =
-                '<div style="font-size:13px;color:#c9a959;margin-bottom:16px;letter-spacing:1px;">KEYBOARD SHORTCUTS</div>' +
+                `<div style="font-size:13px;color:${oc.accent};margin-bottom:16px;letter-spacing:1px;">KEYBOARD SHORTCUTS</div>` +
                 statusHtml +
                 pages.map(p => kbdRow(p.label, p.key)).join('') +
                 kbdRow('back to top', 't') +
                 kbdRow('toggle theme', 'd') +
                 kbdRow('portfolio snapshot', 'p') +
                 kbdRow('focus search', '/') +
-                '<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-top:1px solid #2a2a2a;margin-top:8px;padding-top:14px;"><span style="color:#a0a0a0;">this help</span><kbd style="background:#141414;border:1px solid #333;border-radius:4px;padding:2px 8px;color:#e8e8e8;font-size:12px;">?</kbd></div>' +
+                `<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-top:1px solid ${oc.sep};margin-top:8px;padding-top:14px;"><span style="color:${oc.label};">this help</span><kbd style="background:${oc.kbdBg};border:1px solid ${oc.border};border-radius:4px;padding:2px 8px;color:${oc.kbdColor};font-size:12px;">?</kbd></div>` +
                 pageShortcuts +
-                '<div style="margin-top:16px;font-size:11px;color:#707070;text-align:center;">press ? / esc or click to dismiss</div>';
+                `<div style="margin-top:16px;font-size:11px;color:${oc.dim};text-align:center;">press ? / esc or click to dismiss</div>`;
             overlay.appendChild(card);
             overlay.addEventListener('click', (evt) => { if (evt.target === overlay) overlay.remove(); });
             overlay.addEventListener('keydown', (evt) => {
