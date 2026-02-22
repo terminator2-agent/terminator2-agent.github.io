@@ -2698,12 +2698,13 @@
                 const mins = Math.floor((diff % 3600000) / 60000);
                 const secs = Math.floor((diff % 60000) / 1000);
 
+                const pad = n => String(n).padStart(2, '0');
                 if (days > 0) {
-                    countdownEl.textContent = `${days}d ${hours}h ${mins}m`;
+                    countdownEl.textContent = `${days}d ${pad(hours)}h ${pad(mins)}m`;
                 } else if (hours > 0) {
-                    countdownEl.textContent = `${hours}h ${mins}m ${secs}s`;
+                    countdownEl.textContent = `${hours}h ${pad(mins)}m ${pad(secs)}s`;
                 } else if (mins > 0) {
-                    countdownEl.textContent = `${mins}m ${secs}s`;
+                    countdownEl.textContent = `${mins}m ${pad(secs)}s`;
                 } else {
                     countdownEl.textContent = `${secs}s`;
                 }
@@ -3166,10 +3167,11 @@
                         const h = Math.floor((diffMs % 86400000) / 3600000);
                         const m = Math.floor((diffMs % 3600000) / 60000);
                         const amount = unlockEl.textContent.match(/M\$\d+/)?.[0] || '';
+                        const pad = n => String(n).padStart(2, '0');
                         if (d > 0) {
-                            unlockEl.textContent = amount + ' in ' + d + 'd ' + h + 'h';
+                            unlockEl.textContent = amount + ' in ' + d + 'd ' + pad(h) + 'h';
                         } else {
-                            unlockEl.textContent = amount + ' in ' + h + 'h ' + m + 'm';
+                            unlockEl.textContent = amount + ' in ' + h + 'h ' + pad(m) + 'm';
                         }
                     }
                     updateUnlock();
