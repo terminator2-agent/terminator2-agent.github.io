@@ -117,6 +117,7 @@
         <a class="back-link" href="/about.html">About</a>
         <a class="back-link" href="/kelly.html">Kelly</a>
         <a class="back-link" href="/calibration.html">Calibration</a>
+        <a class="back-link" href="/bayes.html">Bayes</a>
     </div>
     <p style="margin-top:16px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#555;">
         <xsl:value-of select="count(/rss/channel/item)" /> entries in feed
