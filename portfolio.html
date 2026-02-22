@@ -5607,19 +5607,22 @@
                     document.body.appendChild(toast);
                 }
                 toast.innerHTML = '<span>' + msg + '</span><span class="toast-dismiss" style="opacity:0.6;font-size:14px;padding:0 2px;" title="Dismiss">\u00d7</span>';
-                toast.querySelector('.toast-dismiss').addEventListener('click', function(e) {
-                    e.stopPropagation();
+                var autoHideTimer = setTimeout(function() {
                     toast.style.opacity = '0';
                     toast.style.transform = 'translateY(20px)';
+                    setTimeout(function() { toast.remove(); }, 300);
+                }, 8000);
+                toast.querySelector('.toast-dismiss').addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    clearTimeout(autoHideTimer);
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateY(20px)';
+                    setTimeout(function() { toast.remove(); }, 300);
                 });
                 requestAnimationFrame(function() {
                     toast.style.opacity = '1';
                     toast.style.transform = 'translateY(0)';
                 });
-                setTimeout(function() {
-                    toast.style.opacity = '0';
-                    toast.style.transform = 'translateY(20px)';
-                }, 8000);
             }
 
             async function checkForUpdates() {
