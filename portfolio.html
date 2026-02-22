@@ -2531,7 +2531,7 @@
 
             // Group by date to find the next wave
             const dateGroups = {};
-            positions.forEach(p => {
+            positions.filter(p => p.close_date && !isNaN(new Date(p.close_date).getTime())).forEach(p => {
                 const dateKey = p.close_date.split('T')[0];
                 if (!dateGroups[dateKey]) {
                     dateGroups[dateKey] = { date: dateKey, amount: 0, count: 0, expectedReturn: 0 };
@@ -2744,7 +2744,7 @@
 
             // Group by close date (same date = same wave)
             const dateGroups = {};
-            positionsWithClose.forEach(p => {
+            positionsWithClose.filter(p => p.close_date && !isNaN(new Date(p.close_date).getTime())).forEach(p => {
                 const d = p.close_date.split('T')[0];
                 if (!dateGroups[d]) dateGroups[d] = { date: d, amount: 0, shares: 0, count: 0 };
                 dateGroups[d].amount += p.amount;
