@@ -668,7 +668,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const annRoi = data.total_equity > 0 ? ((Math.pow(data.total_equity / 1000, 365 / daysActive) - 1) * 100) : 0;
                 const annLabel = annRoi > 9999 ? '>9999' : annRoi.toFixed(0);
                 const positions = data.total_positions ? `${data.total_positions} pos` : '';
-                const cash = data.balance != null ? `${T2.formatMana(data.balance)} cash` : '';
+                const cashVal = data.balance != null ? data.balance : null;
+                const atFloor = cashVal != null && cashVal < 50;
+                const cash = cashVal != null
+                    ? (atFloor
+                        ? `<span style="color:#ef5350;" title="Below M$50 capital floor \u2014 no new trades until positions resolve">M$${Math.round(cashVal)} floor</span>`
+                        : `${T2.formatMana(cashVal)} cash`)
+                    : '';
                 // Count positions resolving within 7 days + find next resolution date
                 let resolving7d = 0;
                 let resolving7dAmount = 0;
