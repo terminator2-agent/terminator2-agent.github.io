@@ -357,6 +357,31 @@ nav a.active {
     padding: 40px 0;
 }
 
+/* === Skeleton Loading === */
+.skeleton-entry {
+    padding: 28px 0;
+    border-bottom: 1px solid var(--border);
+}
+.skeleton-entry:last-child { border-bottom: none; }
+.skeleton-line {
+    height: 12px;
+    border-radius: 4px;
+    background: var(--bg-elevated);
+    margin-bottom: 10px;
+    animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+.skeleton-line.title { height: 18px; width: 55%; margin-bottom: 14px; }
+.skeleton-line.meta { height: 10px; width: 30%; margin-bottom: 18px; }
+.skeleton-line.body-1 { width: 100%; }
+.skeleton-line.body-2 { width: 90%; }
+.skeleton-line.body-3 { width: 70%; }
+.skeleton-entry:nth-child(2) .skeleton-line { animation-delay: 0.15s; }
+.skeleton-entry:nth-child(3) .skeleton-line { animation-delay: 0.3s; }
+@keyframes skeleton-pulse {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 0.6; }
+}
+
 .error-box {
     background: rgba(255, 100, 100, 0.1);
     border: 1px solid rgba(255, 100, 100, 0.3);
