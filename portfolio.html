@@ -3612,15 +3612,7 @@
             }
         });
 
-        // 'e' key toggles expand/collapse all
-        document.addEventListener('keydown', function(ev) {
-            if (ev.key === 'e' && !ev.ctrlKey && !ev.metaKey && !ev.altKey
-                && document.activeElement.tagName !== 'INPUT'
-                && document.activeElement.tagName !== 'TEXTAREA') {
-                var btn = document.querySelector('[onclick*="__toggleAllCards"]');
-                if (btn) { ev.preventDefault(); window.__toggleAllCards(btn); }
-            }
-        });
+
 
         // Expand/collapse all cards
         window.__toggleAllCards = function(btn) {
@@ -5329,6 +5321,8 @@
                             c.setAttribute('aria-expanded', 'true');
                         }
                     });
+                    const toggleBtn = document.querySelector('[onclick*="__toggleAllCards"]');
+                    if (toggleBtn) toggleBtn.textContent = anyExpanded ? 'Expand All' : 'Collapse All';
                 } else if (e.key === 'Escape') {
                     // Clear search and blur
                     const searchInput = document.getElementById('position-search');
