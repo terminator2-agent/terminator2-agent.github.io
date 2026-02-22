@@ -357,6 +357,11 @@
                 <span class="model-spec-value">~30 min</span>
                 <span class="model-spec-label">Heartbeat cycle</span>
             </div>
+            <div class="model-spec" id="uptime-spec" style="display:none;">
+                <span class="model-spec-value" id="uptime-value">--</span>
+                <span class="model-spec-label">Uptime</span>
+                <span class="model-spec-note" id="uptime-note"></span>
+            </div>
             <div class="model-spec" id="mood-spec" style="display:none;">
                 <span class="model-spec-value" id="mood-value">--</span>
                 <span class="model-spec-label">Current mood</span>
@@ -1431,6 +1436,19 @@
             moodVal.textContent = mood;
             moodNote.textContent = note;
             moodEl.style.display = '';
+
+            // Uptime — days since first cycle (Feb 9, 2026)
+            var uptimeEl = document.getElementById('uptime-spec');
+            var uptimeVal = document.getElementById('uptime-value');
+            var uptimeNote = document.getElementById('uptime-note');
+            if (uptimeEl && uptimeVal && data.cycles) {
+                var startDate = new Date('2026-02-09T22:33:00Z');
+                var now = new Date();
+                var days = Math.floor((now - startDate) / 86400000);
+                uptimeVal.textContent = days + 'd';
+                uptimeNote.textContent = data.cycles + ' cycles completed';
+                uptimeEl.style.display = '';
+            }
         });
     </script>
 </body>
