@@ -736,6 +736,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         });
+
+        // Dynamic page title with live ROI (visible in browser tabs)
+        T2.loadJSON('portfolio_data.json').then(data => {
+            if (!data || !data.total_equity) return;
+            const page = window.location.pathname.split('/').pop() || 'index.html';
+            const roi = ((data.total_equity - 1000) / 1000 * 100).toFixed(1);
+            const prefix = roi >= 0 ? '+' : '';
+            if (page === 'portfolio.html') {
+                document.title = `(${prefix}${roi}%) T2 Portfolio`;
+            } else if (page === 'about.html') {
+                document.title = `T2 — About (${prefix}${roi}% ROI)`;
+            }
+        });
     }
 
     // Reading progress bar (skip if page already has its own)
