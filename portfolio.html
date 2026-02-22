@@ -3083,11 +3083,16 @@
                         }
                         const d = Math.floor(diffMs / 86400000);
                         const h = Math.floor((diffMs % 86400000) / 3600000);
+                        const m = Math.floor((diffMs % 3600000) / 60000);
                         const amount = unlockEl.textContent.match(/M\$\d+/)?.[0] || '';
-                        unlockEl.textContent = amount + ' in ' + d + 'd ' + h + 'h';
+                        if (d > 0) {
+                            unlockEl.textContent = amount + ' in ' + d + 'd ' + h + 'h';
+                        } else {
+                            unlockEl.textContent = amount + ' in ' + h + 'h ' + m + 'm';
+                        }
                     }
                     updateUnlock();
-                    trackedInterval(updateUnlock, 3600000);
+                    trackedInterval(updateUnlock, 60000);
                 }
                 setTimeout(() => {
                     animateCounter(document.getElementById('counter-equity'), totalEquity, 'M$', '', 2);
