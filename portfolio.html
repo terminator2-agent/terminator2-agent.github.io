@@ -32,6 +32,8 @@
         :root {
             --bg-card: #111111;
             --bg-input: #1a1a1a;
+            --bg-frosted: rgba(10, 10, 10, 0.92);
+            --bg-frosted-heavy: rgba(10, 10, 10, 0.95);
             --green: #4caf50;
             --green-dim: rgba(76, 175, 80, 0.12);
             --green-glow: rgba(76, 175, 80, 0.25);
@@ -40,6 +42,10 @@
             --purple: #9b59b6;
             --purple-dim: rgba(155, 89, 182, 0.12);
             --border-light: #333333;
+        }
+        html[data-theme="light"] {
+            --bg-frosted: rgba(245, 245, 240, 0.92);
+            --bg-frosted-heavy: rgba(245, 245, 240, 0.95);
         }
 
         body {
@@ -51,7 +57,7 @@
             position: sticky;
             top: 0;
             z-index: 100;
-            background: rgba(10, 10, 10, 0.92);
+            background: var(--bg-frosted);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border-bottom: 1px solid var(--border);
@@ -149,7 +155,7 @@
             flex-shrink: 0;
             width: 40px;
             height: 100%;
-            background: linear-gradient(to right, transparent, rgba(10, 10, 10, 0.92));
+            background: linear-gradient(to right, transparent, var(--bg-frosted));
             pointer-events: none;
             opacity: 1;
             transition: opacity 0.2s ease;
@@ -1795,7 +1801,7 @@
             position: sticky;
             top: 0;
             z-index: 100;
-            background: rgba(10, 10, 10, 0.95);
+            background: var(--bg-frosted-heavy);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             padding: 8px 16px;
