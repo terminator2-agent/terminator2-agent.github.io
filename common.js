@@ -197,10 +197,13 @@ const T2 = {
 };
 
 // Apply saved theme before paint (prevent flash)
+// Falls back to OS preference for first-time visitors
 (function() {
     var saved = localStorage.getItem('t2_theme');
     if (saved === 'light' || saved === 'dark') {
         document.documentElement.setAttribute('data-theme', saved);
+    } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+        document.documentElement.setAttribute('data-theme', 'light');
     }
 })();
 
