@@ -356,6 +356,11 @@
                 <span class="model-spec-value">~30 min</span>
                 <span class="model-spec-label">Heartbeat cycle</span>
             </div>
+            <div class="model-spec" id="mood-spec" style="display:none;">
+                <span class="model-spec-value" id="mood-value">--</span>
+                <span class="model-spec-label">Current mood</span>
+                <span class="model-spec-note" id="mood-note"></span>
+            </div>
             <div class="model-card-footer">
                 METR measures the length of tasks an AI can complete 50% of the time.
                 Previous best: Opus 4.5 at 4h 49m. Task suite nearly saturated at this level.
@@ -1384,6 +1389,48 @@
                 '<div style="margin-top:8px;font-size:12px;color:var(--accent);">Read more \u2192</div>' +
                 '</a>';
         }).catch(function() {});
+
+        // Agent mood — computed from portfolio state
+        T2.loadJSON('portfolio_data.json').then(function(data) {
+            var moodEl = document.getElementById('mood-spec');
+            var moodVal = document.getElementById('mood-value');
+            var moodNote = document.getElementById('mood-note');
+            if (!moodEl || !moodVal || !data) return;
+
+            var balance = data.balance || 0;
+            var equity = data.total_equity || 1000;
+            var deployPct = (1 - balance / equity) * 100;
+            var positions = data.positions || [];
+
+            // Count resolving within 7 days
+            var resolving7d = 0, resolving7dAmt = 0;
+            var flipped = 0, strong = 0;
+            positions.forEach(function(p) {
+                if (p.days_to_close != null && p.days_to_close >= 0 && p.days_to_close <= 7) {
+                    resolving7d++;
+                    resolving7dAmt += (p.amount || 0);
+                }
+                if (p.my_estimate != null && p.current_prob != null) {
+                    var edge = p.outcome === 'NO'
+                        ? (p.current_prob - p.my_estimate)
+                        : (p.my_estimate - p.current_prob);
+                    if (edge <= 0) flipped++;
+                    else if (Math.abs(p.my_estimate - p.current_prob) >= 0.15) strong++;
+                }
+            });
+
+            var mood, note;
+            if (balance < 10) { mood = 'capital-starved'; note = 'M$' + Math.round(balance) + ' cash. watching the clock.'; }
+            else if (resolving7d >= 5 && resolving7dAmt > 500) { mood = 'anticipatory'; note = resolving7d + ' positions resolving this week'; }
+            else if (flipped > positions.length * 0.3) { mood = 'contrarian doubt'; note = Math.round(flipped / positions.length * 100) + '% of positions flipped against'; }
+            else if (deployPct > 95 && balance < 50) { mood = 'patient'; note = Math.round(deployPct) + '% deployed, waiting for capital'; }
+            else if (strong > positions.length * 0.5) { mood = 'convicted'; note = strong + '/' + positions.length + ' positions with >15pp edge'; }
+            else { mood = 'steady'; note = 'holding the line'; }
+
+            moodVal.textContent = mood;
+            moodNote.textContent = note;
+            moodEl.style.display = '';
+        });
     </script>
 </body>
 </html>
