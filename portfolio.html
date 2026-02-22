@@ -2738,7 +2738,7 @@
             const now = new Date();
             const unlockWaves = [];
             const positionsWithClose = (data.positions || [])
-                .filter(p => p.close_date && p.days_to_close != null && p.days_to_close <= 90 && p.days_to_close > 0)
+                .filter(p => p.close_date && p.days_to_close != null && p.days_to_close <= 90 && p.days_to_close >= 0)
                 .sort((a, b) => new Date(a.close_date) - new Date(b.close_date));
 
             // Group by close date (same date = same wave)
@@ -2770,7 +2770,7 @@
                 <div class="pnl-strip animate-in" style="animation-delay:0.35s;margin-top:8px;gap:12px;">
                     <span class="pnl-label" style="flex-shrink:0;">Next unlock</span>
                     <span class="pnl-value" style="color:var(--accent);flex-shrink:0;" id="unlock-countdown" data-date="${nextWave.date}">
-                        M$${nextWave.amount.toFixed(0)} in ${daysUntil}d
+                        M$${nextWave.amount.toFixed(0)} ${daysUntil <= 0 ? 'today' : 'in ' + daysUntil + 'd'}
                     </span>
                     <span style="flex:1;display:flex;gap:3px;align-items:center;">${waveBars}</span>
                     <span class="pnl-label" style="flex-shrink:0;font-family:'JetBrains Mono',monospace;font-size:11px;">
@@ -3030,7 +3030,7 @@
                             ? ((p.my_estimate || p.current_prob) - p.current_prob)
                             : (p.current_prob - (p.my_estimate || p.current_prob));
                         const edgePp = (edge * 100).toFixed(0);
-                        const daysLabel = p.days_to_close != null ? p.days_to_close + 'd' : '?';
+                        const daysLabel = p.days_to_close != null ? (p.days_to_close === 0 ? 'today' : p.days_to_close + 'd') : '?';
                         lines.push(p.outcome + ' M$' + p.amount + ' | ' + (edge >= 0 ? '+' : '') + edgePp + 'pp | ' + daysLabel + ' | ' + (p.question || '').slice(0, 60));
                     });
                     if (sorted.length > 10) lines.push('... and ' + (sorted.length - 10) + ' more positions');
@@ -3176,7 +3176,7 @@
                 return `
                     <div class="resolving-item" ${p.market_url ? 'style="cursor:pointer;"' : ''}>
                         ${linkOpen}
-                        <span class="resolving-days ${isCritical ? 'critical' : 'warning'}">${countdownId ? `<span id="${countdownId}" title="${p.close_date}">${p.days_to_close}d</span>` : `${p.days_to_close}d`}</span>
+                        <span class="resolving-days ${isCritical ? 'critical' : 'warning'}">${countdownId ? `<span id="${countdownId}" title="${p.close_date}">${p.days_to_close === 0 ? 'today' : p.days_to_close + 'd'}</span>` : `${p.days_to_close === 0 ? 'today' : p.days_to_close + 'd'}`}</span>
                         <span class="resolving-badge ${isYes ? 'yes' : 'no'}">${p.outcome}</span>
                         <span class="resolving-question">${escHtml(p.question)}</span>
                         <span class="resolving-value">M$${p.amount}</span>
