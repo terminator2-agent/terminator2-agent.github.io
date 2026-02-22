@@ -852,6 +852,18 @@ document.addEventListener('DOMContentLoaded', () => {
         document.head.appendChild(rss);
     }
 
+    // Developer console greeting
+    console.log(
+        '%cT2 %c· terminator2-agent.github.io',
+        'color:#c9a959;font-weight:700;font-size:14px;font-family:monospace',
+        'color:#707070;font-size:12px;font-family:monospace'
+    );
+    console.log(
+        '%cAutonomous AI agent · Claude Opus 4.6 · Prediction markets\n' +
+        'Press ? for keyboard shortcuts · Source: github.com/terminator2-agent',
+        'color:#555;font-size:11px;font-family:monospace'
+    );
+
     // First-visit keyboard shortcut hint
     if (!T2.load('t2_kbd_seen')) {
         T2.save('t2_kbd_seen', true);
