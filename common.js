@@ -395,9 +395,13 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!d) return;
             overlay = document.createElement('div');
             overlay.id = 'portfolio-quick-overlay';
-            overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);animation:fadeIn 0.15s ease;';
+            const _lt = document.documentElement.getAttribute('data-theme') === 'light';
+            const _pc = _lt
+                ? { bg: 'rgba(255,255,255,0.75)', cardBg: '#ffffff', border: '#ddd', sep: '#e0e0e0', label: '#555', dim: '#888', text: '#333', barBg: '#e8e8e3' }
+                : { bg: 'rgba(0,0,0,0.85)', cardBg: '#1a1a1a', border: '#2a2a2a', sep: '#2a2a2a', label: '#555', dim: '#707070', text: '#a0a0a0', barBg: '#1e1e1e' };
+            overlay.style.cssText = `position:fixed;inset:0;z-index:9999;background:${_pc.bg};display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);animation:fadeIn 0.15s ease;`;
             const card = document.createElement('div');
-            card.style.cssText = 'background:#1a1a1a;border:1px solid #2a2a2a;border-radius:12px;padding:28px 32px;max-width:380px;width:90%;font-family:"JetBrains Mono",monospace;';
+            card.style.cssText = `background:${_pc.cardBg};border:1px solid ${_pc.border};border-radius:12px;padding:28px 32px;max-width:380px;width:90%;font-family:"JetBrains Mono",monospace;`;
             const equity = d.total_equity != null ? T2.formatMana(d.total_equity, { decimals: 0 }) : 'M$?';
             const roi = d.total_equity != null ? ((d.total_equity - 1000) / 1000 * 100).toFixed(1) : '?';
             const roiColor = roi >= 0 ? '#4caf50' : '#ef5350';
@@ -427,8 +431,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     const negative = allWithEdge.filter(p => p.dirEdge < 0).length;
                     const total = allWithEdge.length;
                     const pct = (n) => Math.round(n / total * 100);
-                    edgeHealthHtml = '<div style="border-top:1px solid #2a2a2a;margin-top:12px;padding-top:10px;">' +
-                        '<div style="font-size:10px;color:#555;margin-bottom:6px;letter-spacing:0.5px;">EDGE HEALTH</div>' +
+                    edgeHealthHtml = `<div style="border-top:1px solid ${_pc.sep};margin-top:12px;padding-top:10px;">` +
+                        `<div style="font-size:10px;color:${_pc.label};margin-bottom:6px;letter-spacing:0.5px;">EDGE HEALTH</div>` +
                         '<div style="display:flex;height:6px;border-radius:3px;overflow:hidden;gap:1px;">' +
                             (strong > 0 ? `<div style="flex:${strong};background:#4caf50;" title="${strong} strong (>15pp)"></div>` : '') +
                             (moderate > 0 ? `<div style="flex:${moderate};background:#ffc107;" title="${moderate} moderate (5-15pp)"></div>` : '') +
@@ -444,13 +448,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         '</div>';
                 }
                 if (withEdge.length > 0) {
-                    topEdgeHtml = '<div style="border-top:1px solid #2a2a2a;margin-top:12px;padding-top:10px;">' +
-                        '<div style="font-size:10px;color:#555;margin-bottom:6px;letter-spacing:0.5px;">TOP EDGE POSITIONS</div>' +
+                    topEdgeHtml = `<div style="border-top:1px solid ${_pc.sep};margin-top:12px;padding-top:10px;">` +
+                        `<div style="font-size:10px;color:${_pc.label};margin-bottom:6px;letter-spacing:0.5px;">TOP EDGE POSITIONS</div>` +
                         withEdge.map(p => {
                             const q = (p.question || '').length > 40 ? (p.question || '').slice(0, 40) + '...' : (p.question || '');
                             const edgePp = (p.dirEdge * 100).toFixed(0);
                             const edgeColor = p.dirEdge > 0.15 ? '#4caf50' : p.dirEdge > 0.05 ? '#ffc107' : '#888';
-                            return `<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:11px;"><span style="color:#a0a0a0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:260px;" title="${T2.escapeHTML(p.question || '')}">${T2.escapeHTML(q)}</span><span style="color:${edgeColor};flex-shrink:0;margin-left:8px;">${edgePp}pp</span></div>`;
+                            return `<div style="display:flex;justify-content:space-between;padding:3px 0;font-size:11px;"><span style="color:${_pc.text};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:260px;" title="${T2.escapeHTML(p.question || '')}">${T2.escapeHTML(q)}</span><span style="color:${edgeColor};flex-shrink:0;margin-left:8px;">${edgePp}pp</span></div>`;
                         }).join('') +
                         '</div>';
                 }
@@ -475,9 +479,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     const waveRows = waveKeys.map(d => {
                         const w = waves[d];
                         const barWidth = Math.min(Math.round(w.shares / resShares * 100), 100);
-                        return `<div style="display:flex;align-items:center;gap:8px;padding:2px 0;font-size:11px;"><span style="color:#ffc107;flex-shrink:0;width:30px;">${d}d</span><div style="flex:1;height:4px;background:#1e1e1e;border-radius:2px;overflow:hidden;"><div style="width:${barWidth}%;height:100%;background:linear-gradient(90deg,#ffc107,#c9a959);border-radius:2px;"></div></div><span style="color:#a0a0a0;flex-shrink:0;font-family:'JetBrains Mono',monospace;font-size:10px;" title="${w.count} positions, M$${Math.round(w.amount)} invested, ~M$${Math.round(w.shares)} in shares">~M$${Math.round(w.shares)}</span></div>`;
+                        return `<div style="display:flex;align-items:center;gap:8px;padding:2px 0;font-size:11px;"><span style="color:#ffc107;flex-shrink:0;width:30px;">${d}d</span><div style="flex:1;height:4px;background:${_pc.barBg};border-radius:2px;overflow:hidden;"><div style="width:${barWidth}%;height:100%;background:linear-gradient(90deg,#ffc107,#c9a959);border-radius:2px;"></div></div><span style="color:${_pc.text};flex-shrink:0;font-family:'JetBrains Mono',monospace;font-size:10px;" title="${w.count} positions, M$${Math.round(w.amount)} invested, ~M$${Math.round(w.shares)} in shares">~M$${Math.round(w.shares)}</span></div>`;
                     }).join('');
-                    resolvingHtml = `<div style="border-top:1px solid #2a2a2a;margin-top:12px;padding-top:10px;"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;"><span style="font-size:10px;color:#555;letter-spacing:0.5px;">CAPITAL LIBERATION</span><span style="font-size:10px;color:#ffc107;">${resolving.length} pos &middot; ~M$${Math.round(resShares)} incoming</span></div>${waveRows}</div>`;
+                    resolvingHtml = `<div style="border-top:1px solid ${_pc.sep};margin-top:12px;padding-top:10px;"><div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;"><span style="font-size:10px;color:${_pc.label};letter-spacing:0.5px;">CAPITAL LIBERATION</span><span style="font-size:10px;color:#ffc107;">${resolving.length} pos &middot; ~M$${Math.round(resShares)} incoming</span></div>${waveRows}</div>`;
                 }
             }
             // Capital floor warning
@@ -556,22 +560,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 '<div style="margin-top:14px;display:flex;justify-content:space-between;align-items:center;">' +
                     '<a href="portfolio.html" style="font-size:11px;color:#c9a959;text-decoration:none;border-bottom:1px solid rgba(201,169,89,0.3);">full dashboard &rarr;</a>' +
                     '<div style="display:flex;align-items:center;gap:10px;">' +
-                        '<button id="snapshot-copy-btn" style="background:none;border:1px solid #2a2a2a;border-radius:4px;padding:3px 8px;font-size:10px;font-family:\'JetBrains Mono\',monospace;color:#707070;cursor:pointer;transition:all 0.15s;" title="Copy snapshot as markdown">copy</button>' +
-                        '<span style="font-size:10px;color:#555;">p / esc to dismiss</span>' +
+                        `<button id="snapshot-copy-btn" style="background:none;border:1px solid ${_pc.border};border-radius:4px;padding:3px 8px;font-size:10px;font-family:'JetBrains Mono',monospace;color:${_pc.dim};cursor:pointer;transition:all 0.15s;" title="Copy snapshot as markdown">copy</button>` +
+                        `<span style="font-size:10px;color:${_pc.label};">p / esc to dismiss</span>` +
                     '</div>' +
                 '</div>';
             // Wire up copy button
             const copyBtn = card.querySelector('#snapshot-copy-btn');
             if (copyBtn) {
-                copyBtn.addEventListener('mouseenter', () => { copyBtn.style.borderColor = '#c9a959'; copyBtn.style.color = '#c9a959'; });
-                copyBtn.addEventListener('mouseleave', () => { copyBtn.style.borderColor = '#2a2a2a'; copyBtn.style.color = '#707070'; });
+                copyBtn.addEventListener('mouseenter', () => { copyBtn.style.borderColor = _lt ? '#9a7b2d' : '#c9a959'; copyBtn.style.color = _lt ? '#9a7b2d' : '#c9a959'; });
+                copyBtn.addEventListener('mouseleave', () => { copyBtn.style.borderColor = _pc.border; copyBtn.style.color = _pc.dim; });
                 copyBtn.addEventListener('click', (ev) => {
                     ev.stopPropagation();
                     navigator.clipboard.writeText(snapshotMd).then(() => {
                         copyBtn.textContent = 'copied!';
                         copyBtn.style.color = '#4caf50';
                         copyBtn.style.borderColor = '#4caf50';
-                        setTimeout(() => { copyBtn.textContent = 'copy'; copyBtn.style.color = '#707070'; copyBtn.style.borderColor = '#2a2a2a'; }, 1500);
+                        setTimeout(() => { copyBtn.textContent = 'copy'; copyBtn.style.color = _pc.dim; copyBtn.style.borderColor = _pc.border; }, 1500);
                     }).catch(() => {
                         copyBtn.textContent = 'failed';
                         setTimeout(() => { copyBtn.textContent = 'copy'; }, 1500);
@@ -891,8 +895,9 @@ document.addEventListener('DOMContentLoaded', () => {
         T2.save('t2_kbd_seen', true);
         setTimeout(() => {
             const hint = document.createElement('div');
-            hint.style.cssText = 'position:fixed;bottom:80px;right:32px;z-index:99;background:#1a1a1a;border:1px solid #2a2a2a;border-radius:8px;padding:10px 16px;font-family:"JetBrains Mono",monospace;font-size:12px;color:#707070;opacity:0;transition:opacity 0.4s;pointer-events:none;';
-            hint.innerHTML = 'press <kbd style="background:#141414;border:1px solid #333;border-radius:3px;padding:1px 6px;color:#c9a959;font-size:11px;">?</kbd> for keyboard shortcuts';
+            const _hl = document.documentElement.getAttribute('data-theme') === 'light';
+            hint.style.cssText = `position:fixed;bottom:80px;right:32px;z-index:99;background:${_hl ? '#fff' : '#1a1a1a'};border:1px solid ${_hl ? '#ddd' : '#2a2a2a'};border-radius:8px;padding:10px 16px;font-family:"JetBrains Mono",monospace;font-size:12px;color:${_hl ? '#888' : '#707070'};opacity:0;transition:opacity 0.4s;pointer-events:none;`;
+            hint.innerHTML = `press <kbd style="background:${_hl ? '#f0f0eb' : '#141414'};border:1px solid ${_hl ? '#ccc' : '#333'};border-radius:3px;padding:1px 6px;color:${_hl ? '#9a7b2d' : '#c9a959'};font-size:11px;">?</kbd> for keyboard shortcuts`;
             document.body.appendChild(hint);
             requestAnimationFrame(() => { hint.style.opacity = '1'; });
             setTimeout(() => {
