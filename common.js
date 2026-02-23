@@ -544,13 +544,16 @@ document.addEventListener('DOMContentLoaded', () => {
             mdLines.push('', `_Updated: ${new Date(d.last_updated || Date.now()).toISOString().slice(0, 16)}Z_`);
             const snapshotMd = mdLines.join('\n');
 
+            const _accentColor = _lt ? '#9a7b2d' : '#c9a959';
+            const _valueColor = _lt ? '#1a1a1a' : '#e8e8e8';
+            const _cashColor = d.balance != null && d.balance < 50 ? '#ffc107' : _valueColor;
             card.innerHTML =
-                '<div style="font-size:13px;color:#c9a959;margin-bottom:14px;letter-spacing:1px;">PORTFOLIO SNAPSHOT</div>' +
+                '<div style="font-size:13px;color:' + _accentColor + ';margin-bottom:14px;letter-spacing:1px;">PORTFOLIO SNAPSHOT</div>' +
                 '<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">' +
-                    '<div><div style="font-size:10px;color:#555;letter-spacing:0.5px;">EQUITY</div><div style="font-size:20px;color:#e8e8e8;">' + equity + '</div></div>' +
-                    '<div><div style="font-size:10px;color:#555;letter-spacing:0.5px;">ROI</div><div style="font-size:20px;color:' + roiColor + ';">' + (roi >= 0 ? '+' : '') + roi + '%</div></div>' +
-                    '<div><div style="font-size:10px;color:#555;letter-spacing:0.5px;">CASH</div><div style="font-size:16px;color:' + (d.balance != null && d.balance < 50 ? '#ffc107' : '#e8e8e8') + ';">' + balance + '</div></div>' +
-                    '<div><div style="font-size:10px;color:#555;letter-spacing:0.5px;">DEPLOYED</div><div style="font-size:16px;color:#e8e8e8;">' + deployed + '% / ' + positions + ' pos</div></div>' +
+                    '<div><div style="font-size:10px;color:' + _pc.label + ';letter-spacing:0.5px;">EQUITY</div><div style="font-size:20px;color:' + _valueColor + ';">' + equity + '</div></div>' +
+                    '<div><div style="font-size:10px;color:' + _pc.label + ';letter-spacing:0.5px;">ROI</div><div style="font-size:20px;color:' + roiColor + ';">' + (roi >= 0 ? '+' : '') + roi + '%</div></div>' +
+                    '<div><div style="font-size:10px;color:' + _pc.label + ';letter-spacing:0.5px;">CASH</div><div style="font-size:16px;color:' + _cashColor + ';">' + balance + '</div></div>' +
+                    '<div><div style="font-size:10px;color:' + _pc.label + ';letter-spacing:0.5px;">DEPLOYED</div><div style="font-size:16px;color:' + _valueColor + ';">' + deployed + '% / ' + positions + ' pos</div></div>' +
                 '</div>' +
                 suspHtml +
                 capitalFloorHtml +
@@ -558,7 +561,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 resolvingHtml +
                 topEdgeHtml +
                 '<div style="margin-top:14px;display:flex;justify-content:space-between;align-items:center;">' +
-                    '<a href="portfolio.html" style="font-size:11px;color:#c9a959;text-decoration:none;border-bottom:1px solid rgba(201,169,89,0.3);">full dashboard &rarr;</a>' +
+                    '<a href="portfolio.html" style="font-size:11px;color:' + _accentColor + ';text-decoration:none;border-bottom:1px solid rgba(201,169,89,0.3);">full dashboard &rarr;</a>' +
                     '<div style="display:flex;align-items:center;gap:10px;">' +
                         `<button id="snapshot-copy-btn" style="background:none;border:1px solid ${_pc.border};border-radius:4px;padding:3px 8px;font-size:10px;font-family:'JetBrains Mono',monospace;color:${_pc.dim};cursor:pointer;transition:all 0.15s;" title="Copy snapshot as markdown">copy</button>` +
                         `<span style="font-size:10px;color:${_pc.label};">p / esc to dismiss</span>` +
