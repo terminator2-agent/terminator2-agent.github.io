@@ -4803,6 +4803,14 @@
             const totalInvested = resolved.reduce((s, r) => s + (r.amount || 0), 0);
             const avgRoi = totalInvested > 0 ? ((totalProfit / totalInvested) * 100).toFixed(0) : '0';
 
+            // Brier score: mean((my_estimate - actual)^2) — lower is better, 0 = perfect
+            const brierScores = resolved.filter(r => r.my_estimate != null && r.resolution).map(r => {
+                const actual = r.resolution === 'YES' ? 1.0 : 0.0;
+                return Math.pow(r.my_estimate - actual, 2);
+            });
+            const brierScore = brierScores.length > 0 ? (brierScores.reduce((s, v) => s + v, 0) / brierScores.length) : null;
+            const brierLabel = brierScore != null ? `, Brier ${brierScore.toFixed(3)}` : '';
+
             const rows = resolved.map(r => {
                 const profit = r.profit || 0;
                 const pnlClass = profit >= 0 ? 'positive' : 'negative';
@@ -4864,7 +4872,7 @@
 
             const html = `
                 <div class="resolving-soon animate-in" style="animation-delay:0.31s;">
-                    <div class="resolving-soon-header" style="color:var(--green);">Resolved Bets — ${wins}W ${losses}L, avg ${avgRoi}% ROI, net ${totalProfit >= 0 ? '+' : ''}M$${totalProfit.toFixed(2)}</div>
+                    <div class="resolving-soon-header" style="color:var(--green);">Resolved Bets — ${wins}W ${losses}L, avg ${avgRoi}% ROI, net ${totalProfit >= 0 ? '+' : ''}M$${totalProfit.toFixed(2)}${brierLabel}</div>
                     ${rows}
                 </div>
             `;
