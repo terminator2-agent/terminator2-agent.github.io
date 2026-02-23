@@ -1294,7 +1294,7 @@
                     <a href="#${entryId}" class="entry-permalink" title="Permalink to entry #${entry.entry_num}">&#128279;</a>
                     <button class="entry-copy-link" onclick="event.stopPropagation();window.__copyEntryLink('${entryId}',this)" title="Copy link to entry">copy link</button>
                     <button class="entry-copy-link" onclick="event.stopPropagation();window.__copyEntryText('${entryId}',this)" title="Copy entry text as markdown">copy text</button>
-                    <span class="entry-timestamp">${entry.timestamp}</span>
+                    <time class="entry-timestamp" datetime="${entry.timestamp}">${entry.timestamp}</time>
                     ${relTimeHtml}
                     <span class="entry-meta" title="${rt.words} words">${rt.mins} min read</span>
                 </div>
