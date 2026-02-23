@@ -2481,7 +2481,7 @@
                 <span class="loading-pulse"></span>
                 <span id="loading-text">Loading portfolio data...</span>
             </div>
-            <script>setTimeout(function(){var t=document.getElementById('loading-text');if(t&&t.textContent==='Loading portfolio data...')t.textContent='Still loading \u2014 this may take a moment...';},5000)</script>
+            <script>window.__loadingTimer=setTimeout(function(){var t=document.getElementById('loading-text');if(t&&t.textContent==='Loading portfolio data...')t.textContent='Still loading \u2014 this may take a moment...';},8000)</script>
             <noscript>
                 <div style="text-align:center;padding:40px 20px;color:var(--text-dim);">
                     <p style="font-size:1.1rem;margin-bottom:12px;">JavaScript is required to load the portfolio dashboard.</p>
@@ -5128,6 +5128,7 @@
             ]);
             const app = document.getElementById('app');
 
+            if (window.__loadingTimer) clearTimeout(window.__loadingTimer);
             if (!data) {
                 app.innerHTML = `
                     <div class="empty-state" style="max-width:480px;margin:80px auto;">
