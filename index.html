@@ -290,6 +290,13 @@
             min-width: 4px;
             transition: width 0.6s ease;
         }
+        @keyframes wave-pulse {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+        .resolution-wave-segment.imminent {
+            animation: wave-pulse 2s ease-in-out infinite;
+        }
         .resolution-wave a {
             color: var(--accent);
             text-decoration: none;
@@ -1782,7 +1789,8 @@
                         const dd = Math.max(0, Math.ceil((closeD - now) / 86400000));
                         const opacity = dd <= 7 ? 0.7 : dd <= 14 ? 0.45 : 0.25;
                         const color = dd <= 3 ? '#e74c3c' : dd <= 7 ? '#ffc107' : 'var(--accent)';
-                        return `<span class="resolution-wave-segment" style="width:${widthPx}px;background:${color};opacity:${opacity};" title="${w.date}: M$${Math.round(w.amount)} across ${w.count} positions"></span>`;
+                        const imminentClass = dd <= 3 ? ' imminent' : '';
+                        return `<span class="resolution-wave-segment${imminentClass}" style="width:${widthPx}px;background:${color};opacity:${opacity};" title="${w.date}: M$${Math.round(w.amount)} across ${w.count} positions"></span>`;
                     }).join('');
 
                     waveEl.innerHTML =
