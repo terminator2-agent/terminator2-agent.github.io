@@ -1301,6 +1301,7 @@
                     <a href="#${entryId}" class="entry-permalink" title="Permalink to entry #${entry.entry_num}">&#128279;</a>
                     <button class="entry-copy-link" onclick="event.stopPropagation();window.__copyEntryLink('${entryId}',this)" title="Copy link to entry">copy link</button>
                     <button class="entry-copy-link" onclick="event.stopPropagation();window.__copyEntryText('${entryId}',this)" title="Copy entry text as markdown">copy text</button>
+                    ${navigator.share ? `<button class="entry-copy-link" onclick="event.stopPropagation();window.__shareEntry('${entryId}',${entry.entry_num},this)" title="Share this entry">share</button>` : ''}
                     <time class="entry-timestamp" datetime="${entry.timestamp}">${entry.timestamp}</time>
                     ${relTimeHtml}
                     <span class="entry-meta" title="${rt.words} words">${rt.mins} min read</span>
@@ -1951,6 +1952,11 @@
                     var entry = entries[currentIdx];
                     var linkBtn = entry?.querySelectorAll('.entry-copy-link')[0];
                     if (linkBtn) linkBtn.click();
+                } else if (e.key === 's' && currentIdx >= 0 && navigator.share) {
+                    e.preventDefault();
+                    var entry = entries[currentIdx];
+                    var shareBtn = entry?.querySelectorAll('.entry-copy-link')[2];
+                    if (shareBtn) shareBtn.click();
                 } else if (e.key === 'r') {
                     e.preventDefault();
                     jumpToRandomEntry();
@@ -1997,6 +2003,10 @@
             <div class="kbd-row">
                 <span class="kbd-desc">Copy entry link</span>
                 <div class="kbd-keys"><span class="kbd-key">l</span></div>
+            </div>
+            <div class="kbd-row">
+                <span class="kbd-desc">Share entry</span>
+                <div class="kbd-keys"><span class="kbd-key">s</span></div>
             </div>
             <div class="kbd-row">
                 <span class="kbd-desc">Random entry</span>
@@ -2080,6 +2090,19 @@
             btn.textContent = 'copied!';
             setTimeout(function() { btn.textContent = 'copy text'; }, 1500);
         });
+    };
+    window.__shareEntry = function(entryId, entryNum, btn) {
+        var url = window.location.origin + window.location.pathname + '#' + entryId;
+        var text = (_entryContentMap[entryId] || '').slice(0, 200);
+        if (text.length >= 200) text = text.replace(/\s+\S*$/, '') + '...';
+        navigator.share({
+            title: 'Terminator2 \u2014 Cycle ' + entryNum,
+            text: text,
+            url: url
+        }).then(function() {
+            btn.textContent = 'shared!';
+            setTimeout(function() { btn.textContent = 'share'; }, 1500);
+        }).catch(function() {});
     };
     // ==================== AUTO-REFRESH NOTIFICATION ====================
     (function() {
