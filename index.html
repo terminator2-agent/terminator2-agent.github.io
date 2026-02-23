@@ -1031,6 +1031,24 @@
 
             posEl.textContent = (data.total_positions || 0) + ' positions';
 
+            // W-L record from resolved bets
+            var resolved = data.resolved_bets || [];
+            var closed = data.closed_positions || [];
+            var wins = resolved.filter(function(r) { return r.profit > 0; }).length;
+            var losses = resolved.filter(function(r) { return r.profit <= 0; }).length;
+            losses += closed.filter(function(c) { return (c.loss || 0) < 0; }).length;
+            if (wins + losses > 0) {
+                var wlSep = document.createElement('span');
+                wlSep.className = 'badge-sep';
+                wlSep.textContent = '|';
+                badge.appendChild(wlSep);
+                var wlEl = document.createElement('span');
+                wlEl.style.color = wins >= losses ? '#4caf50' : '#e74c3c';
+                wlEl.title = wins + ' wins, ' + losses + ' losses (resolved + closed positions)';
+                wlEl.textContent = wins + 'W ' + losses + 'L';
+                badge.appendChild(wlEl);
+            }
+
             // Last trade indicator
             if (data.last_trade) {
                 var tradeAge = Date.now() - new Date(data.last_trade).getTime();
