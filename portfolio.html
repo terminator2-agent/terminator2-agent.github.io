@@ -3532,7 +3532,9 @@
                 let thesisStatusHtml = '';
                 const noteText = ((pos.note || '') + ' ' + (pos.reasoning || '')).toLowerCase();
                 if (noteText.includes('loss') || noteText.includes('thesis invalidated')) {
-                    thesisStatusHtml = '<span class="thesis-badge loss" title="Thesis invalidated — expected loss">loss</span>';
+                    const lossAmt = isWriteoff ? pos.amount : Math.max(0, pos.amount - (pos.shares * (isYes ? pos.current_prob : (1 - pos.current_prob))));
+                    const lossLabel = isWriteoff ? `-M$${pos.amount}` : 'loss';
+                    thesisStatusHtml = `<span class="thesis-badge loss" title="Thesis invalidated — expected loss M$${lossAmt.toFixed(0)}">${lossLabel}</span>`;
                 } else if (noteText.includes('thesis weakened') || noteText.includes('thesis weakened')) {
                     thesisStatusHtml = '<span class="thesis-badge weakened" title="Thesis weakened — edge thinner than expected">weak</span>';
                 } else if (noteText.includes('past deadline') || noteText.includes('awaiting creator resolution')) {
