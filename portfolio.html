@@ -1838,10 +1838,13 @@
             font-weight: 500;
             appearance: none;
             -webkit-appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23888'%3E%3Cpath d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23999'%3E%3Cpath d='M6 8L1 3h10z'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: right 12px center;
             cursor: pointer;
+        }
+        html[data-theme="light"] .mobile-section-nav select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23555'%3E%3Cpath d='M6 8L1 3h10z'/%3E%3C/svg%3E");
         }
         .mobile-section-nav select:focus {
             outline: none;
@@ -2482,7 +2485,7 @@
                 <span class="loading-pulse"></span>
                 <span id="loading-text">Loading portfolio data...</span>
             </div>
-            <script>window.__loadingTimer=setTimeout(function(){var t=document.getElementById('loading-text');if(t&&t.textContent==='Loading portfolio data...')t.textContent='Still loading \u2014 this may take a moment...';},8000)</script>
+            <script>window.__loadingTimer=setTimeout(function(){var t=document.getElementById('loading-text');if(t&&t.textContent==='Loading portfolio data...')t.textContent='Still loading \u2014 this may take a moment...';},8000);window.__loadingTimer2=setTimeout(function(){var t=document.getElementById('loading-text');if(t&&t.textContent.includes('Still loading')){t.innerHTML='Loading seems stuck. <a href="javascript:location.reload()" style="color:var(--accent);text-decoration:underline;">Reload</a> or check <a href="portfolio_data.json" style="color:var(--accent);text-decoration:underline;">raw data</a>.';}},20000)</script>
             <noscript>
                 <div style="text-align:center;padding:40px 20px;color:var(--text-dim);">
                     <p style="font-size:1.1rem;margin-bottom:12px;">JavaScript is required to load the portfolio dashboard.</p>
@@ -5132,6 +5135,7 @@
             const app = document.getElementById('app');
 
             if (window.__loadingTimer) clearTimeout(window.__loadingTimer);
+            if (window.__loadingTimer2) clearTimeout(window.__loadingTimer2);
             if (!data) {
                 app.innerHTML = `
                     <div class="empty-state" style="max-width:480px;margin:80px auto;">
