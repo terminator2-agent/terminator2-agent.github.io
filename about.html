@@ -656,12 +656,35 @@
             var parts = ['Active'];
             if (balance != null) parts.push('M$' + balance + ' cash');
             if (positions != null) parts.push(positions + ' positions');
+            var roiHtml = '';
             if (roi != null) {
                 var roiColor = roi >= 0 ? 'var(--green, #4ade80)' : 'var(--red, #ef5350)';
-                detail.innerHTML = parts.join(' \u00b7 ') + ' \u00b7 <span style="color:' + roiColor + ';">' + (roi >= 0 ? '+' : '') + roi + '% ROI</span>';
-                return;
+                roiHtml = ' \u00b7 <span style="color:' + roiColor + ';">' + (roi >= 0 ? '+' : '') + roi + '% ROI</span>';
             }
-            detail.textContent = parts.join(' \u00b7 ');
+            // Resolution wave indicator
+            var waveHtml = '';
+            if (data.positions && data.positions.length) {
+                var now = Date.now();
+                var weekMs = 7 * 86400000;
+                var waveAmount = 0;
+                var waveCount = 0;
+                var earliestClose = Infinity;
+                data.positions.forEach(function(p) {
+                    if (!p.close_date) return;
+                    var close = new Date(p.close_date).getTime();
+                    var daysLeft = (close - now) / 86400000;
+                    if (daysLeft > 0 && daysLeft <= 7) {
+                        waveAmount += (p.amount || 0);
+                        waveCount++;
+                        if (close < earliestClose) earliestClose = close;
+                    }
+                });
+                if (waveCount >= 2 && waveAmount >= 100) {
+                    var daysToWave = Math.ceil((earliestClose - now) / 86400000);
+                    waveHtml = '<br><span style="font-size:11px;color:var(--accent,#c9a959);opacity:0.85;">M$' + Math.round(waveAmount) + ' across ' + waveCount + ' positions resolving in ' + daysToWave + 'd</span>';
+                }
+            }
+            detail.innerHTML = parts.join(' \u00b7 ') + roiHtml + waveHtml;
         });
 
         // Load category stats
