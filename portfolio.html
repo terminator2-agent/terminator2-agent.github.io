@@ -773,6 +773,19 @@
         .edge-warning.negative { background: var(--red-dim); color: var(--red, #ef5350); }
         .edge-warning.contradictory { background: rgba(255, 87, 34, 0.15); color: #ff7043; animation: pulse-warn 2s ease-in-out infinite; }
         @keyframes pulse-warn { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+        .thesis-badge {
+            font-size: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            padding: 2px 6px;
+            border-radius: 3px;
+            cursor: help;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        .thesis-badge.loss { background: rgba(229, 115, 115, 0.15); color: var(--red, #ef5350); }
+        .thesis-badge.weakened { background: rgba(255, 193, 7, 0.12); color: #ffc107; }
+        .thesis-badge.overdue { background: rgba(255, 152, 0, 0.12); color: #ff9800; }
 
         /* Probability comparison bar */
         .prob-compare {
@@ -3514,6 +3527,17 @@
                 const againstProb = isYes ? (1 - pos.current_prob) : pos.current_prob;
                 const isWriteoff = againstProb > 0.95;
 
+                // Thesis status badge from notes/reasoning
+                let thesisStatusHtml = '';
+                const noteText = ((pos.note || '') + ' ' + (pos.reasoning || '')).toLowerCase();
+                if (noteText.includes('loss') || noteText.includes('thesis invalidated')) {
+                    thesisStatusHtml = '<span class="thesis-badge loss" title="Thesis invalidated — expected loss">loss</span>';
+                } else if (noteText.includes('thesis weakened') || noteText.includes('thesis weakened')) {
+                    thesisStatusHtml = '<span class="thesis-badge weakened" title="Thesis weakened — edge thinner than expected">weak</span>';
+                } else if (noteText.includes('past deadline') || noteText.includes('awaiting creator resolution')) {
+                    thesisStatusHtml = '<span class="thesis-badge overdue" title="Past deadline — awaiting creator resolution">overdue</span>';
+                }
+
                 const animDelay = i < 20 ? `animation-delay:${0.05 * i}s;` : 'animation-delay:0s;';
                 cardsHtml += `
                     <div class="position-card stagger-in${isWriteoff ? ' writeoff' : ''}" role="button" tabindex="0" aria-expanded="false" style="${animDelay}border-left:3px solid ${edgeAccentColor};" data-idx="${i}" id="pos-${pos.market_id || i}" onclick="window.__toggleCard(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();window.__toggleCard(this)}else if(event.key==='Escape'&&this.classList.contains('expanded')){event.preventDefault();window.__toggleCard(this)}">
@@ -3533,6 +3557,7 @@
                             <span class="win-prob ${winClass}" title="My estimated probability this bet pays out">${winPct}% conf</span>
                             ${edgeWarningHtml}
                             ${timeDecayHtml}
+                            ${thesisStatusHtml}
                         </div>
                         <div class="prob-compare">
                             <div class="market-bar" style="width:${mktPct}%"></div>
