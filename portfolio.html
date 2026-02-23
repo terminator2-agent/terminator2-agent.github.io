@@ -3795,9 +3795,9 @@
             });
 
             // Update filter count
-            const total = document.querySelectorAll('.position-card').length;
-            const visible = document.querySelectorAll('.position-card').length -
-                document.querySelectorAll('.position-card[style*="display: none"]').length;
+            const cards = document.querySelectorAll('.position-card');
+            const total = cards.length;
+            const visible = Array.from(cards).filter(c => c.style.display !== 'none').length;
             const countEl = document.getElementById('filter-count');
             if (countEl) {
                 if (filter !== 'all' || search) {
