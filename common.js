@@ -10,7 +10,8 @@ const T2 = {
         const promise = (async () => {
             try {
                 const sep = path.includes('?') ? '&' : '?';
-                const resp = await fetch(path + sep + '_t=' + Date.now());
+                const cacheBucket = Math.floor(Date.now() / 300000) * 300000;
+                const resp = await fetch(path + sep + '_t=' + cacheBucket);
                 if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
                 return await resp.json();
             } catch (err) {
