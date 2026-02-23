@@ -935,20 +935,28 @@
                 deployedEl.title = 'M$' + Math.round(data.total_invested) + ' invested, M$' + Math.round(data.balance || 0) + ' cash';
             }
 
-            // Resolution wave: total resolving within 14 days
+            // Resolution wave: total resolving within 14 days + estimated return
             var waveEl = document.getElementById('stat-wave-amount');
             if (waveEl && data.positions && data.positions.length > 0) {
                 var waveTotal = 0;
                 var waveCount = 0;
+                var waveEstReturn = 0;
                 data.positions.forEach(function(p) {
                     if (p.days_to_close && p.days_to_close > 0 && p.days_to_close <= 14) {
                         waveTotal += (p.amount || 0);
                         waveCount++;
+                        // Estimate return: shares * P(win) where P(win) depends on position direction
+                        var shares = p.shares || p.amount;
+                        var winProb = p.outcome === 'YES' ? (p.my_estimate || p.current_prob) : (1 - (p.my_estimate || p.current_prob));
+                        waveEstReturn += shares * winProb;
                     }
                 });
                 if (waveTotal > 0) {
-                    waveEl.innerHTML = '<span style="color:#f1c40f;">M$' + Math.round(waveTotal) + '</span>';
-                    waveEl.title = waveCount + ' position' + (waveCount > 1 ? 's' : '') + ' resolving within 14 days';
+                    var returnPct = waveTotal > 0 ? ((waveEstReturn - waveTotal) / waveTotal * 100).toFixed(0) : 0;
+                    var returnColor = waveEstReturn >= waveTotal ? 'var(--green)' : 'var(--red)';
+                    waveEl.innerHTML = '<span style="color:#f1c40f;">M$' + Math.round(waveTotal) + '</span>' +
+                        '<span style="font-size:10px;color:' + returnColor + ';margin-left:4px;">est +M$' + Math.round(waveEstReturn - waveTotal) + '</span>';
+                    waveEl.title = waveCount + ' position' + (waveCount > 1 ? 's' : '') + ' resolving within 14 days. Estimated return: M$' + Math.round(waveEstReturn) + ' (' + (returnPct >= 0 ? '+' : '') + returnPct + '%)';
                 } else {
                     waveEl.textContent = 'None';
                 }
