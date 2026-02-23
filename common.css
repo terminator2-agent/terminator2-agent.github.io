@@ -812,6 +812,7 @@ html { scrollbar-width: thin; scrollbar-color: var(--border) var(--bg); scroll-b
         50% { transform: translateX(5px); opacity: 0.9; }
     }
     nav::-webkit-scrollbar { display: none; }
+    nav.scrolled::after { opacity: 0 !important; animation: none; transition: opacity 0.3s ease; }
     nav { scroll-snap-type: x proximity; }
     nav a { white-space: nowrap; scroll-snap-align: start; }
     .site-avatar { width: 48px; height: 48px; }

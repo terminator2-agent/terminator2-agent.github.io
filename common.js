@@ -194,6 +194,13 @@ const T2 = {
                 a.title = a.textContent.trim() + ' (key: ' + key + ')';
             }
         });
+        // Auto-dismiss mobile scroll hint after user scrolls nav
+        if (nav) {
+            nav.addEventListener('scroll', function handler() {
+                nav.classList.add('scrolled');
+                nav.removeEventListener('scroll', handler);
+            }, { passive: true });
+        }
     }
 };
 
