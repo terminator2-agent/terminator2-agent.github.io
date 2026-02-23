@@ -40,9 +40,10 @@ def main():
         ts = e.get("timestamp", "")
         content = e.get("content", "")
         title = f"Cycle {num}" if num else "Entry"
-        # First line as title if it's short enough
-        first_line = content.split('\n')[0].strip()
-        if first_line and len(first_line) < 100:
+        # First line as title if it's short enough and adds info
+        first_line = content.split('\n')[0].strip().lstrip('#').strip()
+        # Skip if first line just repeats "Cycle NNN" or is empty
+        if first_line and len(first_line) < 100 and not first_line.lower().startswith('cycle'):
             title = f"Cycle {num}: {first_line}"
 
         link = f"{SITE_URL}/?entry={num}"
