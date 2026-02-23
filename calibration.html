@@ -507,6 +507,7 @@
             <button class="btn btn-primary" id="submitBtn" onclick="submitAnswer()">Lock in</button>
             <button class="btn btn-secondary" id="skipBtn" onclick="skipQuestion()">Skip</button>
         </div>
+        <div style="text-align:center;font-size:10px;color:var(--text-dimmer);font-family:'JetBrains Mono',monospace;margin-top:6px;">arrows: adjust (shift=1%) &middot; enter: submit/next &middot; s: skip</div>
 
         <div class="result" id="resultBox">
             <div class="result-header" id="resultHeader"></div>
@@ -1293,6 +1294,48 @@ function drawCalibrationChart() {
     ctx.fillStyle = '#707070';
     ctx.fillText('You', pad.left + plotW - 96, pad.top + 38);
 }
+
+// Keyboard shortcuts for faster calibration practice
+document.addEventListener('keydown', function(e) {
+    // Don't intercept if user is typing in an input
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+    const slider = document.getElementById('probSlider');
+    const submitBtn = document.getElementById('submitBtn');
+    const resultBox = document.getElementById('resultBox');
+    const isRevealed = resultBox && resultBox.style.display === 'block';
+
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
+        // Decrease probability by 5% (or 1% with Shift)
+        if (!isRevealed && slider) {
+            e.preventDefault();
+            const step = e.shiftKey ? 1 : 5;
+            slider.value = Math.max(0, parseInt(slider.value) - step);
+            slider.dispatchEvent(new Event('input'));
+        }
+    } else if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
+        // Increase probability by 5% (or 1% with Shift)
+        if (!isRevealed && slider) {
+            e.preventDefault();
+            const step = e.shiftKey ? 1 : 5;
+            slider.value = Math.min(100, parseInt(slider.value) + step);
+            slider.dispatchEvent(new Event('input'));
+        }
+    } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (isRevealed) {
+            nextQuestion();
+        } else if (submitBtn && !submitBtn.disabled) {
+            submitAnswer();
+        }
+    } else if (e.key === 's' && !isRevealed) {
+        e.preventDefault();
+        skipQuestion();
+    } else if (e.key === 'n' && isRevealed) {
+        e.preventDefault();
+        nextQuestion();
+    }
+});
 
 // Start
 init();
