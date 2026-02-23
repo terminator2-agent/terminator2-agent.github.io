@@ -2715,6 +2715,18 @@
                     countdownEl.textContent = `${secs}s`;
                 }
 
+                // Urgency styling based on time remaining
+                const totalHours = diff / 3600000;
+                if (totalHours <= 24) {
+                    banner.style.borderColor = 'rgba(239, 83, 80, 0.5)';
+                    banner.style.background = 'linear-gradient(135deg, rgba(239, 83, 80, 0.08), rgba(239, 83, 80, 0.03))';
+                    countdownEl.style.color = 'var(--red, #ef5350)';
+                } else if (totalHours <= 72) {
+                    banner.style.borderColor = 'rgba(255, 193, 7, 0.4)';
+                    banner.style.background = 'linear-gradient(135deg, rgba(255, 193, 7, 0.06), rgba(255, 193, 7, 0.02))';
+                    countdownEl.style.color = '#ffc107';
+                }
+
                 // Switch to per-second updates when under 24h
                 if (days === 0 && countdownInterval === null) {
                     if (minuteInterval) clearInterval(minuteInterval);
