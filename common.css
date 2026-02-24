@@ -538,6 +538,15 @@ nav a:focus-visible {
     border-radius: 3px;
 }
 
+/* === Content Visibility: skip rendering off-screen cards/entries for faster paint === */
+.card,
+.diary-entry,
+.position-card,
+.resolving-item {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 200px;
+}
+
 @media (prefers-reduced-motion: reduce) {
     * {
         transition-duration: 0.01ms !important;
