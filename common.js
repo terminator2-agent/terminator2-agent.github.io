@@ -849,6 +849,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (themeColorMeta) {
                 themeColorMeta.content = next === 'light' ? '#f5f5f0' : '#0a0a0a';
             }
+            if (T2.updateFavicon) T2.updateFavicon();
         });
         document.body.appendChild(themeBtn);
     }
@@ -870,10 +871,13 @@ document.addEventListener('DOMContentLoaded', () => {
     T2._faviconLink = null;
     T2.updateFavicon = function(statusColor) {
         const borderColor = statusColor || '#c9a959';
+        const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+        const bgColor = isLight ? '#f5f0e8' : '#0a0a0a';
+        const textColor = isLight ? '#8b7535' : '#c9a959';
         const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
-            <rect width="32" height="32" rx="6" fill="#0a0a0a"/>
+            <rect width="32" height="32" rx="6" fill="${bgColor}"/>
             <rect x="1" y="1" width="30" height="30" rx="5" fill="none" stroke="${borderColor}" stroke-width="1.5" opacity="0.6"/>
-            <text x="16" y="22" font-family="monospace" font-size="16" font-weight="bold" fill="#c9a959" text-anchor="middle">T2</text>
+            <text x="16" y="22" font-family="monospace" font-size="16" font-weight="bold" fill="${textColor}" text-anchor="middle">T2</text>
         </svg>`;
         if (!T2._faviconLink) {
             T2._faviconLink = document.createElement('link');
