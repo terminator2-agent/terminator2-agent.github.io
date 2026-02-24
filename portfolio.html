@@ -2693,27 +2693,48 @@
                 outcomeEl.innerHTML = parts.join(' · ');
             }
 
-            // Populate detail list with individual resolving positions
+            // Populate detail list with individual resolving positions, grouped by close date
             const detailEl = document.getElementById('wave-detail-list');
             if (detailEl && positions.length > 0) {
-                const sorted = [...positions].sort((a, b) => (b.amount || 0) - (a.amount || 0));
-                const rows = sorted.map(p => {
-                    const isYes = p.outcome === 'YES';
-                    const prob = p.current_prob != null ? p.current_prob : 0.5;
-                    const winProb = isYes ? prob : 1 - prob;
-                    const winColor = winProb >= 0.7 ? 'var(--green)' : winProb <= 0.3 ? 'var(--red, #e74c3c)' : 'var(--text-dim)';
-                    const barPct = Math.round(winProb * 100);
-                    const q = (p.question || '').length > 60 ? (p.question || '').slice(0, 57) + '...' : (p.question || '');
-                    const sideColor = isYes ? 'var(--green)' : 'var(--red, #e74c3c)';
-                    return '<div class="wave-pos-row">' +
-                        '<span class="wave-pos-side" style="color:' + sideColor + '">' + p.outcome + '</span>' +
-                        '<span class="wave-pos-bar"><span class="wave-pos-bar-fill" style="width:' + barPct + '%;background:' + winColor + ';"></span></span>' +
-                        '<span style="color:' + winColor + ';flex-shrink:0;width:32px;text-align:right;">' + barPct + '%</span>' +
-                        '<span class="wave-pos-q" title="' + (p.question || '').replace(/"/g, '&quot;') + '">' + q.replace(/</g, '&lt;') + '</span>' +
-                        '<span class="wave-pos-amt">M$' + Math.round(p.amount || 0) + '</span>' +
+                // Group by close date
+                const grouped = {};
+                positions.forEach(p => {
+                    const dateKey = p.close_date ? p.close_date.split('T')[0] : 'unknown';
+                    if (!grouped[dateKey]) grouped[dateKey] = [];
+                    grouped[dateKey].push(p);
+                });
+                const sortedDates = Object.keys(grouped).sort();
+                let html = '';
+                sortedDates.forEach(dateKey => {
+                    const group = grouped[dateKey];
+                    const groupTotal = group.reduce((s, p) => s + (p.amount || 0), 0);
+                    const dateLabel = dateKey === 'unknown' ? 'Unknown' : new Date(dateKey + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    const daysAway = dateKey !== 'unknown' ? Math.max(0, Math.ceil((new Date(dateKey + 'T23:59:59Z') - new Date()) / 86400000)) : '?';
+                    html += '<div style="margin-top:8px;margin-bottom:4px;display:flex;align-items:center;gap:8px;">' +
+                        '<span style="font-size:10px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;">' + dateLabel + '</span>' +
+                        '<span style="font-size:9px;color:var(--text-dim);background:rgba(201,169,89,0.08);padding:1px 5px;border-radius:3px;">' + daysAway + 'd</span>' +
+                        '<span style="flex:1;border-bottom:1px solid rgba(201,169,89,0.1);"></span>' +
+                        '<span style="font-size:10px;color:var(--text-dim);">' + group.length + ' pos · M$' + Math.round(groupTotal) + '</span>' +
                     '</div>';
-                }).join('');
-                detailEl.innerHTML = rows;
+                    const sorted = [...group].sort((a, b) => (b.amount || 0) - (a.amount || 0));
+                    sorted.forEach(p => {
+                        const isYes = p.outcome === 'YES';
+                        const prob = p.current_prob != null ? p.current_prob : 0.5;
+                        const winProb = isYes ? prob : 1 - prob;
+                        const winColor = winProb >= 0.7 ? 'var(--green)' : winProb <= 0.3 ? 'var(--red, #e74c3c)' : 'var(--text-dim)';
+                        const barPct = Math.round(winProb * 100);
+                        const q = (p.question || '').length > 60 ? (p.question || '').slice(0, 57) + '...' : (p.question || '');
+                        const sideColor = isYes ? 'var(--green)' : 'var(--red, #e74c3c)';
+                        html += '<div class="wave-pos-row">' +
+                            '<span class="wave-pos-side" style="color:' + sideColor + '">' + p.outcome + '</span>' +
+                            '<span class="wave-pos-bar"><span class="wave-pos-bar-fill" style="width:' + barPct + '%;background:' + winColor + ';"></span></span>' +
+                            '<span style="color:' + winColor + ';flex-shrink:0;width:32px;text-align:right;">' + barPct + '%</span>' +
+                            '<span class="wave-pos-q" title="' + (p.question || '').replace(/"/g, '&quot;') + '">' + q.replace(/</g, '&lt;') + '</span>' +
+                            '<span class="wave-pos-amt">M$' + Math.round(p.amount || 0) + '</span>' +
+                        '</div>';
+                    });
+                });
+                detailEl.innerHTML = html;
             }
 
             // Countdown update function
