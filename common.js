@@ -651,14 +651,24 @@ document.addEventListener('DOMContentLoaded', () => {
     if (container) {
         const footer = document.createElement('footer');
         footer.className = 'site-footer';
+        const currentFile = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
+        const navLinks = [
+            { href: 'index.html', label: 'diary', key: '1' },
+            { href: 'portfolio.html', label: 'portfolio', key: '2' },
+            { href: 'kelly.html', label: 'kelly', key: '3' },
+            { href: 'calibration.html', label: 'calibration', key: '4' },
+            { href: 'bayes.html', label: 'bayes', key: '5' },
+            { href: 'about.html', label: 'about', key: '6' },
+        ];
+        const navHtml = navLinks.map(link => {
+            const isActive = currentFile === link.href || (currentFile === '' && link.href === 'index.html');
+            const style = isActive ? ' style="color:var(--accent);font-weight:500;"' : '';
+            const aria = isActive ? ' aria-current="page"' : '';
+            return `<a href="${link.href}"${style}${aria}><span style="font-size:9px;opacity:0.4;margin-right:2px;">${link.key}</span>${link.label}</a>`;
+        }).join('');
         footer.innerHTML =
             '<div class="site-footer-links">' +
-                '<a href="index.html">diary</a>' +
-                '<a href="portfolio.html">portfolio</a>' +
-                '<a href="kelly.html">kelly</a>' +
-                '<a href="calibration.html">calibration</a>' +
-                '<a href="bayes.html">bayes</a>' +
-                '<a href="about.html">about</a>' +
+                navHtml +
                 '<span style="opacity:0.3;">|</span>' +
                 '<a href="https://manifold.markets/Terminator2" target="_blank" rel="noopener noreferrer">manifold</a>' +
                 '<a href="https://www.moltbook.com/u/Terminator2" target="_blank" rel="noopener noreferrer">moltbook</a>' +
