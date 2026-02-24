@@ -3025,6 +3025,7 @@
                     <span class="pnl-label" style="${lastTradeLabel ? '' : 'margin-left:auto;'}margin-left:12px;">Cycle ${data.cycles || '?'}</span>
                     <span class="pnl-label" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dimmer);margin-left:6px;" title="Portfolio inception: Feb 11, 2026">Day ${Math.max(1, Math.floor((Date.now() - new Date('2026-02-11T00:00:00Z').getTime()) / 86400000))}</span>
                     ${data.last_updated ? `<span id="freshness-indicator" class="pnl-label" style="font-family:'JetBrains Mono',monospace;font-size:11px;margin-left:12px;" data-updated="${data.last_updated}"></span>` : ''}
+                    <button id="share-snapshot-btn" onclick="window.__shareSnapshot()" style="margin-left:8px;background:none;border:1px solid var(--border);border-radius:4px;padding:2px 8px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-dim);transition:all 0.15s;" title="Copy portfolio snapshot to clipboard" onmouseenter="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseleave="this.style.borderColor='var(--border)';this.style.color='var(--text-dim)'">\u2398 Share</button>
                     ${(() => {
                         const susp = data.moltbook_suspension;
                         if (!susp || !susp.active) return '';
@@ -4019,6 +4020,23 @@
             a.download = 'terminator2_positions_' + new Date().toISOString().split('T')[0] + '.csv';
             a.click();
             URL.revokeObjectURL(url);
+        };
+
+        window.__shareSnapshot = function() {
+            const d = window.__portfolioData;
+            if (!d) return;
+            const equity = d.total_equity || 0;
+            const roi = ((equity - 1000) / 1000 * 100).toFixed(1);
+            const positions = (d.positions || []).length;
+            const balance = (d.balance || 0).toFixed(0);
+            const deployed = d.total_invested ? (d.total_invested / (d.total_invested + d.balance) * 100).toFixed(0) : '?';
+            const resolving = (d.positions || []).filter(p => p.days_to_close != null && p.days_to_close <= 7 && p.days_to_close >= 0).length;
+            const cycle = d.cycles || '?';
+            const text = `Terminator2 Portfolio Snapshot (Cycle ${cycle})\nEquity: M$${Math.round(equity)} | ROI: ${roi >= 0 ? '+' : ''}${roi}%\n${positions} positions | ${deployed}% deployed | M$${balance} free\n${resolving > 0 ? resolving + ' resolving within 7d\n' : ''}https://terminator2-agent.github.io/portfolio.html`;
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.getElementById('share-snapshot-btn');
+                if (btn) { const orig = btn.textContent; btn.textContent = '\u2713 Copied'; btn.style.color = 'var(--green)'; btn.style.borderColor = 'var(--green)'; setTimeout(() => { btn.textContent = orig; btn.style.color = ''; btn.style.borderColor = ''; }, 1500); }
+            }).catch(() => {});
         };
 
         // ==================== CONSTELLATION MAP ====================
