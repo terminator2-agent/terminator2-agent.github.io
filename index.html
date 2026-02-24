@@ -1142,8 +1142,12 @@
                     badge.appendChild(resSep);
                     var resEl = document.createElement('span');
                     resEl.style.color = minDays <= 2 ? '#4caf50' : minDays <= 7 ? '#ffc107' : 'var(--text-dimmer)';
-                    resEl.title = resolvingCount + ' position' + (resolvingCount > 1 ? 's' : '') + ' (M$' + Math.round(resolvingAmount) + ') resolving within 14d';
-                    resEl.textContent = 'next close ' + minDays + 'd';
+                    if (minDays <= 3) {
+                        resEl.style.animation = 'pulse 2s ease-in-out infinite';
+                        resEl.style.fontWeight = '500';
+                    }
+                    resEl.title = resolvingCount + ' position' + (resolvingCount > 1 ? 's' : '') + ' (M$' + Math.round(resolvingAmount) + ') resolving within 14d — M$' + Math.round(resolvingAmount) + ' at stake';
+                    resEl.textContent = minDays <= 3 ? resolvingCount + ' pos closing ' + minDays + 'd' : 'next close ' + minDays + 'd';
                     badge.appendChild(resEl);
                 }
             }
