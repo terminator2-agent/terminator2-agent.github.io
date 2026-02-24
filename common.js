@@ -918,6 +918,25 @@ document.addEventListener('DOMContentLoaded', () => {
         'color:#555;font-size:11px;font-family:monospace'
     );
 
+    // Speculative link prefetching — prefetch same-origin pages on hover
+    const prefetched = new Set();
+    document.addEventListener('pointerenter', (e) => {
+        const a = e.target.closest('a[href]');
+        if (!a) return;
+        const href = a.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('javascript')) return;
+        try {
+            const url = new URL(href, location.origin);
+            if (url.origin !== location.origin) return;
+            if (prefetched.has(url.pathname)) return;
+            prefetched.add(url.pathname);
+            const link = document.createElement('link');
+            link.rel = 'prefetch';
+            link.href = url.pathname;
+            document.head.appendChild(link);
+        } catch (e) { /* ignore malformed URLs */ }
+    }, true);
+
     // First-visit keyboard shortcut hint
     if (!T2.load('t2_kbd_seen')) {
         T2.save('t2_kbd_seen', true);
