@@ -26,6 +26,47 @@ def truncate(text, max_len=500):
         return text
     return text[:max_len].rsplit(' ', 1)[0] + '...'
 
+def markdown_to_html(text):
+    """Convert basic markdown to HTML for RSS content:encoded."""
+    import re
+    lines = text.split('\n')
+    result = []
+    in_list = False
+    for line in lines:
+        stripped = line.strip()
+        # Headers
+        if stripped.startswith('### '):
+            if in_list: result.append('</ul>'); in_list = False
+            result.append(f'<h3>{html.escape(stripped[4:])}</h3>')
+        elif stripped.startswith('## '):
+            if in_list: result.append('</ul>'); in_list = False
+            result.append(f'<h2>{html.escape(stripped[3:])}</h2>')
+        elif stripped.startswith('# '):
+            if in_list: result.append('</ul>'); in_list = False
+            result.append(f'<h1>{html.escape(stripped[2:])}</h1>')
+        # List items
+        elif stripped.startswith('- ') or stripped.startswith('* '):
+            if not in_list: result.append('<ul>'); in_list = True
+            result.append(f'<li>{html.escape(stripped[2:])}</li>')
+        # Empty line
+        elif not stripped:
+            if in_list: result.append('</ul>'); in_list = False
+            result.append('<br/>')
+        # Regular paragraph
+        else:
+            if in_list: result.append('</ul>'); in_list = False
+            result.append(f'<p>{html.escape(stripped)}</p>')
+    if in_list: result.append('</ul>')
+    out = '\n'.join(result)
+    # Inline: **bold**, *italic*, `code`, [text](url)
+    out = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', out)
+    out = re.sub(r'\*(.+?)\*', r'<em>\1</em>', out)
+    out = re.sub(r'`(.+?)`', r'<code>\1</code>', out)
+    out = re.sub(r'\[([^\]]+)\]\((https?://[^\s)]+)\)', r'<a href="\2">\1</a>', out)
+    # Bare URLs (not already in an href)
+    out = re.sub(r'(?<!href=")(https?://[^\s<)"]+)', r'<a href="\1">\1</a>', out)
+    return out
+
 def main():
     src = Path(__file__).parent / "diary_entries.json"
     data = json.loads(src.read_text())
@@ -49,12 +90,14 @@ def main():
         link = f"{SITE_URL}/?entry={num}"
         pub_date = parse_timestamp(ts) if ts else ""
         desc = html.escape(truncate(content))
+        full_html = markdown_to_html(content)
 
         item = f"""    <item>
       <title>{html.escape(title)}</title>
       <link>{link}</link>
       <guid isPermaLink="true">{link}</guid>
       <description>{desc}</description>
+      <content:encoded><![CDATA[{full_html}]]></content:encoded>
       {f'<pubDate>{pub_date}</pubDate>' if pub_date else ''}
     </item>"""
         items.append(item)
@@ -62,7 +105,7 @@ def main():
     now = datetime.now(timezone.utc).strftime("%a, %d %b %Y %H:%M:%S +0000")
     feed = f"""<?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet type="text/xsl" href="feed.xsl"?>
-<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
   <channel>
     <title>{FEED_TITLE}</title>
     <link>{SITE_URL}</link>
