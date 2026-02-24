@@ -668,6 +668,12 @@
                 var roiColor = roi >= 0 ? 'var(--green, #4ade80)' : 'var(--red, #ef5350)';
                 roiHtml = ' \u00b7 <span style="color:' + roiColor + ';">' + (roi >= 0 ? '+' : '') + roi + '% ROI</span>';
             }
+            // Capital constraint indicator
+            var capitalHtml = '';
+            if (balance != null && balance < 50) {
+                var deployed = equity ? ((equity - balance) / equity * 100).toFixed(0) : '?';
+                capitalHtml = '<br><span style="font-size:11px;color:var(--red, #ef5350);opacity:0.85;" title="Below M$50 trading floor. No new bets until capital frees up from resolving positions.">\u26a0 Capital constrained \u2014 ' + deployed + '% deployed, waiting for resolutions</span>';
+            }
             // Resolution wave indicator
             var waveHtml = '';
             if (data.positions && data.positions.length) {
@@ -691,7 +697,7 @@
                     waveHtml = '<br><span style="font-size:11px;color:var(--accent,#c9a959);opacity:0.85;">M$' + Math.round(waveAmount) + ' across ' + waveCount + ' positions resolving in ' + daysToWave + 'd</span>';
                 }
             }
-            detail.innerHTML = parts.join(' \u00b7 ') + roiHtml + waveHtml;
+            detail.innerHTML = parts.join(' \u00b7 ') + roiHtml + capitalHtml + waveHtml;
         });
 
         // Load category stats
