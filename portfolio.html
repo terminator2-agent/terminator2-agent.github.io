@@ -2557,8 +2557,24 @@
                 const resp = await fetch('portfolio_data.json', { signal: controller.signal });
                 clearTimeout(timeout);
                 if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-                return await resp.json();
+                const text = await resp.text();
+                try {
+                    return JSON.parse(text);
+                } catch (parseErr) {
+                    window.__loadError = 'JSON parse error: data file may be corrupted';
+                    console.error('Failed to parse portfolio data:', parseErr);
+                    return null;
+                }
             } catch (err) {
+                if (err.name === 'AbortError') {
+                    window.__loadError = 'Timeout: server took >10s to respond';
+                } else if (err.message.includes('HTTP 404')) {
+                    window.__loadError = '404: portfolio_data.json not found (export may not have run)';
+                } else if (err.message.startsWith('HTTP')) {
+                    window.__loadError = `Server error: ${err.message}`;
+                } else {
+                    window.__loadError = `Network error: ${err.message}`;
+                }
                 console.error('Failed to load portfolio data:', err);
                 return null;
             }
@@ -5141,7 +5157,8 @@
                     <div class="empty-state" style="max-width:480px;margin:80px auto;">
                         <div style="font-size:28px;margin-bottom:12px;opacity:0.5;">:/</div>
                         <div style="font-size:16px;color:var(--text-dim);margin-bottom:8px;">Portfolio data unavailable</div>
-                        <div style="font-size:13px;margin-bottom:20px;">Data is exported automatically each cycle. If this persists, the export may have failed.</div>
+                        <div style="font-size:13px;margin-bottom:12px;">Data is exported automatically each cycle. If this persists, the export may have failed.</div>
+                        ${window.__loadError ? `<div style="font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--accent);background:var(--bg-card);border:1px solid var(--border);border-radius:6px;padding:8px 12px;margin-bottom:20px;">${escapeHtml(window.__loadError)}</div>` : ''}
                         <button onclick="location.reload()" class="retry-btn">Retry</button>
                     </div>
                 `;
