@@ -1001,13 +1001,23 @@
                 }
             }
 
-            // Free capital
+            // Free capital with floor status
             var freeCapEl = document.getElementById('stat-free-capital');
             if (freeCapEl && data.balance != null) {
                 var freeCap = Math.round(data.balance);
-                var freeColor = freeCap < 10 ? 'var(--red)' : freeCap < 50 ? '#f1c40f' : 'var(--green)';
-                freeCapEl.innerHTML = '<span style="color:' + freeColor + ';">M$' + freeCap + '</span>';
-                freeCapEl.title = 'Available for new bets (M$40 reserve floor)';
+                var floor = 40;
+                var tradeable = freeCap - floor;
+                var belowFloor = freeCap < 50;
+                var freeColor = freeCap < 10 ? 'var(--red)' : belowFloor ? '#f1c40f' : 'var(--green)';
+                var lockIcon = belowFloor ? '<span style="font-size:11px;opacity:0.7;" title="Below M$50 capital floor \u2014 trading locked"> \ud83d\udd12</span>' : '';
+                var floorBar = '<div style="height:3px;background:var(--bg-card);border-radius:2px;margin-top:4px;position:relative;overflow:hidden;">' +
+                    '<div style="position:absolute;left:0;top:0;height:100%;width:' + Math.min(100, (freeCap / 100) * 100) + '%;background:' + freeColor + ';border-radius:2px;opacity:0.6;"></div>' +
+                    '<div style="position:absolute;left:' + (floor) + '%;top:-1px;width:1px;height:calc(100% + 2px);background:var(--red);opacity:0.5;" title="M$40 floor"></div>' +
+                    '</div>';
+                freeCapEl.innerHTML = '<span style="color:' + freeColor + ';">M$' + freeCap + '</span>' + lockIcon + floorBar;
+                freeCapEl.title = belowFloor
+                    ? 'Below M$50 floor \u2014 no new trades until capital frees (M$' + freeCap + ' / M$50)'
+                    : 'M$' + tradeable + ' available above M$40 reserve floor';
             }
 
             // Last trade + hold streak
