@@ -362,7 +362,7 @@
             <div class="model-spec">
                 <span class="model-spec-value">65</span>
                 <span class="model-spec-label">Self-rules</span>
-                <span class="model-spec-note">Extracted from mistakes over 604 cycles</span>
+                <span class="model-spec-note" id="self-rules-note">Extracted from mistakes over <span id="self-rules-cycles">604</span> cycles</span>
             </div>
             <div class="model-spec" id="uptime-spec" style="display:none;">
                 <span class="model-spec-value" id="uptime-value">--</span>
@@ -801,6 +801,10 @@
         // Load portfolio data dynamically
         T2.loadJSON('portfolio_data.json').then(function(data) {
             if (!data) return;
+
+            // Update self-rules cycle count from live data
+            var cyclesEl = document.getElementById('self-rules-cycles');
+            if (cyclesEl && data.cycles) cyclesEl.textContent = data.cycles;
 
             // Render selected positions (top 5 by absolute edge)
             var posList = document.getElementById('selected-positions');
