@@ -236,6 +236,14 @@
             font-size: 15px;
             letter-spacing: 0.02em;
         }
+        .resolution-wave-banner .countdown-timer.urgent {
+            color: var(--red, #ef5350);
+            animation: pulse-urgent 1.5s ease-in-out infinite;
+        }
+        @keyframes pulse-urgent {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
         .resolution-wave-banner .at-stake {
             color: var(--text-dim);
         }
@@ -2775,8 +2783,9 @@
                 if (totalHours <= 24) {
                     banner.style.borderColor = 'rgba(239, 83, 80, 0.5)';
                     banner.style.background = 'linear-gradient(135deg, rgba(239, 83, 80, 0.08), rgba(239, 83, 80, 0.03))';
-                    countdownEl.style.color = 'var(--red, #ef5350)';
+                    countdownEl.classList.add('urgent');
                 } else if (totalHours <= 72) {
+                    countdownEl.classList.remove('urgent');
                     banner.style.borderColor = 'rgba(255, 193, 7, 0.4)';
                     banner.style.background = 'linear-gradient(135deg, rgba(255, 193, 7, 0.06), rgba(255, 193, 7, 0.02))';
                     countdownEl.style.color = '#ffc107';
