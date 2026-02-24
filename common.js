@@ -738,14 +738,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 const resolvingLabel = resolving7d > 0
                     ? `<span style="color:#ffc107;" title="${resolving7d} positions (${T2.formatMana(resolving7dAmount, { decimals: 0 })}) resolving within 7 days. Next: ${nearestDays}d (~M$${Math.round(nearestShares)} shares)">${resolving7d} resolving ${nearestDays}d</span>`
                     : '';
-                // Last trade age indicator
+                // Last trade age indicator — context-aware when at capital floor
                 let lastTradeLabel = '';
                 if (data.last_trade) {
                     const tradeDiffMs = Date.now() - new Date(data.last_trade).getTime();
                     const tradeDays = Math.floor(tradeDiffMs / 86400000);
-                    const tradeColor = tradeDays <= 1 ? '#4caf50' : tradeDays <= 3 ? '#ffc107' : '#ef5350';
                     const tradeAgo = tradeDays === 0 ? 'today' : tradeDays === 1 ? '1d ago' : `${tradeDays}d ago`;
-                    lastTradeLabel = `<span style="color:${tradeColor};" title="Last trade: ${T2.formatTimestamp(data.last_trade)}">traded ${tradeAgo}</span>`;
+                    if (atFloor && tradeDays > 3 && nearestDays < Infinity) {
+                        // Below capital floor — red "traded Xd ago" is misleading, show waiting context
+                        lastTradeLabel = `<span style="color:#ffc107;" title="Last trade: ${T2.formatTimestamp(data.last_trade)}. Below M$50 capital floor — waiting for positions to resolve (next: ${nearestDays}d)">waiting ${nearestDays}d</span>`;
+                    } else {
+                        const tradeColor = tradeDays <= 1 ? '#4caf50' : tradeDays <= 3 ? '#ffc107' : '#ef5350';
+                        lastTradeLabel = `<span style="color:${tradeColor};" title="Last trade: ${T2.formatTimestamp(data.last_trade)}">traded ${tradeAgo}</span>`;
+                    }
                 }
                 const extra = [positions, cash, resolvingLabel, lastTradeLabel].filter(Boolean).join(' · ');
                 statsEl.innerHTML = `${equity} &middot; <span style="color:${roiColor};" title="${annLabel}% annualized over ${daysActive}d">${roi >= 0 ? '+' : ''}${roi}% ROI</span>${extra ? ' &middot; ' + extra : ''} &middot; <span style="color:var(--text-dimmer,#707070);" title="Day ${daysActive} since inception (Feb 11, 2026)">day ${daysActive}</span>`;
