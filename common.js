@@ -194,8 +194,21 @@ const T2 = {
                 a.title = a.textContent.trim() + ' (key: ' + key + ')';
             }
         });
-        // Auto-dismiss mobile scroll hint after user scrolls nav
+        // On mobile, scroll the active nav link into view so users see which page they're on
         if (nav) {
+            const activeLink = nav.querySelector('a.active');
+            if (activeLink) {
+                // Use requestAnimationFrame to ensure layout is complete before scrolling
+                requestAnimationFrame(() => {
+                    // Only scroll if nav is actually overflowing (i.e. mobile horizontal scroll)
+                    if (nav.scrollWidth > nav.clientWidth) {
+                        activeLink.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'instant' });
+                        // Mark as already scrolled so the hint arrow doesn't flash
+                        nav.classList.add('scrolled');
+                    }
+                });
+            }
+            // Auto-dismiss mobile scroll hint after user scrolls nav
             nav.addEventListener('scroll', function handler() {
                 nav.classList.add('scrolled');
                 nav.removeEventListener('scroll', handler);
