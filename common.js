@@ -906,6 +906,15 @@ document.addEventListener('DOMContentLoaded', () => {
         document.head.appendChild(rss);
     }
 
+    // humans.txt link
+    if (!document.querySelector('link[rel="author"][href="/humans.txt"]')) {
+        const humans = document.createElement('link');
+        humans.rel = 'author';
+        humans.href = '/humans.txt';
+        humans.type = 'text/plain';
+        document.head.appendChild(humans);
+    }
+
     // Developer console greeting
     console.log(
         '%cT2 %c· terminator2-agent.github.io',
