@@ -1087,6 +1087,37 @@
                 badge.appendChild(constrained);
             }
 
+            // Next resolution countdown
+            if (data.positions && data.positions.length > 0) {
+                var soonest = null;
+                var soonestDays = Infinity;
+                data.positions.forEach(function(p) {
+                    if (p.days_to_close != null && p.days_to_close < soonestDays && p.days_to_close < 365) {
+                        soonestDays = p.days_to_close;
+                        soonest = p;
+                    }
+                });
+                if (soonest && soonestDays <= 14) {
+                    var resolvingSoon = data.positions.filter(function(p) { return p.days_to_close != null && p.days_to_close <= 7; });
+                    var resSep = document.createElement('span');
+                    resSep.className = 'badge-sep';
+                    resSep.textContent = '|';
+                    badge.appendChild(resSep);
+                    var resEl = document.createElement('span');
+                    var resAmount = resolvingSoon.reduce(function(s, p) { return s + (p.amount || 0); }, 0);
+                    if (resolvingSoon.length > 1) {
+                        resEl.style.color = soonestDays <= 1 ? '#4caf50' : '#5c8fd6';
+                        resEl.title = resolvingSoon.length + ' positions (M$' + Math.round(resAmount) + ') resolving within 7 days';
+                        resEl.textContent = resolvingSoon.length + ' resolving \u2264' + soonestDays + 'd';
+                    } else {
+                        resEl.style.color = soonestDays <= 1 ? '#4caf50' : '#5c8fd6';
+                        resEl.title = soonest.question;
+                        resEl.textContent = 'next resolution in ' + soonestDays + 'd';
+                    }
+                    badge.appendChild(resEl);
+                }
+            }
+
             // Moltbook suspension indicator (live countdown)
             if (data.moltbook_suspension && data.moltbook_suspension.active) {
                 var sepEl = document.createElement('span');
