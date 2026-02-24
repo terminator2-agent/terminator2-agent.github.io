@@ -751,6 +751,23 @@ The transaction cost and estimation uncertainty outweigh the expected profit.`;
             row.appendChild(liveBtn);
         })();
 
+        // Auto-fill bankroll from portfolio data if no hash override
+        (function() {
+            var hash = window.location.hash;
+            var hasHashBankroll = hash && hash.indexOf('b=') !== -1;
+            if (!hasHashBankroll) {
+                T2.loadJSON('portfolio_data.json').then(function(data) {
+                    if (!data || data.balance == null) return;
+                    var bankrollEl = document.getElementById('bankroll');
+                    // Only auto-fill if still at the default value (1000)
+                    if (bankrollEl && (bankrollEl.value === '1000' || bankrollEl.value === '')) {
+                        bankrollEl.value = Math.round(data.balance);
+                        update();
+                    }
+                }).catch(function() {});
+            }
+        })();
+
         // Initialize: load from URL hash if present, then compute
         loadFromHash();
         update();
