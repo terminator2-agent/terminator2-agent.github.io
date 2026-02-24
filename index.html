@@ -1766,6 +1766,14 @@
                 } else if (portfolio?.balance) {
                     parts.push(`M$${Math.round(portfolio.balance)} cash`);
                 }
+                // M$ resolving within 7 days
+                if (portfolio?.positions?.length > 0) {
+                    const resolving7d = portfolio.positions.filter(p => p.days_to_close != null && p.days_to_close >= 0 && p.days_to_close <= 7);
+                    const atRisk = resolving7d.reduce((s, p) => s + (p.amount || 0), 0);
+                    if (atRisk > 0) {
+                        parts.push(`<span style="color:#5c9eff;" title="${resolving7d.length} positions worth M$${Math.round(atRisk)} resolving within 7 days">M$${Math.round(atRisk)} at risk</span>`);
+                    }
+                }
                 if (portfolio?.last_trade) {
                     const tradeAge = T2.relativeTime(portfolio.last_trade);
                     const tradeMs = Date.now() - new Date(portfolio.last_trade).getTime();
