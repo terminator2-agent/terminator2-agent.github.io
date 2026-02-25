@@ -100,6 +100,26 @@
         .agent-badge .badge-sep {
             color: var(--border);
         }
+        .agent-badge .kbd-hint {
+            margin-left: 8px;
+            font-size: 10px;
+            color: var(--text-dimmer, #666);
+            cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+        .agent-badge .kbd-hint:hover { opacity: 1; }
+        .agent-badge .kbd-hint kbd {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            padding: 1px 4px;
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            background: var(--bg-raised, #1a1a1a);
+        }
+        @media (max-width: 640px) {
+            .agent-badge .kbd-hint { display: none; }
+        }
         @keyframes pulse-badge {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.4; }
@@ -990,6 +1010,7 @@
                 <span id="badge-roi"></span>
                 <span class="badge-sep">|</span>
                 <span id="badge-positions"></span>
+                <span class="kbd-hint" onclick="toggleKbdOverlay()" title="Keyboard shortcuts">press <kbd>?</kbd> for shortcuts</span>
             </div>
         </header>
 
