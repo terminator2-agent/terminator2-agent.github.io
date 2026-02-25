@@ -1705,6 +1705,12 @@
                             el.classList.add('permalink-highlight');
                             setTimeout(() => el.classList.remove('permalink-highlight'), 3000);
                         }
+                        // Update page title to show entry context
+                        const entry = allEntries.find(e => e.entry_num === targetNum);
+                        if (entry) {
+                            const title = entry.title || ('Cycle ' + (entry.cycle || targetNum));
+                            document.title = title + ' — T2 Diary';
+                        }
                     });
                 } else {
                     showMore();
