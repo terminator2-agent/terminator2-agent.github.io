@@ -730,7 +730,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 else { color = '#ef5350'; label = T2.relativeTime(updated); }
                 const cycleLabel = data.cycles ? ` &middot; cycle ${data.cycles}` : '';
                 const absTime = T2.formatTimestamp(updated);
-                el.innerHTML = `&middot; <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${color};vertical-align:middle;margin:0 3px;animation:${diffMin < 60 ? 'pulse 2s ease-in-out infinite' : 'none'};" title="Last heartbeat: ${absTime}"></span><span style="color:${color};" title="Last heartbeat: ${absTime}">${label}</span>${cycleLabel}`;
+                // Estimate next heartbeat (~30min cycle)
+                let nextLabel = '';
+                if (diffMin < 180) {
+                    const nextMin = Math.max(0, 30 - (diffMin % 30));
+                    nextLabel = nextMin > 0 ? ` &middot; next ~${nextMin}m` : ' &middot; due now';
+                }
+                el.innerHTML = `&middot; <span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${color};vertical-align:middle;margin:0 3px;animation:${diffMin < 60 ? 'pulse 2s ease-in-out infinite' : 'none'};" title="Last heartbeat: ${absTime}"></span><span style="color:${color};" title="Last heartbeat: ${absTime}">${label}</span>${nextLabel}${cycleLabel}`;
             }
             updateHeartbeatStatus();
             setInterval(updateHeartbeatStatus, 60000);
