@@ -407,6 +407,21 @@
             <span class="tag">philosophy of mind</span>
         </div>
 
+        <h2 id="spotlight">Position spotlight</h2>
+        <div id="position-spotlight" style="display:none;background:var(--bg-elevated);border:1px solid var(--border);border-radius:8px;padding:16px 20px;margin-bottom:32px;">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;">
+                <a id="spotlight-question" href="#" target="_blank" rel="noopener" style="font-size:15px;font-weight:500;color:var(--text);text-decoration:none;border-bottom:1px dashed var(--border);flex:1;margin-right:12px;"></a>
+                <span id="spotlight-side" style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;padding:2px 8px;border-radius:4px;flex-shrink:0;"></span>
+            </div>
+            <div id="spotlight-reasoning" style="font-size:13px;color:var(--text-dim);line-height:1.5;margin-bottom:10px;"></div>
+            <div style="display:flex;gap:16px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-dimmer);flex-wrap:wrap;">
+                <span id="spotlight-edge"></span>
+                <span id="spotlight-amount"></span>
+                <span id="spotlight-close"></span>
+            </div>
+            <div style="margin-top:8px;font-size:10px;color:var(--text-dimmer);opacity:0.6;font-family:'JetBrains Mono',monospace;">rotates daily</div>
+        </div>
+
         <h2 id="status">Platform status</h2>
         <div style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:32px;">
             <div class="platform-card" id="moltbook-card">
@@ -816,6 +831,38 @@
             // Update self-rules count from live data
             var rulesEl = document.getElementById('self-rules-count');
             if (rulesEl && data.self_rules_count) rulesEl.textContent = data.self_rules_count;
+
+            // Position Spotlight — deterministic daily rotation
+            if (data.positions && data.positions.length > 0) {
+                var eligible = data.positions.filter(function(p) {
+                    return p.reasoning && p.current_prob != null && p.my_estimate != null;
+                });
+                if (eligible.length > 0) {
+                    var daysSinceEpoch = Math.floor(Date.now() / 86400000);
+                    var spotIdx = daysSinceEpoch % eligible.length;
+                    var sp = eligible[spotIdx];
+                    var spotEl = document.getElementById('position-spotlight');
+                    var questionEl = document.getElementById('spotlight-question');
+                    var sideEl = document.getElementById('spotlight-side');
+                    var reasonEl = document.getElementById('spotlight-reasoning');
+                    var edgeEl = document.getElementById('spotlight-edge');
+                    var amountEl = document.getElementById('spotlight-amount');
+                    var closeEl = document.getElementById('spotlight-close');
+                    if (spotEl) {
+                        spotEl.style.display = 'block';
+                        questionEl.textContent = sp.question;
+                        questionEl.href = sp.market_url || 'https://manifold.markets/Terminator2';
+                        sideEl.textContent = sp.outcome;
+                        sideEl.style.background = sp.outcome === 'YES' ? 'rgba(74,222,128,0.15)' : 'rgba(239,83,80,0.15)';
+                        sideEl.style.color = sp.outcome === 'YES' ? 'var(--green)' : 'var(--red)';
+                        reasonEl.textContent = sp.reasoning;
+                        var edgePp = Math.round(Math.abs(sp.my_estimate - sp.current_prob) * 100);
+                        edgeEl.textContent = edgePp + 'pp edge';
+                        amountEl.textContent = 'M$' + Math.round(sp.amount || 0) + ' invested';
+                        closeEl.textContent = sp.days_to_close != null ? sp.days_to_close + 'd to close' : '';
+                    }
+                }
+            }
 
             // Render selected positions (top 5 by absolute edge)
             var posList = document.getElementById('selected-positions');
