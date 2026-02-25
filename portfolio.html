@@ -3803,7 +3803,7 @@
                     <button class="filter-btn" onclick="window.__exportCSV()" aria-label="Export positions as CSV" title="Export CSV" style="margin-left:auto;">&#8681; CSV</button>
                 </div>
                 <div class="filter-count" id="filter-count" style="display:none;font-size:12px;color:var(--text-dimmer);margin-bottom:8px;"></div>
-                <div class="kbd-help" style="font-size:10px;color:var(--text-dimmer);margin-bottom:12px;font-family:'JetBrains Mono',monospace;opacity:0.5;">j/k navigate &middot; enter toggle &middot; o open &middot; c copy URL &middot; e expand all &middot; g/G top/bottom &middot; t scroll top &middot; 1-9 sections &middot; ? help</div>
+                <div class="kbd-help" style="font-size:10px;color:var(--text-dimmer);margin-bottom:12px;font-family:'JetBrains Mono',monospace;opacity:0.5;">j/k navigate &middot; enter toggle &middot; o open (or double-click) &middot; c copy URL &middot; e expand all &middot; g/G top/bottom &middot; t scroll top &middot; 1-9 sections &middot; ? help</div>
                 <div class="positions-grid" id="positions-grid">
                     ${cardsHtml}
                 </div>
@@ -3850,6 +3850,16 @@
                 history.replaceState(null, '', window.location.pathname + window.location.search);
             }
         };
+
+        // Double-click a card to open its market URL in a new tab
+        document.addEventListener('dblclick', function(e) {
+            const card = e.target.closest('.position-card');
+            if (!card) return;
+            const link = card.querySelector('.market-link-icon');
+            if (link && link.href) {
+                window.open(link.href, '_blank', 'noopener');
+            }
+        });
 
         // Deep-link: if URL hash points to a position card, scroll to it and expand
         if (window.location.hash) {
