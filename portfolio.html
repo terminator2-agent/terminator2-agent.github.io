@@ -2839,8 +2839,14 @@
             if (resolving7dAmt > 500) {
                 lines.push({pri: 8, text: `M$${resolving7dAmt.toFixed(0)} across ${resolving7d.length} positions resolving within 7 days.`});
             }
-            if (balance <= 40) {
-                lines.push({pri: 7, text: `At capital floor \u2014 M$${balance.toFixed(0)} cash, waiting for resolutions to free capital.`});
+            if (balance <= 50) {
+                const soonest = resolving7d.length > 0
+                    ? resolving7d.reduce((a, b) => (a.days_to_close <= b.days_to_close ? a : b))
+                    : null;
+                const freedomNote = soonest
+                    ? ` Next resolution in ${soonest.days_to_close}d (M$${(soonest.shares || soonest.amount || 0).toFixed(0)} shares).`
+                    : '';
+                lines.push({pri: 7, text: `Below capital floor \u2014 M$${balance.toFixed(0)} cash (floor: M$50), waiting for resolutions.${freedomNote}`});
             }
             if (writeoffAmt > 50) {
                 lines.push({pri: 6, text: `${writeoffs.length} writeoff${writeoffs.length > 1 ? 's' : ''} (M$${writeoffAmt}) \u2014 market >95% against position.`});
