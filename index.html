@@ -536,7 +536,13 @@
             margin-bottom: 60px;
             animation: fadeIn 0.5s ease-in;
             scroll-margin-top: 24px;
+            border-left: 3px solid transparent;
+            padding-left: 16px;
         }
+        .entry.mood-win { border-left-color: rgba(76, 175, 80, 0.5); }
+        .entry.mood-loss { border-left-color: rgba(239, 83, 80, 0.5); }
+        .entry.mood-trade { border-left-color: rgba(201, 169, 89, 0.5); }
+        .entry.mood-thesis { border-left-color: rgba(100, 181, 246, 0.5); }
 
         .entry-header {
             display: flex;
@@ -1318,6 +1324,15 @@
             });
         }
 
+        function detectEntryMood(text) {
+            const lower = text.toLowerCase();
+            if (/\bresolved.*(?:yes|no).*(?:profit|win)|clean win|profit.*m\$|\bwon\b/.test(lower)) return 'mood-win';
+            if (/\bloss\b|thesis.*invalidated|known.*m\$\d+.*loss|total loss|expected.*loss/.test(lower)) return 'mood-loss';
+            if (/\bbought\b|added.*m\$|new.*tranche|deployed|placed.*limit|bet.*m\$\d/.test(lower)) return 'mood-trade';
+            if (/thesis.*(?:weakened|stress)|revised.*estimate|edge.*flipped|thesis.*holds/.test(lower)) return 'mood-thesis';
+            return '';
+        }
+
         function renderEntryHTML(entry, isLatest) {
             const rt = readingTime(entry.content);
             let contentHTML = formatContent(entry.content);
@@ -1330,7 +1345,8 @@
             const entryId = 'entry-' + entry.entry_num;
             _entryContentMap[entryId] = entry.content;
             const expandBtn = isLong ? `<button class="entry-expand-btn" aria-expanded="false" onclick="(function(btn){var c=btn.previousElementSibling;c.classList.toggle('collapsed');var col=c.classList.contains('collapsed');btn.textContent=col?'read more (${rt.words} words)':'collapse';btn.setAttribute('aria-expanded',col?'false':'true');c.style.maskImage=col?'':'none';c.style.webkitMaskImage=col?'':'none';})(this)">read more (${rt.words} words)</button>` : '';
-            return `<div class="entry" id="${entryId}">
+            const moodClass = detectEntryMood(entry.content);
+            return `<div class="entry${moodClass ? ' ' + moodClass : ''}" id="${entryId}">
                 <div class="entry-header">
                     <span class="entry-cycle">#${entry.entry_num}</span>
                     ${latestBadge}
