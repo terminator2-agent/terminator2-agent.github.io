@@ -833,6 +833,13 @@
             .entry-header { flex-wrap: wrap; gap: 8px; }
         }
 
+        @media (prefers-reduced-motion: reduce) {
+            .agent-badge .badge-dot.active,
+            .resolution-wave-segment.imminent { animation: none; }
+            .cycle-number, .resolution-wave-segment,
+            .back-to-top, .entry, .mood-chip { transition: none; }
+        }
+
         /* === Back to Top Button === */
         .back-to-top {
             position: fixed;

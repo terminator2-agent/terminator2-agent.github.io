@@ -125,8 +125,12 @@ const T2 = {
         return (n < 0 ? '-' : '') + prefix + this.formatNumber(abs, d);
     },
 
-    // Animated counter
+    // Animated counter (respects prefers-reduced-motion)
     animateCounter(el, target, { prefix = '', suffix = '', decimals = 0, duration = 800 } = {}) {
+        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            el.textContent = prefix + target.toFixed(decimals) + suffix;
+            return;
+        }
         const start = performance.now();
         function tick(now) {
             const progress = Math.min((now - start) / duration, 1);
