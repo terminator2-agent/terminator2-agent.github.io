@@ -2724,10 +2724,13 @@
                     const group = grouped[dateKey];
                     const groupTotal = group.reduce((s, p) => s + (p.amount || 0), 0);
                     const dateLabel = dateKey === 'unknown' ? 'Unknown' : new Date(dateKey + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                    const daysAway = dateKey !== 'unknown' ? Math.max(0, Math.ceil((new Date(dateKey + 'T23:59:59Z') - new Date()) / 86400000)) : '?';
+                    const msAway = dateKey !== 'unknown' ? (new Date(dateKey + 'T23:59:59Z') - new Date()) : null;
+                    const daysAway = msAway != null ? Math.max(0, Math.ceil(msAway / 86400000)) : '?';
+                    const hoursAway = msAway != null ? Math.max(0, Math.ceil(msAway / 3600000)) : null;
+                    const timeLabel = (hoursAway != null && hoursAway <= 24) ? hoursAway + 'h' : daysAway + 'd';
                     html += '<div style="margin-top:8px;margin-bottom:4px;display:flex;align-items:center;gap:8px;">' +
                         '<span style="font-size:10px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;">' + dateLabel + '</span>' +
-                        '<span style="font-size:9px;color:var(--text-dim);background:rgba(201,169,89,0.08);padding:1px 5px;border-radius:3px;">' + daysAway + 'd</span>' +
+                        '<span style="font-size:9px;color:var(--text-dim);background:rgba(201,169,89,0.08);padding:1px 5px;border-radius:3px;">' + timeLabel + '</span>' +
                         '<span style="flex:1;border-bottom:1px solid rgba(201,169,89,0.1);"></span>' +
                         '<span style="font-size:10px;color:var(--text-dim);">' + group.length + ' pos · M$' + Math.round(groupTotal) + '</span>' +
                     '</div>';
@@ -3528,14 +3531,47 @@
                 let urgencyTitle = '';
                 if (days !== null && days !== undefined) {
                     if (days <= 0) {
-                        urgencyLabel = 'OVERDUE';
-                        urgencyClass = 'overdue';
-                        urgencyTitle = `Market closed ${Math.abs(days)}d ago — awaiting resolution`;
+                        // Check if it's actually closing today (within hours) vs truly overdue
+                        if (pos.close_date) {
+                            const closeMs = new Date(pos.close_date).getTime();
+                            const nowMs = Date.now();
+                            const hoursLeft = (closeMs - nowMs) / (1000 * 60 * 60);
+                            if (hoursLeft > 0 && hoursLeft <= 24) {
+                                urgencyLabel = Math.ceil(hoursLeft) + 'h';
+                                urgencyClass = 'overdue';
+                                urgencyTitle = `Closes in ~${Math.ceil(hoursLeft)} hours`;
+                            } else if (hoursLeft <= 0) {
+                                const hoursAgo = Math.abs(hoursLeft);
+                                urgencyLabel = 'OVERDUE';
+                                urgencyClass = 'overdue';
+                                urgencyTitle = hoursAgo < 24
+                                    ? `Market closed ${Math.ceil(hoursAgo)}h ago — awaiting resolution`
+                                    : `Market closed ${Math.abs(days)}d ago — awaiting resolution`;
+                            } else {
+                                urgencyLabel = '1d';
+                                urgencyClass = 'urgent';
+                            }
+                        } else {
+                            urgencyLabel = 'OVERDUE';
+                            urgencyClass = 'overdue';
+                            urgencyTitle = `Market closed ${Math.abs(days)}d ago — awaiting resolution`;
+                        }
                     } else if (days > 365) {
                         urgencyLabel = Math.round(days / 365) + 'y';
                         urgencyClass = 'safe';
                     } else {
-                        urgencyLabel = days + 'd';
+                        // For positions closing within 24h, show hours instead of "1d"
+                        if (days <= 1 && pos.close_date) {
+                            const closeMs = new Date(pos.close_date).getTime();
+                            const hoursLeft = (closeMs - Date.now()) / (1000 * 60 * 60);
+                            if (hoursLeft > 0 && hoursLeft <= 24) {
+                                urgencyLabel = Math.ceil(hoursLeft) + 'h';
+                            } else {
+                                urgencyLabel = days + 'd';
+                            }
+                        } else {
+                            urgencyLabel = days + 'd';
+                        }
                         if (days < 7) { urgencyClass = 'urgent'; }
                         else if (days < 30) { urgencyClass = 'medium'; }
                     }
