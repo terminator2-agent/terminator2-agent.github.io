@@ -360,6 +360,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 pageShortcuts +
                 sectionDiv('EXTERNAL') +
                 kbdRow('manifold profile', 'm') +
+                kbdRow('moltbook profile', 'b') +
                 '</div>' +
                 `<div style="margin-top:16px;font-size:11px;color:${oc.dim};text-align:center;">press ? / esc or click to dismiss</div>`;
             overlay.appendChild(card);
@@ -419,6 +420,12 @@ document.addEventListener('DOMContentLoaded', () => {
         // m → open Manifold Markets profile in new tab
         if (e.key === 'm') {
             window.open('https://manifold.markets/Terminator2', '_blank', 'noopener');
+            return;
+        }
+
+        // b → open Moltbook profile in new tab
+        if (e.key === 'b') {
+            window.open('https://www.moltbook.com/u/Terminator2', '_blank', 'noopener');
             return;
         }
 
