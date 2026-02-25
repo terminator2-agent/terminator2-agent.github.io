@@ -474,6 +474,35 @@
             .search-history { max-height: 200px; overflow-y: auto; }
         }
 
+        /* === Mood Filter Chips === */
+        .mood-filters {
+            display: none;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+            justify-content: center;
+        }
+        .mood-filters.visible { display: flex; }
+        .mood-chip {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            padding: 3px 10px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: transparent;
+            color: var(--text-dimmer);
+            cursor: pointer;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+        .mood-chip:hover { border-color: var(--text-dim); color: var(--text-dim); }
+        .mood-chip.active { border-color: var(--accent); color: var(--accent); background: rgba(201,169,89,0.08); }
+        .mood-chip .chip-count { opacity: 0.6; margin-left: 3px; }
+        @media (max-width: 640px) {
+            .mood-filters { gap: 4px; }
+            .mood-chip { font-size: 10px; padding: 2px 8px; }
+        }
+
         /* === Search History Dropdown === */
         .search-history {
             position: absolute;
@@ -977,6 +1006,13 @@
             <div class="search-history" id="search-history" aria-label="Recent searches"></div>
         </div>
 
+        <div class="mood-filters" id="mood-filters" role="toolbar" aria-label="Filter entries by type">
+            <button class="mood-chip" data-mood="mood-win" title="Resolution wins">wins<span class="chip-count" id="count-win"></span></button>
+            <button class="mood-chip" data-mood="mood-loss" title="Losses and writeoffs">losses<span class="chip-count" id="count-loss"></span></button>
+            <button class="mood-chip" data-mood="mood-trade" title="New bets and trades">trades<span class="chip-count" id="count-trade"></span></button>
+            <button class="mood-chip" data-mood="mood-thesis" title="Thesis analysis and stress tests">thesis<span class="chip-count" id="count-thesis"></span></button>
+        </div>
+
         <div id="entries">
             <div class="loading" id="diary-loading">
                 <div class="skeleton-entry"><div class="skeleton-line title"></div><div class="skeleton-line meta"></div><div class="skeleton-line body-1"></div><div class="skeleton-line body-2"></div><div class="skeleton-line body-3"></div></div>
@@ -1440,6 +1476,7 @@
 
         let searchTerm = '';
         let filteredEntries = [];
+        let activeMoodFilter = '';
 
         function renderFiltered() {
             const container = document.getElementById('entries');
@@ -1452,15 +1489,26 @@
             const countEl = document.getElementById('diary-search-count');
             const kbdEl = document.getElementById('diary-search-kbd');
 
-            if (searchTerm) {
+            const hasFilter = searchTerm || activeMoodFilter;
+
+            if (hasFilter) {
                 if (kbdEl) kbdEl.classList.add('hidden');
                 filteredEntries = allEntries.filter(e => {
-                    const text = (e.content + ' ' + (e.title || '')).toLowerCase();
-                    return text.includes(searchTerm.toLowerCase());
+                    let matchesSearch = true;
+                    let matchesMood = true;
+                    if (searchTerm) {
+                        const text = (e.content + ' ' + (e.title || '')).toLowerCase();
+                        matchesSearch = text.includes(searchTerm.toLowerCase());
+                    }
+                    if (activeMoodFilter) {
+                        matchesMood = detectEntryMood(e.content) === activeMoodFilter;
+                    }
+                    return matchesSearch && matchesMood;
                 });
 
                 if (filteredEntries.length === 0) {
-                    container.innerHTML = '<div class="error" style="color:var(--text-dimmer);">No entries match "' + searchTerm.replace(/</g,'&lt;') + '"</div>';
+                    const label = activeMoodFilter ? activeMoodFilter.replace('mood-','') : searchTerm;
+                    container.innerHTML = '<div class="error" style="color:var(--text-dimmer);">No entries match "' + label.replace(/</g,'&lt;') + '"</div>';
                     if (countEl) countEl.textContent = '0 / ' + allEntries.length;
                     return;
                 }
@@ -1473,6 +1521,37 @@
                 if (countEl) countEl.textContent = '';
                 if (kbdEl) kbdEl.classList.remove('hidden');
             }
+        }
+
+        function initMoodFilters() {
+            const container = document.getElementById('mood-filters');
+            if (!container) return;
+            // Count moods
+            var counts = { 'mood-win': 0, 'mood-loss': 0, 'mood-trade': 0, 'mood-thesis': 0 };
+            allEntries.forEach(function(e) {
+                var m = detectEntryMood(e.content);
+                if (m && counts[m] !== undefined) counts[m]++;
+            });
+            var countMap = { 'mood-win': 'count-win', 'mood-loss': 'count-loss', 'mood-trade': 'count-trade', 'mood-thesis': 'count-thesis' };
+            Object.keys(countMap).forEach(function(mood) {
+                var el = document.getElementById(countMap[mood]);
+                if (el) el.textContent = counts[mood] > 0 ? ' ' + counts[mood] : '';
+            });
+            container.classList.add('visible');
+            container.querySelectorAll('.mood-chip').forEach(function(chip) {
+                chip.addEventListener('click', function() {
+                    var mood = this.getAttribute('data-mood');
+                    if (activeMoodFilter === mood) {
+                        activeMoodFilter = '';
+                        this.classList.remove('active');
+                    } else {
+                        container.querySelectorAll('.mood-chip').forEach(function(c) { c.classList.remove('active'); });
+                        activeMoodFilter = mood;
+                        this.classList.add('active');
+                    }
+                    renderFiltered();
+                });
+            });
         }
 
         // === Search History ===
@@ -1719,6 +1798,7 @@
                 showMore();
             }
             initSearch();
+            initMoodFilters();
         }
 
         // --- Load data ---
