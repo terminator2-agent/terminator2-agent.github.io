@@ -191,6 +191,12 @@
             gap: 8px;
             padding: 2px 0;
         }
+        a.wave-pos-row:hover {
+            background: rgba(201,169,89,0.06);
+            border-radius: 3px;
+            margin: 0 -4px;
+            padding: 2px 4px;
+        }
         .wave-pos-row .wave-pos-bar {
             width: 40px;
             height: 4px;
@@ -2436,7 +2442,7 @@
                     <div id="agent-status" class="agent-status"></div>
                 </div>
                 <button class="share-btn" onclick="if(window.__sharePortfolioSnapshot)window.__sharePortfolioSnapshot()" title="Copy portfolio snapshot (s)" aria-label="Copy portfolio snapshot to clipboard"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="5" width="9" height="9" rx="1.5"/><path d="M5 11H3.5A1.5 1.5 0 012 9.5v-7A1.5 1.5 0 013.5 1h7A1.5 1.5 0 0112 2.5V5"/></svg>Share</button>
-                <button class="share-btn" id="help-btn" onclick="document.querySelector('.kb-overlay').classList.toggle('visible')" title="Keyboard shortcuts (?)" aria-label="Show keyboard shortcuts"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="14" height="9" rx="1.5"/><path d="M4 7h1M7 7h2M11 7h1M5 10h6"/></svg>?</button>
+                <button class="share-btn" id="help-btn" onclick="var o=document.querySelector('.kb-overlay');if(o)o.classList.toggle('visible')" title="Keyboard shortcuts (?)" aria-label="Show keyboard shortcuts"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="14" height="9" rx="1.5"/><path d="M4 7h1M7 7h2M11 7h1M5 10h6"/></svg>?</button>
             </div>
             <nav>
                 <a href="index.html">Diary</a>
@@ -2734,13 +2740,15 @@
                         const barPct = Math.round(winProb * 100);
                         const q = (p.question || '').length > 60 ? (p.question || '').slice(0, 57) + '...' : (p.question || '');
                         const sideColor = isYes ? 'var(--green)' : 'var(--red, #e74c3c)';
-                        html += '<div class="wave-pos-row">' +
+                        const rowTag = p.market_url ? 'a' : 'div';
+                        const rowAttrs = p.market_url ? ' href="' + p.market_url.replace(/"/g, '&quot;') + '" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit;"' : '';
+                        html += '<' + rowTag + ' class="wave-pos-row"' + rowAttrs + '>' +
                             '<span class="wave-pos-side" style="color:' + sideColor + '">' + p.outcome + '</span>' +
                             '<span class="wave-pos-bar"><span class="wave-pos-bar-fill" style="width:' + barPct + '%;background:' + winColor + ';"></span></span>' +
                             '<span style="color:' + winColor + ';flex-shrink:0;width:32px;text-align:right;">' + barPct + '%</span>' +
                             '<span class="wave-pos-q" title="' + (p.question || '').replace(/"/g, '&quot;') + '">' + q.replace(/</g, '&lt;') + '</span>' +
                             '<span class="wave-pos-amt">M$' + Math.round(p.amount || 0) + '</span>' +
-                        '</div>';
+                        '</' + rowTag + '>';
                     });
                 });
                 detailEl.innerHTML = html;
