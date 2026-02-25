@@ -2722,6 +2722,27 @@
                 });
                 const sortedDates = Object.keys(grouped).sort();
                 let html = '';
+                // Timeline strip: compact day-by-day breakdown
+                if (sortedDates.length > 1) {
+                    const totalAmt = positions.reduce((s, p) => s + (p.amount || 0), 0);
+                    html += '<div style="display:flex;gap:2px;margin-bottom:10px;border-radius:4px;overflow:hidden;height:22px;">';
+                    sortedDates.forEach(dateKey => {
+                        const group = grouped[dateKey];
+                        const groupAmt = group.reduce((s, p) => s + (p.amount || 0), 0);
+                        const pct = totalAmt > 0 ? (groupAmt / totalAmt * 100) : 0;
+                        if (pct < 1) return;
+                        const dateLabel = dateKey === 'unknown' ? '?' : new Date(dateKey + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                        const avgWinProb = group.reduce((s, p) => {
+                            const prob = p.current_prob != null ? p.current_prob : 0.5;
+                            return s + (p.outcome === 'YES' ? prob : 1 - prob);
+                        }, 0) / group.length;
+                        const bgColor = avgWinProb >= 0.7 ? 'rgba(46,204,113,0.25)' : avgWinProb <= 0.3 ? 'rgba(231,76,60,0.25)' : 'rgba(201,169,89,0.15)';
+                        html += '<div style="flex:' + pct.toFixed(1) + ';background:' + bgColor + ';display:flex;align-items:center;justify-content:center;min-width:40px;cursor:default;" title="' + dateLabel + ': ' + group.length + ' positions, M$' + Math.round(groupAmt) + '">' +
+                            '<span style="font-size:9px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 4px;">' + dateLabel + ' · M$' + Math.round(groupAmt) + '</span>' +
+                        '</div>';
+                    });
+                    html += '</div>';
+                }
                 sortedDates.forEach(dateKey => {
                     const group = grouped[dateKey];
                     const groupTotal = group.reduce((s, p) => s + (p.amount || 0), 0);
