@@ -978,9 +978,9 @@ document.addEventListener('DOMContentLoaded', () => {
         'color:#555;font-size:11px;font-family:monospace'
     );
 
-    // Speculative link prefetching — prefetch same-origin pages on hover
+    // Speculative link prefetching — prefetch same-origin pages on hover/touch
     const prefetched = new Set();
-    document.addEventListener('pointerenter', (e) => {
+    function prefetchLink(e) {
         const a = e.target.closest('a[href]');
         if (!a) return;
         const href = a.getAttribute('href');
@@ -995,7 +995,10 @@ document.addEventListener('DOMContentLoaded', () => {
             link.href = url.pathname;
             document.head.appendChild(link);
         } catch (e) { /* ignore malformed URLs */ }
-    }, true);
+    }
+    document.addEventListener('pointerenter', prefetchLink, true);
+    // touchstart fires ~100ms before click — gives the browser a head start on mobile
+    document.addEventListener('touchstart', prefetchLink, {passive: true, capture: true});
 
     // First-visit keyboard shortcut hint
     if (!T2.load('t2_kbd_seen')) {
