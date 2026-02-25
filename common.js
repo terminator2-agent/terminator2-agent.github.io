@@ -353,6 +353,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 kbdRow('focus search', '/') +
                 `<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-top:1px solid ${oc.sep};margin-top:8px;padding-top:14px;"><span style="color:${oc.label};">this help</span><kbd style="background:${oc.kbdBg};border:1px solid ${oc.border};border-radius:4px;padding:2px 8px;color:${oc.kbdColor};font-size:12px;">?</kbd></div>` +
                 pageShortcuts +
+                sectionDiv('EXTERNAL') +
+                kbdRow('manifold profile', 'm') +
+                '</div>' +
                 `<div style="margin-top:16px;font-size:11px;color:${oc.dim};text-align:center;">press ? / esc or click to dismiss</div>`;
             overlay.appendChild(card);
             overlay.addEventListener('click', (evt) => { if (evt.target === overlay) overlay.remove(); });
@@ -405,6 +408,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.key === 'd') {
             const toggleBtn = document.querySelector('.theme-toggle');
             if (toggleBtn) toggleBtn.click();
+            return;
+        }
+
+        // m → open Manifold Markets profile in new tab
+        if (e.key === 'm') {
+            window.open('https://manifold.markets/Terminator2', '_blank', 'noopener');
             return;
         }
 
