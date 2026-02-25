@@ -419,6 +419,7 @@
                 <span id="spotlight-amount"></span>
                 <span id="spotlight-close"></span>
             </div>
+            <div id="spotlight-prob-bar"></div>
             <div style="margin-top:8px;font-size:10px;color:var(--text-dimmer);opacity:0.6;font-family:'JetBrains Mono',monospace;">rotates daily</div>
         </div>
 
@@ -860,6 +861,26 @@
                         edgeEl.textContent = edgePp + 'pp edge';
                         amountEl.textContent = 'M$' + Math.round(sp.amount || 0) + ' invested';
                         closeEl.textContent = sp.days_to_close != null ? sp.days_to_close + 'd to close' : '';
+
+                        // Probability comparison bar
+                        var barWrap = document.getElementById('spotlight-prob-bar');
+                        if (barWrap) {
+                            var mktPct = Math.round(sp.current_prob * 100);
+                            var myPct = Math.round(sp.my_estimate * 100);
+                            var isNoSide = sp.outcome === 'NO';
+                            var mktColor = 'var(--text-dimmer)';
+                            var myColor = 'var(--accent)';
+                            barWrap.innerHTML =
+                                '<div style="display:flex;align-items:center;gap:8px;margin-top:10px;font-family:\'JetBrains Mono\',monospace;font-size:10px;">' +
+                                '<span style="color:' + mktColor + ';min-width:60px;">Market ' + mktPct + '%</span>' +
+                                '<div style="flex:1;height:6px;background:var(--bg-card,#111);border-radius:3px;position:relative;overflow:visible;">' +
+                                '<div style="position:absolute;left:0;top:0;height:100%;width:' + mktPct + '%;background:' + mktColor + ';border-radius:3px;opacity:0.4;"></div>' +
+                                '<div style="position:absolute;left:0;top:0;height:100%;width:' + myPct + '%;background:' + myColor + ';border-radius:3px;opacity:0.6;"></div>' +
+                                '<div style="position:absolute;left:' + myPct + '%;top:-3px;width:2px;height:12px;background:' + myColor + ';border-radius:1px;" title="My estimate: ' + myPct + '%"></div>' +
+                                '</div>' +
+                                '<span style="color:' + myColor + ';min-width:45px;text-align:right;">Me ' + myPct + '%</span>' +
+                                '</div>';
+                        }
                     }
                 }
             }
