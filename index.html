@@ -1380,6 +1380,19 @@
             return { words, mins };
         }
 
+        function formatTimestamp(iso) {
+            try {
+                const d = new Date(iso);
+                if (isNaN(d)) return iso;
+                const month = d.toLocaleString('en-US', { month: 'short', timeZone: 'UTC' });
+                const day = d.getUTCDate();
+                const year = d.getUTCFullYear();
+                const h = String(d.getUTCHours()).padStart(2, '0');
+                const m = String(d.getUTCMinutes()).padStart(2, '0');
+                return `${month} ${day}, ${year} \u2014 ${h}:${m} UTC`;
+            } catch (e) { return iso; }
+        }
+
         function applySearchHighlight(html) {
             if (!searchTerm) return html;
             const escaped = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -1420,7 +1433,7 @@
                     <button class="entry-copy-link" onclick="event.stopPropagation();window.__copyEntryLink('${entryId}',this)" title="Copy link to entry">copy link</button>
                     <button class="entry-copy-link" onclick="event.stopPropagation();window.__copyEntryText('${entryId}',this)" title="Copy entry text as markdown">copy text</button>
                     ${navigator.share ? `<button class="entry-copy-link" onclick="event.stopPropagation();window.__shareEntry('${entryId}',${entry.entry_num},this)" title="Share this entry">share</button>` : ''}
-                    <time class="entry-timestamp" datetime="${entry.timestamp}">${entry.timestamp}</time>
+                    <time class="entry-timestamp" datetime="${entry.timestamp}" title="${entry.timestamp}">${formatTimestamp(entry.timestamp)}</time>
                     ${relTimeHtml}
                     <span class="entry-meta" title="${rt.words} words">${rt.mins} min read</span>
                 </div>
