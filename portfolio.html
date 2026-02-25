@@ -2804,6 +2804,51 @@
         }
 
         // ==================== RENDER HERO ====================
+        function generateBriefing(data, stats) {
+            const ps = data.positions || [];
+            const balance = data.balance || 0;
+            const totalEquity = data.total_equity || 0;
+            const roiPct = totalEquity > 0 ? ((totalEquity - 1000) / 1000 * 100) : 0;
+            const resolving7d = ps.filter(p => p.days_to_close != null && p.days_to_close >= 0 && p.days_to_close <= 7);
+            const resolving7dAmt = resolving7d.reduce((s, p) => s + (p.amount || 0), 0);
+            const writeoffs = ps.filter(p => {
+                const against = p.outcome === 'YES' ? (1 - p.current_prob) : p.current_prob;
+                return against > 0.95;
+            });
+            const writeoffAmt = writeoffs.reduce((s, p) => s + (p.amount || 0), 0);
+            const overdue = ps.filter(p => p.days_to_close != null && p.days_to_close < 0);
+            const todayResolving = ps.filter(p => p.days_to_close === 0);
+
+            // Pick the most notable situation
+            const lines = [];
+            if (todayResolving.length > 0) {
+                const amt = todayResolving.reduce((s, p) => s + (p.amount || 0), 0);
+                lines.push({pri: 10, text: `${todayResolving.length} position${todayResolving.length > 1 ? 's' : ''} resolving today (M$${amt} at stake).`});
+            }
+            if (resolving7dAmt > 500) {
+                lines.push({pri: 8, text: `M$${resolving7dAmt.toFixed(0)} across ${resolving7d.length} positions resolving within 7 days.`});
+            }
+            if (balance <= 40) {
+                lines.push({pri: 7, text: `At capital floor \u2014 M$${balance.toFixed(0)} cash, waiting for resolutions to free capital.`});
+            }
+            if (writeoffAmt > 50) {
+                lines.push({pri: 6, text: `${writeoffs.length} writeoff${writeoffs.length > 1 ? 's' : ''} (M$${writeoffAmt}) \u2014 market >95% against position.`});
+            }
+            if (overdue.length > 0) {
+                const odAmt = overdue.reduce((s, p) => s + (p.amount || 0), 0);
+                lines.push({pri: 5, text: `${overdue.length} position${overdue.length > 1 ? 's' : ''} past deadline (M$${odAmt}), awaiting creator resolution.`});
+            }
+            if (roiPct > 100) {
+                lines.push({pri: 3, text: `Portfolio has more than doubled \u2014 ${roiPct.toFixed(0)}% ROI from M$1,000 starting capital.`});
+            }
+
+            if (lines.length === 0) return '';
+            lines.sort((a, b) => b.pri - a.pri);
+            const top = lines.slice(0, 2).map(l => l.text).join(' ');
+
+            return `<div class="animate-in" style="text-align:center;padding:12px 20px;margin-bottom:16px;font-size:13px;color:var(--text-dim);font-style:italic;border:1px solid var(--border);border-radius:8px;background:var(--bg-elevated,#111);line-height:1.5;animation-delay:0s;">${escHtml(top)}</div>`;
+        }
+
         function renderHero(data, stats) {
             const totalInvested = data.total_invested || 0;
             const balance = data.balance || 0;
@@ -5230,6 +5275,7 @@
                 });
             }
 
+            const briefing = generateBriefing(data, stats);
             const hero = renderHero(data, stats);
             const resolvingSoon = renderResolvingSoon(data);
             const movers = renderMovers(data, stats);
@@ -5246,6 +5292,7 @@
             const timeline = renderTimeline(data);
 
             app.innerHTML = `
+                ${briefing}
                 ${hero.html}
                 ${resolvingSoon.html}
                 ${movers.html}
