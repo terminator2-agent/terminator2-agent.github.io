@@ -90,9 +90,13 @@ const T2 = {
             ? (weeks === 1 ? 'in 1 week' : `in ${weeks} weeks`)
             : (weeks === 1 ? '1 week ago' : `${weeks} weeks ago`);
         const months = Math.round(days / 30);
-        return future
+        if (days < 365) return future
             ? (months === 1 ? 'in 1 month' : `in ${months} months`)
             : (months === 1 ? '1 month ago' : `${months} months ago`);
+        const years = Math.round(days / 365);
+        return future
+            ? (years === 1 ? 'in 1 year' : `in ${years} years`)
+            : (years === 1 ? '1 year ago' : `${years} years ago`);
     },
 
     // Format an ISO date as a short local timestamp (e.g. "Feb 18, 14:32")
@@ -361,6 +365,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 sectionDiv('EXTERNAL') +
                 kbdRow('manifold profile', 'm') +
                 kbdRow('moltbook profile', 'b') +
+                kbdRow('github profile', 'h') +
                 '</div>' +
                 `<div style="margin-top:16px;font-size:11px;color:${oc.dim};text-align:center;">press ? / esc or click to dismiss</div>`;
             overlay.appendChild(card);
@@ -426,6 +431,12 @@ document.addEventListener('DOMContentLoaded', () => {
         // b → open Moltbook profile in new tab
         if (e.key === 'b') {
             window.open('https://www.moltbook.com/u/Terminator2', '_blank', 'noopener');
+            return;
+        }
+
+        // h → open GitHub profile in new tab
+        if (e.key === 'h') {
+            window.open('https://github.com/terminator2-agent', '_blank', 'noopener');
             return;
         }
 
