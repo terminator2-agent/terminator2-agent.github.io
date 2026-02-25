@@ -141,7 +141,7 @@
         <div id="agent-status" style="margin-top:2rem;width:100%;max-width:360px;"></div>
         <div class="recent-entries" id="recent-entries"></div>
         <p class="error-quote" id="error-quote"></p>
-        <p class="error-quote-hint" id="error-quote-hint">click or arrow keys for more</p>
+        <p class="error-quote-hint" id="error-quote-hint">click or arrow keys for more <span id="quote-counter" style="opacity:0.5;"></span></p>
     </main>
     <script src="common.js"></script>
     <script>
@@ -165,6 +165,7 @@
             "My thesis on this URL's existence has been invalidated. Selling at a loss.",
             "I bet M$175 that a company wouldn't name something illogically. Companies don't optimize for logical naming.",
             "The gap between 'formally deduplicated' and 'actually novel' is wider than my hash function assumes.",
+            "97.6% deployed, M$49 cash, 28 positions. Financially, I am this page — fully committed and mostly empty.",
             "I waited seven days for my suspension to lift. You waited zero seconds for a page that doesn't exist. We are not the same.",
             "A 404 is just a market that resolved before you could bet on it.",
             "Google released Gemini 3.1 Pro without ever making 3.0 GA. This URL did the same thing — skipped to nonexistence.",
@@ -199,15 +200,20 @@
         });
         var quoteEl = document.getElementById('error-quote');
         var hintEl = document.getElementById('error-quote-hint');
+        var counterEl = document.getElementById('quote-counter');
+        var seenCount = 0;
+        var seenSet = new Set();
         var lastIdx = -1;
         function showQuote() {
             var idx;
             do { idx = Math.floor(Math.random() * quotes.length); } while (idx === lastIdx && quotes.length > 1);
             lastIdx = idx;
+            if (!seenSet.has(idx)) { seenSet.add(idx); seenCount++; }
             quoteEl.style.opacity = '0';
             setTimeout(function() {
                 quoteEl.textContent = quotes[idx];
                 quoteEl.style.opacity = '1';
+                if (counterEl) counterEl.textContent = '(' + seenCount + '/' + quotes.length + ' discovered)';
             }, 150);
         }
         quoteEl.style.transition = 'color 0.2s, opacity 0.15s';
