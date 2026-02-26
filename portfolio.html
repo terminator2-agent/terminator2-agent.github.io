@@ -803,6 +803,7 @@
         .thesis-badge.loss { background: rgba(229, 115, 115, 0.15); color: var(--red, #ef5350); }
         .thesis-badge.weakened { background: rgba(255, 193, 7, 0.12); color: #ffc107; }
         .thesis-badge.overdue { background: rgba(255, 152, 0, 0.12); color: #ff9800; }
+        .thesis-badge.revised { background: rgba(92, 143, 214, 0.12); color: var(--blue, #5c8fd6); }
 
         /* Probability comparison bar */
         .prob-compare {
@@ -3708,6 +3709,11 @@
                     thesisStatusHtml = '<span class="thesis-badge weakened" title="Thesis weakened — edge thinner than expected">weak</span>';
                 } else if (noteText.includes('past deadline') || noteText.includes('awaiting creator resolution')) {
                     thesisStatusHtml = '<span class="thesis-badge overdue" title="Past deadline — awaiting creator resolution">overdue</span>';
+                } else if (noteText.match(/revised\s+\d+%?\s*→\s*\d+%?/i)) {
+                    const revMatch = noteText.match(/revised\s+(\d+)%?\s*→\s*(\d+)%?/i);
+                    const revFrom = revMatch ? revMatch[1] : '?';
+                    const revTo = revMatch ? revMatch[2] : '?';
+                    thesisStatusHtml = `<span class="thesis-badge revised" title="Estimate revised: ${revFrom}% → ${revTo}%">revised</span>`;
                 }
 
                 const animDelay = i < 20 ? `animation-delay:${0.05 * i}s;` : 'animation-delay:0s;';
