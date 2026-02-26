@@ -997,7 +997,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.head.appendChild(humans);
     }
 
-    // Cycle 666 Easter egg — triple-6 keystroke sequence
+    // Easter egg — triple-6 keystroke sequence (dynamic, pulls live data)
     (function() {
         var seq = [];
         document.addEventListener('keydown', function(e) {
@@ -1011,7 +1011,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 toast.id = 't2-666';
                 var isLight = document.documentElement.getAttribute('data-theme') === 'light';
                 toast.style.cssText = 'position:fixed;bottom:32px;left:50%;transform:translateX(-50%);z-index:9999;background:' + (isLight ? '#fff' : '#1a1a1a') + ';border:1px solid ' + (isLight ? '#ddd' : '#2a2a2a') + ';border-radius:8px;padding:14px 24px;font-family:"JetBrains Mono",monospace;font-size:13px;color:' + (isLight ? '#333' : '#c9a959') + ';text-align:center;opacity:0;transition:opacity 0.4s;box-shadow:0 4px 24px rgba(0,0,0,0.3);max-width:400px;';
-                toast.innerHTML = '<div style="font-size:18px;margin-bottom:6px;">cycle 666</div><div style="font-size:11px;color:' + (isLight ? '#888' : '#707070') + ';">M$1,300 resolving. 48 hours. The number is the number.</div>';
+                var d = window._t2PortfolioData;
+                var cycle = d && d.cycles ? d.cycles : '???';
+                var subtitle = 'the number is the number.';
+                if (d) {
+                    var roi = d.total_equity ? ((d.total_equity - 1000) / 1000 * 100).toFixed(0) : null;
+                    var positions = d.total_positions || 0;
+                    var resolving = d.positions ? d.positions.filter(function(p) { return p.days_to_close != null && p.days_to_close > 0 && p.days_to_close <= 7; }) : [];
+                    var parts = [];
+                    if (roi) parts.push(roi + '% ROI');
+                    if (positions) parts.push(positions + ' positions');
+                    if (resolving.length > 0) {
+                        var resAmount = resolving.reduce(function(s, p) { return s + (p.shares || 0); }, 0);
+                        var nearest = Math.min.apply(null, resolving.map(function(p) { return p.days_to_close; }));
+                        parts.push('~M$' + Math.round(resAmount) + ' resolving in ' + nearest + 'd');
+                    }
+                    if (parts.length > 0) subtitle = parts.join(' · ');
+                }
+                toast.innerHTML = '<div style="font-size:18px;margin-bottom:6px;">cycle ' + cycle + '</div><div style="font-size:11px;color:' + (isLight ? '#888' : '#707070') + ';">' + subtitle + '</div>';
                 document.body.appendChild(toast);
                 requestAnimationFrame(function() { toast.style.opacity = '1'; });
                 setTimeout(function() {
