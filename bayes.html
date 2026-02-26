@@ -863,7 +863,7 @@
         function shareState() {
             const encoded = encodeState();
             const url = location.origin + location.pathname + '#s=' + encoded;
-            navigator.clipboard.writeText(url).then(() => {
+            t2CopyText(url).then(() => {
                 const btn = document.querySelector('[onclick="shareState()"]');
                 const orig = btn.textContent;
                 btn.textContent = 'Copied!';

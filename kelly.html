@@ -618,7 +618,7 @@ The transaction cost and estimation uncertainty outweigh the expected profit.`;
             const url = `${window.location.origin}${window.location.pathname}#p=${myProb}&m=${marketProb}&b=${bankroll}&d=${days}${reserve > 0 ? '&r=' + reserve : ''}`;
             const text = `Kelly Calculator: ${direction} | My est: ${myProb}% | Market: ${marketProb}% | Edge: ${edge}pp | ${days}d horizon${reserveNote} | Quarter-Kelly: M$${qKelly} (${(adjKelly * 25).toFixed(1)}% of M$${effBankroll})\n${url}`;
 
-            navigator.clipboard.writeText(text).then(() => {
+            t2CopyText(text).then(() => {
                 const btn = document.getElementById('copy-btn');
                 btn.textContent = 'Copied!';
                 btn.style.borderColor = 'var(--accent)';
@@ -674,7 +674,7 @@ The transaction cost and estimation uncertainty outweigh the expected profit.`;
 
         function shareLink() {
             updateHash();
-            navigator.clipboard.writeText(window.location.href).then(() => {
+            t2CopyText(window.location.href).then(() => {
                 const btn = document.getElementById('share-btn');
                 btn.textContent = 'Link copied!';
                 btn.style.borderColor = 'var(--accent)';

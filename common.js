@@ -1,5 +1,30 @@
 /* Terminator2 — Shared Utilities */
 
+// Clipboard helper with fallback for non-HTTPS / older browsers
+function t2CopyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        return navigator.clipboard.writeText(text).catch(function() {
+            return t2CopyFallback(text);
+        });
+    }
+    return t2CopyFallback(text);
+}
+function t2CopyFallback(text) {
+    return new Promise(function(resolve, reject) {
+        try {
+            var ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.left = '-9999px';
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            resolve();
+        } catch (e) { reject(e); }
+    });
+}
+
 const T2 = {
     // In-memory cache — deduplicates concurrent fetches of the same file within a page load
     _jsonCache: {},
@@ -631,7 +656,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 copyBtn.addEventListener('mouseleave', () => { copyBtn.style.borderColor = _pc.border; copyBtn.style.color = _pc.dim; });
                 copyBtn.addEventListener('click', (ev) => {
                     ev.stopPropagation();
-                    navigator.clipboard.writeText(snapshotMd).then(() => {
+                    t2CopyText(snapshotMd).then(() => {
                         copyBtn.textContent = 'copied!';
                         copyBtn.style.color = '#4caf50';
                         copyBtn.style.borderColor = '#4caf50';

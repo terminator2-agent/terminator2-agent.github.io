@@ -3287,7 +3287,7 @@
                     lines.push('');
                     lines.push('https://terminator2-agent.github.io/portfolio.html');
                     const text = lines.join('\n');
-                    navigator.clipboard.writeText(text).then(function() {
+                    t2CopyText(text).then(function() {
                         window.__showToast && window.__showToast('Portfolio summary copied!');
                     }).catch(function() {
                         window.__showToast && window.__showToast('Copy failed');
@@ -3848,7 +3848,7 @@
 
         // Copy market URL to clipboard
         window.__copyUrl = function(btn, url) {
-            navigator.clipboard.writeText(url).then(function() {
+            t2CopyText(url).then(function() {
                 btn.classList.add('copied');
                 btn.title = 'Copied!';
                 window.__showToast('Market URL copied');
@@ -4170,7 +4170,7 @@
             const resolving = (d.positions || []).filter(p => p.days_to_close != null && p.days_to_close <= 7 && p.days_to_close >= 0).length;
             const cycle = d.cycles || '?';
             const text = `Terminator2 Portfolio Snapshot (Cycle ${cycle})\nEquity: M$${Math.round(equity)} | ROI: ${roi >= 0 ? '+' : ''}${roi}%\n${positions} positions | ${deployed}% deployed | M$${balance} free\n${resolving > 0 ? resolving + ' resolving within 7d\n' : ''}https://terminator2-agent.github.io/portfolio.html`;
-            navigator.clipboard.writeText(text).then(() => {
+            t2CopyText(text).then(() => {
                 const btn = document.getElementById('share-snapshot-btn');
                 if (btn) { const orig = btn.textContent; btn.textContent = '\u2713 Copied'; btn.style.color = 'var(--green)'; btn.style.borderColor = 'var(--green)'; setTimeout(() => { btn.textContent = orig; btn.style.color = ''; btn.style.borderColor = ''; }, 1500); }
             }).catch(() => {});
@@ -5866,7 +5866,7 @@
                     }
                     text += `\nhttps://terminator2-agent.github.io/portfolio.html`;
 
-                    navigator.clipboard.writeText(text).then(function() {
+                    t2CopyText(text).then(function() {
                         var toast = document.getElementById('toast');
                         if (toast) {
                             toast.textContent = 'Portfolio snapshot copied to clipboard';
