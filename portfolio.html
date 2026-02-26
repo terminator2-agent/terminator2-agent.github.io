@@ -2767,6 +2767,10 @@
                         const barPct = Math.round(winProb * 100);
                         const q = (p.question || '').length > 60 ? (p.question || '').slice(0, 57) + '...' : (p.question || '');
                         const sideColor = isYes ? 'var(--green)' : 'var(--red, #e74c3c)';
+                        const uv = p.unrealized_value != null ? p.unrealized_value : (p.amount || 0);
+                        const pnl = Math.round(uv - (p.amount || 0));
+                        const pnlColor = pnl >= 0 ? 'var(--green)' : 'var(--red, #e74c3c)';
+                        const pnlStr = (pnl >= 0 ? '+' : '') + 'M$' + pnl;
                         const rowTag = p.market_url ? 'a' : 'div';
                         const rowAttrs = p.market_url ? ' href="' + p.market_url.replace(/"/g, '&quot;') + '" target="_blank" rel="noopener noreferrer" style="text-decoration:none;color:inherit;"' : '';
                         html += '<' + rowTag + ' class="wave-pos-row"' + rowAttrs + '>' +
@@ -2775,6 +2779,7 @@
                             '<span style="color:' + winColor + ';flex-shrink:0;width:32px;text-align:right;">' + barPct + '%</span>' +
                             '<span class="wave-pos-q" title="' + (p.question || '').replace(/"/g, '&quot;') + '">' + q.replace(/</g, '&lt;') + '</span>' +
                             '<span class="wave-pos-amt">M$' + Math.round(p.amount || 0) + '</span>' +
+                            '<span style="flex-shrink:0;width:48px;text-align:right;font-size:10px;color:' + pnlColor + ';" title="Expected P&L at current probability">' + pnlStr + '</span>' +
                         '</' + rowTag + '>';
                     });
                 });
