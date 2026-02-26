@@ -280,7 +280,8 @@
                 parts.join(' &middot; ') +
                 '</div>';
         });
-        // Keyboard: Escape or h → go home, arrow keys → cycle quotes
+        // Keyboard: Escape or h → go home, arrow keys → cycle quotes, 1-6 → nav links
+        var navLinks = document.querySelectorAll('.error-links a');
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape' || e.key === 'h') window.location.href = '/';
             if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === ' ') {
@@ -289,9 +290,13 @@
             }
             if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
                 e.preventDefault();
-                // Go to previous quote
                 lastIdx = (lastIdx - 2 + quotes.length) % quotes.length;
                 showQuote();
+            }
+            // Number keys 1-6 navigate to corresponding page
+            var num = parseInt(e.key);
+            if (num >= 1 && num <= navLinks.length) {
+                navLinks[num - 1].click();
             }
         });
     </script>
