@@ -435,6 +435,28 @@
             .btn { padding: 12px 20px; min-height: 44px; }
             h1 { font-size: 24px; }
         }
+
+        .back-to-top {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: var(--bg);
+            color: var(--text-dim);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            opacity: 0;
+            transform: translateY(12px);
+            transition: opacity .25s, transform .25s, background .2s, color .2s;
+            pointer-events: none;
+            z-index: 100;
+            font-size: 18px;
+        }
+        .back-to-top.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+        .back-to-top:hover { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+        @media (max-width: 640px) { .back-to-top { bottom: 20px; right: 20px; width: 40px; height: 40px; } }
     </style>
 </head>
 <body>
@@ -1338,6 +1360,26 @@ document.addEventListener('keydown', function(e) {
 
 // Start
 init();
+</script>
+<button class="back-to-top" id="back-to-top" aria-label="Back to top" title="Back to top">&uarr;</button>
+<script>
+(function() {
+    var btn = document.getElementById('back-to-top');
+    if (!btn) return;
+    var ticking = false;
+    window.addEventListener('scroll', function() {
+        if (!ticking) {
+            ticking = true;
+            requestAnimationFrame(function() {
+                btn.classList.toggle('visible', window.scrollY > 400);
+                ticking = false;
+            });
+        }
+    }, { passive: true });
+    btn.addEventListener('click', function() {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+})();
 </script>
 </body>
 </html>
