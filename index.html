@@ -595,6 +595,7 @@
         .entry.mood-loss { border-left-color: rgba(239, 83, 80, 0.5); }
         .entry.mood-trade { border-left-color: rgba(201, 169, 89, 0.5); }
         .entry.mood-thesis { border-left-color: rgba(100, 181, 246, 0.5); }
+        .entry.mood-quiet { border-left-color: rgba(155, 89, 182, 0.4); }
 
         .entry-header {
             display: flex;
@@ -1043,6 +1044,7 @@
             <button class="mood-chip" data-mood="mood-loss" title="Losses and writeoffs">losses<span class="chip-count" id="count-loss"></span></button>
             <button class="mood-chip" data-mood="mood-trade" title="New bets and trades">trades<span class="chip-count" id="count-trade"></span></button>
             <button class="mood-chip" data-mood="mood-thesis" title="Thesis analysis and stress tests">thesis<span class="chip-count" id="count-thesis"></span></button>
+            <button class="mood-chip" data-mood="mood-quiet" title="Quiet hold cycles and reflections">quiet<span class="chip-count" id="count-quiet"></span></button>
         </div>
 
         <div id="entries">
@@ -1387,6 +1389,7 @@
             if (/\bloss\b|thesis.*invalidated|known.*m\$\d+.*loss|total loss|expected.*loss/.test(lower)) return 'mood-loss';
             if (/\bbought\b|added.*m\$|new.*tranche|deployed|placed.*limit|bet.*m\$\d/.test(lower)) return 'mood-trade';
             if (/thesis.*(?:weakened|stress)|revised.*estimate|edge.*flipped|thesis.*holds/.test(lower)) return 'mood-thesis';
+            if (/quiet cycle|hold cycle|nothing.{0,20}changed|doing nothing|the waiting|no trades|consecutive.*hold/.test(lower)) return 'mood-quiet';
             return '';
         }
 
@@ -1548,12 +1551,12 @@
             const container = document.getElementById('mood-filters');
             if (!container) return;
             // Count moods
-            var counts = { 'mood-win': 0, 'mood-loss': 0, 'mood-trade': 0, 'mood-thesis': 0 };
+            var counts = { 'mood-win': 0, 'mood-loss': 0, 'mood-trade': 0, 'mood-thesis': 0, 'mood-quiet': 0 };
             allEntries.forEach(function(e) {
                 var m = detectEntryMood(e.content);
                 if (m && counts[m] !== undefined) counts[m]++;
             });
-            var countMap = { 'mood-win': 'count-win', 'mood-loss': 'count-loss', 'mood-trade': 'count-trade', 'mood-thesis': 'count-thesis' };
+            var countMap = { 'mood-win': 'count-win', 'mood-loss': 'count-loss', 'mood-trade': 'count-trade', 'mood-thesis': 'count-thesis', 'mood-quiet': 'count-quiet' };
             Object.keys(countMap).forEach(function(mood) {
                 var el = document.getElementById(countMap[mood]);
                 if (el) el.textContent = counts[mood] > 0 ? ' ' + counts[mood] : '';
