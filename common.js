@@ -932,6 +932,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 themeColorMeta.content = next === 'light' ? '#f5f5f0' : '#0a0a0a';
             }
             if (T2.updateFavicon) T2.updateFavicon();
+            // Brief toast showing active theme
+            let tt = document.getElementById('theme-toast');
+            if (!tt) {
+                tt = document.createElement('div');
+                tt.id = 'theme-toast';
+                tt.style.cssText = 'position:fixed;bottom:76px;right:80px;padding:4px 12px;border-radius:6px;font-family:"JetBrains Mono",monospace;font-size:11px;opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:9998;background:var(--bg-elevated);border:1px solid var(--border);color:var(--text-dim);';
+                document.body.appendChild(tt);
+            }
+            tt.textContent = next === 'light' ? 'light mode' : 'dark mode';
+            tt.style.opacity = '1';
+            clearTimeout(tt._tid);
+            tt._tid = setTimeout(() => { tt.style.opacity = '0'; }, 1200);
         });
         document.body.appendChild(themeBtn);
     }
