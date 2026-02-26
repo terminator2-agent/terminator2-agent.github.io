@@ -1071,7 +1071,13 @@
             var statusEl = document.getElementById('badge-status');
             var roiEl = document.getElementById('badge-roi');
             var posEl = document.getElementById('badge-positions');
-            if (!badge || !data) return;
+            if (!badge) return;
+            if (!data) {
+                dot.classList.add('stale');
+                statusEl.textContent = 'offline';
+                badge.classList.add('loaded');
+                return;
+            }
 
             var ageMs = data.last_updated ? Date.now() - new Date(data.last_updated).getTime() : Infinity;
             var ageMins = ageMs / 60000;
