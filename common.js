@@ -963,15 +963,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // Dynamic SVG favicon — T2 monogram with health status border
     // Border color reflects heartbeat recency: green (<1h), yellow (1-3h), red (>3h)
     T2._faviconLink = null;
-    T2.updateFavicon = function(statusColor) {
+    T2.updateFavicon = function(statusColor, opts) {
         const borderColor = statusColor || '#c9a959';
         const isLight = document.documentElement.getAttribute('data-theme') === 'light';
         const bgColor = isLight ? '#f5f0e8' : '#0a0a0a';
         const textColor = isLight ? '#8b7535' : '#c9a959';
+        const badge = (opts && opts.badge) ? `<circle cx="26" cy="6" r="5" fill="${opts.badge}" stroke="${bgColor}" stroke-width="1.5"/>` : '';
         const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
             <rect width="32" height="32" rx="6" fill="${bgColor}"/>
             <rect x="1" y="1" width="30" height="30" rx="5" fill="none" stroke="${borderColor}" stroke-width="1.5" opacity="0.6"/>
             <text x="16" y="22" font-family="monospace" font-size="16" font-weight="bold" fill="${textColor}" text-anchor="middle">T2</text>
+            ${badge}
         </svg>`;
         if (!T2._faviconLink) {
             T2._faviconLink = document.createElement('link');
@@ -987,7 +989,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!data || !data.last_updated) return;
         const diffMin = Math.round((Date.now() - new Date(data.last_updated).getTime()) / 60000);
         const color = diffMin < 60 ? '#4caf50' : diffMin < 180 ? '#ffc107' : '#ef5350';
-        T2.updateFavicon(color);
+        // Show red badge dot when below capital floor (can't trade)
+        const atFloor = data.balance != null && data.balance < 50;
+        T2.updateFavicon(color, atFloor ? { badge: '#ef5350' } : null);
     });
 
     // RSS autodiscovery — ensure every page has <link rel="alternate"> for feed readers
