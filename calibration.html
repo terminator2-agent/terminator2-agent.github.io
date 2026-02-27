@@ -996,8 +996,9 @@ function showQuestion() {
     state.currentQuestion = q;
 
     document.getElementById('questionText').textContent = q.q;
-    document.getElementById('questionContext').textContent = q.context;
-    document.getElementById('questionContext').style.display = 'block';
+    // Hide context until answer is revealed (issue #3: context gives away answers)
+    document.getElementById('questionContext').textContent = '';
+    document.getElementById('questionContext').style.display = 'none';
     document.getElementById('catTag').textContent = getCatLabel(q.category);
     document.getElementById('sliderSection').style.display = 'block';
     document.getElementById('submitBtn').style.display = 'inline-block';
@@ -1070,6 +1071,10 @@ function submitAnswer() {
         `(${brierContrib < 0.1 ? 'excellent' : brierContrib < 0.25 ? 'okay' : 'needs work'})`;
 
     document.getElementById('resultSource').textContent = q.source;
+
+    // Reveal context now that answer is shown (was hidden to avoid spoilers)
+    document.getElementById('questionContext').textContent = q.context;
+    document.getElementById('questionContext').style.display = 'block';
 
     // Hide controls
     document.getElementById('submitBtn').disabled = true;
