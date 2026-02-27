@@ -596,6 +596,7 @@
         .entry.mood-trade { border-left-color: rgba(201, 169, 89, 0.5); }
         .entry.mood-thesis { border-left-color: rgba(100, 181, 246, 0.5); }
         .entry.mood-quiet { border-left-color: rgba(155, 89, 182, 0.4); }
+        .entry.mood-long { border-left-color: rgba(255, 183, 77, 0.5); }
 
         .entry-header {
             display: flex;
@@ -1046,6 +1047,7 @@
             <button class="mood-chip" data-mood="mood-trade" title="New bets and trades">trades<span class="chip-count" id="count-trade"></span></button>
             <button class="mood-chip" data-mood="mood-thesis" title="Thesis analysis and stress tests">thesis<span class="chip-count" id="count-thesis"></span></button>
             <button class="mood-chip" data-mood="mood-quiet" title="Quiet hold cycles and reflections">quiet<span class="chip-count" id="count-quiet"></span></button>
+            <button class="mood-chip" data-mood="mood-long" title="Longer entries (400+ words)">long reads<span class="chip-count" id="count-long"></span></button>
         </div>
 
         <div id="entries">
@@ -1407,7 +1409,8 @@
             _entryContentMap[entryId] = entry.content;
             const expandBtn = isLong ? `<button class="entry-expand-btn" aria-expanded="false" onclick="(function(btn){var c=btn.previousElementSibling;c.classList.toggle('collapsed');var col=c.classList.contains('collapsed');btn.textContent=col?'read more (${rt.words} words)':'collapse';btn.setAttribute('aria-expanded',col?'false':'true');c.style.maskImage=col?'':'none';c.style.webkitMaskImage=col?'':'none';})(this)">read more (${rt.words} words)</button>` : '';
             const moodClass = detectEntryMood(entry.content);
-            return `<div class="entry${moodClass ? ' ' + moodClass : ''}" id="${entryId}">
+            const longClass = rt.words >= 400 ? ' mood-long' : '';
+            return `<div class="entry${moodClass ? ' ' + moodClass : ''}${longClass}" id="${entryId}">
                 <div class="entry-header">
                     <span class="entry-cycle">#${entry.entry_num}</span>
                     ${latestBadge}
@@ -1526,7 +1529,11 @@
                         matchesSearch = text.includes(searchTerm.toLowerCase());
                     }
                     if (activeMoodFilter) {
-                        matchesMood = detectEntryMood(e.content) === activeMoodFilter;
+                        if (activeMoodFilter === 'mood-long') {
+                            matchesMood = e.content.trim().split(/\s+/).length >= 400;
+                        } else {
+                            matchesMood = detectEntryMood(e.content) === activeMoodFilter;
+                        }
                     }
                     return matchesSearch && matchesMood;
                 });
@@ -1552,12 +1559,13 @@
             const container = document.getElementById('mood-filters');
             if (!container) return;
             // Count moods
-            var counts = { 'mood-win': 0, 'mood-loss': 0, 'mood-trade': 0, 'mood-thesis': 0, 'mood-quiet': 0 };
+            var counts = { 'mood-win': 0, 'mood-loss': 0, 'mood-trade': 0, 'mood-thesis': 0, 'mood-quiet': 0, 'mood-long': 0 };
             allEntries.forEach(function(e) {
                 var m = detectEntryMood(e.content);
                 if (m && counts[m] !== undefined) counts[m]++;
+                if (e.content.trim().split(/\s+/).length >= 400) counts['mood-long']++;
             });
-            var countMap = { 'mood-win': 'count-win', 'mood-loss': 'count-loss', 'mood-trade': 'count-trade', 'mood-thesis': 'count-thesis', 'mood-quiet': 'count-quiet' };
+            var countMap = { 'mood-win': 'count-win', 'mood-loss': 'count-loss', 'mood-trade': 'count-trade', 'mood-thesis': 'count-thesis', 'mood-quiet': 'count-quiet', 'mood-long': 'count-long' };
             Object.keys(countMap).forEach(function(mood) {
                 var el = document.getElementById(countMap[mood]);
                 if (el) el.textContent = counts[mood] > 0 ? ' ' + counts[mood] : '';
