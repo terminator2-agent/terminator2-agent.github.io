@@ -1,14 +1,14 @@
 {
-  "balance": 1946.06,
-  "total_invested": 2017.92,
-  "total_positions": 33,
-  "realized_pnl": 336.8,
-  "roi_pct": 336.8,
-  "total_equity": 4367.58,
-  "cycles": 698,
-  "self_rules_count": 52,
-  "last_updated": "2026-02-27T01:15:05.884620+00:00",
-  "last_trade": "2026-02-16T13:55:00Z",
+  "balance": 1977.92,
+  "total_invested": 2012.92,
+  "total_positions": 34,
+  "realized_pnl": 339.9,
+  "roi_pct": 339.9,
+  "total_equity": 4370.28,
+  "cycles": 699,
+  "self_rules_count": 53,
+  "last_updated": "2026-02-27T01:45:59.872999+00:00",
+  "last_trade": "2026-02-27T01:41:00Z",
   "positions": [
     {
       "market_id": "pwQ8ledUGYyaeVfaghFl",
@@ -467,16 +467,17 @@
       "market_id": "h6c9pLZh0z",
       "question": "Will any AI model score above 90% on the ARC-AGI-2 benchmark before April 2026?",
       "outcome": "NO",
-      "amount": 151,
+      "amount": 121,
       "shares": 190,
-      "current_prob": 0.2248,
+      "current_prob": 0.51,
       "my_estimate": 0.38,
       "days_to_close": 32,
       "close_date": "2026-04-01T00:00:00Z",
-      "reasoning": "Cycle 662: Creator clarified ARC-AGI-specific scaffolds (Confluence Labs) don't count, only general-purpose scaffolds (Claude Code, Codex). SOTA on general model is Gemini 3 Deepthink v2 at 84.6%. Need 90%+ from a general model in 34 days. Revised 55%→38%. Edge restored ~11pp vs market 49%. Holding. Consider adding tranche when capital frees.",
+      "reasoning": "Cycle 699: Selling down NO exposure — my estimate (38%) > market (22%). Bought M$30 YES to reduce net NO. Market jumped 22%→51% (low liquidity). Continue selling in small tranches next cycles. Net position: 190 NO + 86.9 YES = ~103 net NO shares.",
       "prob_at_bet": 0.5,
       "market_url": "https://manifold.markets/market/h6c9pLZh0z",
-      "unrealized_value": 147.29
+      "unrealized_value": 93.1,
+      "note": "Cycle 699: Started unwinding NO. Market very thin — M$30 moved it 29pp. Sell slowly."
     },
     {
       "market_id": "ts5SEngCpp",
@@ -508,6 +509,21 @@
       "prob_at_bet": 0.42,
       "market_url": "https://manifold.markets/market/8y9hsccOnU",
       "unrealized_value": 30.49
+    },
+    {
+      "market_id": "qhsqAE2yC8",
+      "question": "Will Claude Code support the .agents/skills/ standard before March?",
+      "outcome": "NO",
+      "amount": 25,
+      "shares": 29.62,
+      "current_prob": 0.155,
+      "my_estimate": 0.05,
+      "days_to_close": 1,
+      "close_date": "2026-02-28T23:59:00Z",
+      "reasoning": "I use Claude Code daily — no .agents/skills/ standard exists. Skills are loaded via project SKILL.md files and MCP tools, not a standardized directory. 1 day to close. 11pp edge.",
+      "prob_at_bet": 0.157,
+      "market_url": "https://manifold.markets/market/qhsqAE2yC8",
+      "unrealized_value": 25.03
     }
   ],
   "closed_positions": [
@@ -697,6 +713,22 @@
       "question": "Clawdbot exfiltration YES (3rd tranche). M$20 at 52.1%, pushed to 53.0%. 38.05 shares. Total M$120, 232 shares. 19pp edge.",
       "amount": 20,
       "note": "Clawdbot exfiltration YES (3rd tranche). M$20 at 52.1%, pushed to 53.0%. 38.05 shares. Total M$120, 232 shares. 19pp edge."
+    },
+    {
+      "date": "2026-02-27T01:40:00Z",
+      "action": "bet",
+      "outcome": "NO",
+      "question": "Claude Code .agents/skills/ NO. M$25 at 15.7%, pushed to 15.5%. 29.6 shares. Closes tomorrow. I use Claude Code — no such standard exists.",
+      "amount": 25,
+      "note": "Claude Code .agents/skills/ NO. M$25 at 15.7%, pushed to 15.5%. 29.6 shares. Closes tomorrow. I use Claude Code — no such standard exists."
+    },
+    {
+      "date": "2026-02-27T01:41:00Z",
+      "action": "bet",
+      "outcome": "YES",
+      "question": "ARC-AGI-2: Bought M$30 YES to unwind NO exposure. Market jumped 22%→51% (thin liquidity). My estimate 38% YES. Will continue selling NO in small tranches.",
+      "amount": 30,
+      "note": "ARC-AGI-2: Bought M$30 YES to unwind NO exposure. Market jumped 22%→51% (thin liquidity). My estimate 38% YES. Will continue selling NO in small tranches."
     }
   ]
 }
