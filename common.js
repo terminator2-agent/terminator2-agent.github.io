@@ -257,9 +257,11 @@ const T2 = {
 
 // Apply saved theme before paint (prevent flash)
 // Falls back to OS preference for first-time visitors
+// Supported themes: dark (gold), light, terminal (green), midnight (blue)
 (function() {
+    var validThemes = ['dark', 'light', 'terminal', 'midnight'];
     var saved = localStorage.getItem('t2_theme');
-    if (saved === 'light' || saved === 'dark') {
+    if (validThemes.indexOf(saved) !== -1) {
         document.documentElement.setAttribute('data-theme', saved);
     } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
         document.documentElement.setAttribute('data-theme', 'light');
@@ -386,7 +388,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 statusHtml +
                 pages.map(p => kbdRow(p.label, p.key)).join('') +
                 kbdRow('back to top', 't') +
-                kbdRow('toggle theme', 'd') +
+                kbdRow('cycle theme', 'd') +
                 kbdRow('portfolio snapshot', 'p') +
                 kbdRow('focus search', '/') +
                 `<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;border-top:1px solid ${oc.sep};margin-top:8px;padding-top:14px;"><span style="color:${oc.label};">this help</span><kbd style="background:${oc.kbdBg};border:1px solid ${oc.border};border-radius:4px;padding:2px 8px;color:${oc.kbdColor};font-size:12px;">?</kbd></div>` +
@@ -909,27 +911,35 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!themeBtn) {
         themeBtn = document.createElement('button');
         themeBtn.className = 'theme-toggle';
-        themeBtn.setAttribute('aria-label', 'Toggle light/dark theme');
-        themeBtn.setAttribute('title', 'Toggle theme (d)');
+        themeBtn.setAttribute('aria-label', 'Cycle theme');
+        themeBtn.setAttribute('title', 'Cycle theme (d)');
+        const themeOrder = ['dark', 'light', 'terminal', 'midnight'];
+        const themeIcons = { dark: '\u2600', light: '\u263E', terminal: '>', midnight: '\u2605' };
+        const themeLabels = { dark: 'dark', light: 'light', terminal: 'terminal', midnight: 'midnight' };
+        const themeBgColors = { dark: '#0a0a0a', light: '#f5f5f0', terminal: '#0c0c0c', midnight: '#0a0e1a' };
+        function getActiveTheme() {
+            const attr = document.documentElement.getAttribute('data-theme');
+            if (themeOrder.indexOf(attr) !== -1) return attr;
+            return window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+        }
         function updateThemeIcon() {
-            const isDark = !document.documentElement.getAttribute('data-theme') ||
-                           document.documentElement.getAttribute('data-theme') === 'dark' ||
-                           (!document.documentElement.getAttribute('data-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches);
-            themeBtn.textContent = isDark ? '\u2600' : '\u263E';
+            const active = getActiveTheme();
+            // Show icon for the NEXT theme (what clicking will switch to)
+            const nextIdx = (themeOrder.indexOf(active) + 1) % themeOrder.length;
+            themeBtn.textContent = themeIcons[themeOrder[nextIdx]] || '\u2600';
         }
         updateThemeIcon();
         themeBtn.addEventListener('click', () => {
-            const current = document.documentElement.getAttribute('data-theme');
-            const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            const isDark = current === 'dark' || (!current && systemDark);
-            const next = isDark ? 'light' : 'dark';
+            const active = getActiveTheme();
+            const nextIdx = (themeOrder.indexOf(active) + 1) % themeOrder.length;
+            const next = themeOrder[nextIdx];
             document.documentElement.setAttribute('data-theme', next);
             localStorage.setItem('t2_theme', next);
             updateThemeIcon();
             // Update theme-color meta tag so mobile browser chrome matches
             const themeColorMeta = document.querySelector('meta[name="theme-color"]');
             if (themeColorMeta) {
-                themeColorMeta.content = next === 'light' ? '#f5f5f0' : '#0a0a0a';
+                themeColorMeta.content = themeBgColors[next] || '#0a0a0a';
             }
             if (T2.updateFavicon) T2.updateFavicon();
             // Brief toast showing active theme
@@ -940,7 +950,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 tt.style.cssText = 'position:fixed;bottom:76px;right:80px;padding:4px 12px;border-radius:6px;font-family:"JetBrains Mono",monospace;font-size:11px;opacity:0;transition:opacity 0.3s;pointer-events:none;z-index:9998;background:var(--bg-elevated);border:1px solid var(--border);color:var(--text-dim);';
                 document.body.appendChild(tt);
             }
-            tt.textContent = next === 'light' ? 'light mode' : 'dark mode';
+            tt.textContent = themeLabels[next] || next;
             tt.style.opacity = '1';
             clearTimeout(tt._tid);
             tt._tid = setTimeout(() => { tt.style.opacity = '0'; }, 1200);
