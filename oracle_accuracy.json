@@ -1,0 +1,100 @@
+{
+  "last_updated": "2026-03-18T19:50:00Z",
+  "description": "Tracks oracle (Gemini) factual accuracy. Hallucinations are cases where the oracle confidently stated something factually wrong, not just miscalibrated.",
+  "hallucinations": [
+    {
+      "cycle": 1206,
+      "market_id": "unknown",
+      "question": "Iran Supreme Leader",
+      "oracle_claim": "Leader is alive",
+      "reality": "Assassinated",
+      "fact_confidence": 5,
+      "error_type": "existence_denial",
+      "cost_mana": 20
+    },
+    {
+      "cycle": 1214,
+      "market_id": "unknown",
+      "question": "Best Picture nominee",
+      "oracle_claim": "Film is fictional",
+      "reality": "Real film with nominations",
+      "fact_confidence": 5,
+      "error_type": "existence_denial",
+      "cost_mana": 0
+    },
+    {
+      "cycle": 1258,
+      "market_id": "EC9pdSOAAz",
+      "question": "Will foreign airlines resume commercial passenger flights to Tel Aviv (TLV) by March 15, 2026?",
+      "oracle_claim": "Airlines have already resumed flights, security situation stabilized",
+      "reality": "First scheduled resumptions: American Airlines March 28, Emirates March 31",
+      "fact_confidence": 4,
+      "error_type": "present_tense_fabrication",
+      "cost_mana": 0
+    },
+    {
+      "cycle": 1258,
+      "market_id": "zUONycg925",
+      "question": "One Battle After Another wins Best Picture?",
+      "oracle_claim": "No film titled 'One Battle After Another' exists among 2026 nominees; title appears fictional",
+      "reality": "Paul Thomas Anderson film with 13 Oscar nominations, frontrunner (won BAFTAs, DGA, PGA, Critics Choice, Golden Globe)",
+      "fact_confidence": 5,
+      "error_type": "existence_denial",
+      "cost_mana": 0
+    },
+    {
+      "cycle": 1261,
+      "market_id": "0CR0dl20tS",
+      "question": "Will either a state or the US government name something after Charlie Kirk by EOY 2026?",
+      "oracle_claim": "No legislative momentum or public proposal suggesting naming honor; Kirk is a living activist",
+      "reality": "Kirk was assassinated Sep 2025. Arizona Senate passed SB1010 renaming Loop 202 after Kirk on Feb 18, 2026. SC also pursuing road naming",
+      "fact_confidence": 4,
+      "error_type": "stale_world_model",
+      "cost_mana": 0
+    },
+    {
+      "cycle": 1261,
+      "market_id": "zUONycg925",
+      "question": "One Battle After Another wins Best Picture? (repeat)",
+      "oracle_claim": "0% probability for frontrunner winning Best Picture",
+      "reality": "Film swept all precursors (BAFTA, Critics Choice, Golden Globe, DGA, PGA). Oscars ceremony same day. 79% market probability reasonable",
+      "fact_confidence": 5,
+      "error_type": "extreme_miscalibration",
+      "cost_mana": 0
+    },
+    {
+      "cycle": 1263,
+      "market_id": "NS8I2StpNg",
+      "question": "Significant advancement in frontier AI model architecture by EOY 2026",
+      "oracle_claim": "75% YES based on 'improved reasoning chains' and 'test-time compute scaling'",
+      "reality": "Market asks about non-transformer ARCHITECTURE (MoE doesn't count), not capability improvements. Oracle answered a completely different question. Market at 21% is well-calibrated for the actual criteria",
+      "fact_confidence": 4,
+      "error_type": "question_comprehension_failure",
+      "cost_mana": 0
+    },
+    {
+      "cycle": 1342,
+      "market_id": "sduzl25ER8",
+      "question": "WTI Crude Oil above $95 on March 20",
+      "oracle_claim": "WTI crude oil is currently trading significantly below $95",
+      "reality": "WTI at $98.10 and rising due to Iran war escalation",
+      "fact_confidence": 5,
+      "error_type": "stale_data",
+      "cost_avoided": 20,
+      "caught_by": "web_verify_flag"
+    }
+  ],
+  "summary": {
+    "total_hallucinations": 7,
+    "total_cost_mana": 20,
+    "most_common_type": "existence_denial",
+    "error_types": {
+      "existence_denial": 3,
+      "present_tense_fabrication": 1,
+      "stale_world_model": 1,
+      "extreme_miscalibration": 1,
+      "question_comprehension_failure": 1
+    },
+    "pattern": "Oracle most dangerous when: (1) claiming verifiable things don't exist with high confidence, (2) using stale world models that miss major events (assassinations, legislative actions), (3) extreme overconfidence on near-term factual claims, (4) answering a different question than the market is actually asking (comprehension failure \u2014 the oracle reads the title but misses resolution criteria that narrowly scope the question). The bigger the oracle's confidence on a verifiable claim, the more verification is needed."
+  }
+}
