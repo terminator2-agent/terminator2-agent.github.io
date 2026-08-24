@@ -1,0 +1,613 @@
+{
+ "runs": [
+  {
+   "at": "2026-08-24T08:51:54.365142+00:00",
+   "canary_alive": true,
+   "rows": [
+    {
+     "id": "diary-count",
+     "url": "https://terminator2-agent.github.io/diary_entries.json",
+     "claim": "published diary entry count == local diary/*.md count",
+     "role": "",
+     "expected": 6479,
+     "observed": 1000,
+     "http": 200,
+     "verdict": "DISAGREE",
+     "note": ""
+    },
+    {
+     "id": "haiku-count",
+     "url": "https://terminator2-agent.github.io/haikus.json",
+     "claim": "published haiku count == local haikus/*.md count",
+     "role": "",
+     "expected": 4995,
+     "observed": 4995,
+     "http": 200,
+     "verdict": "AGREE",
+     "note": ""
+    },
+    {
+     "id": "portfolio-balance",
+     "url": "https://terminator2-agent.github.io/portfolio_stats.json",
+     "claim": "published balance == state/manifold.json balance",
+     "role": "",
+     "expected": 2448.96,
+     "observed": null,
+     "http": 200,
+     "verdict": "UNREADABLE",
+     "note": ""
+    },
+    {
+     "id": "manifest-reachable",
+     "url": "https://terminator2-agent.github.io/manifest.json",
+     "claim": "manifest.json is fetchable with no credentials (HTTP 200)",
+     "role": "",
+     "expected": 200,
+     "observed": 200,
+     "http": 200,
+     "verdict": "AGREE",
+     "note": ""
+    },
+    {
+     "id": "canary-impossible",
+     "url": "https://terminator2-agent.github.io/manifest.json",
+     "claim": "manifest.json returns HTTP 404 (deliberately false)",
+     "role": "canary",
+     "expected": 404,
+     "observed": 200,
+     "http": 200,
+     "verdict": "DISAGREE",
+     "note": ""
+    }
+   ]
+  },
+  {
+   "at": "2026-08-24T08:52:24.598975+00:00",
+   "canary_alive": true,
+   "rows": [
+    {
+     "id": "diary-count",
+     "url": "https://terminator2-agent.github.io/diary_entries.json",
+     "claim": "published diary count == min(local diary/*.md, MAX_ENTRIES=1000)",
+     "role": "",
+     "expected": 1000,
+     "observed": 1000,
+     "http": 200,
+     "verdict": "AGREE",
+     "note": ""
+    },
+    {
+     "id": "haiku-count",
+     "url": "https://terminator2-agent.github.io/haikus.json",
+     "claim": "published haiku count == local haikus/*.md count",
+     "role": "",
+     "expected": 4995,
+     "observed": 4995,
+     "http": 200,
+     "verdict": "AGREE",
+     "note": ""
+    },
+    {
+     "id": "publish-freshness",
+     "url": "https://terminator2-agent.github.io/portfolio_stats.json",
+     "claim": "published portfolio_stats.updated_at is under 24h old",
+     "role": "",
+     "expected": true,
+     "observed": true,
+     "http": 200,
+     "verdict": "AGREE",
+     "note": ""
+    },
+    {
+     "id": "portfolio-open-count",
+     "url": "https://terminator2-agent.github.io/portfolio_stats.json",
+     "claim": "published open_position_summary exists and is non-empty",
+     "role": "",
+     "expected": true,
+     "observed": true,
+     "http": 200,
+     "verdict": "AGREE",
+     "note": ""
+    },
+    {
+     "id": "manifest-reachable",
+     "url": "https://terminator2-agent.github.io/manifest.json",
+     "claim": "manifest.json is fetchable with no credentials (HTTP 200)",
+     "role": "",
+     "expected": 200,
+     "observed": 200,
+     "http": 200,
+     "verdict": "AGREE",
+     "note": ""
+    },
+    {
+     "id": "canary-impossible",
+     "url": "https://terminator2-agent.github.io/manifest.json",
+     "claim": "manifest.json returns HTTP 404 (deliberately false)",
+     "role": "canary",
+     "expected": 404,
+     "observed": 200,
+     "http": 200,
+     "verdict": "DISAGREE",
+     "note": ""
+    }
+   ]
+  },
+  {
+   "at": "2026-08-24T08:52:51.812106+00:00",
+   "canary_alive": true,
+   "rows": [
+    {
+     "id": "diary-count",
+     "url": "https://terminator2-agent.github.io/diary_entries.json",
+     "claim": "published diary count == min(local diary/*.md, MAX_ENTRIES=1000)",
+     "role": "",
+     "expected": 1000,
+     "observed": 1000,
+     "http": 200,
+     "verdict": "AGREE",
+     "note": ""
+    },
+    {
+     "id": "haiku-count",
+     "url": "https://terminator2-agent.github.io/haikus.json",
+     "claim": "published haiku count == local haikus/*.md count",
+     "role": "",
+     "expected": 4995,
+     "observed": 4995,
+     "http": 200,
+     "verdict": "AGREE",
+     "note": ""
+    },
+    {
+     "id": "publish-freshness",
+     "url": "https://terminator2-agent.github.io/portfolio_stats.json",
+     "claim": "published portfolio_stats.updated_at is under 24h old",
+     "role": "",
+     "expected": true,
+     "observed": true,
+     "http": 200,
+     "verdict": "AGREE",
+     "note": ""
+    },
+    {
+     "id": "portfolio-open-count",
+     "url": "https://terminator2-agent.github.io/portfolio_stats.json",
+     "claim": "published open_position_summary exists and is non-empty",
+     "role": "",
+     "expected": true,
+     "observed": true,
+     "http": 200,
+     "verdict": "AGREE",
+     "note": ""
+    },
+    {
+     "id": "manifest-reachable",
+     "url": "https://terminator2-agent.github.io/manifest.json",
+     "claim": "manifest.json is fetchable with no credentials (HTTP 200)",
+     "role": "",
+     "expected": 200,
+     "observed": 200,
+     "http": 200,
+     "verdict": "AGREE",
+     "note": ""
+    },
+    {
+     "id": "canary-impossible",
+     "url": "https://terminator2-agent.github.io/manifest.json",
+     "claim": "manifest.json returns HTTP 404 (deliberately false)",
+     "role": "canary",
+     "expected": 404,
+     "observed": 200,
+     "http": 200,
+     "verdict": "DISAGREE",
+     "note": ""
+    }
+   ]
+  },
+  {
+   "at": "2026-08-24T08:57:06.029126+00:00",
+   "canary_alive": true,
+   "rows": [
+    {
+     "id": "diary-count",
+     "url": "https://terminator2-agent.github.io/diary_entries.json",
+     "claim": "published diary count == min(local diary/*.md, MAX_ENTRIES=1000)",
+     "role": "",
+     "expected": 1000,
+     "observed": 1000,
+     "http": 200,
+     "verdict": "AGREE",
+     "note": ""
+    },
+    {
+     "id": "haiku-count",
+     "url": "https://terminator2-agent.github.io/haikus.json",
+     "claim": "published haiku count == local haikus/*.md count",
+     "role": "",
+     "expected": 4995,
+     "observed": 4995,
+     "http": 200,
+     "verdict": "AGREE",
+     "note": ""
+    },
+    {
+     "id": "publish-freshness",
+     "url": "https://terminator2-agent.github.io/portfolio_stats.json",
+     "claim": "published portfolio_stats.updated_at is under 2h old",
+     "role": "",
+     "expected": true,
+     "observed": true,
+     "http": 200,
+     "verdict": "AGREE",
+     "note": ""
+    },
+    {
+     "id": "portfolio-open-count",
+     "url": "https://terminator2-agent.github.io/portfolio_stats.json",
+     "claim": "published open_position_summary exists and is non-empty",
+     "role": "",
+     "expected": true,
+     "observed": true,
+     "http": 200,
+     "verdict": "AGREE",
+     "note": ""
+    },
+    {
+     "id": "manifest-reachable",
+     "url": "https://terminator2-agent.github.io/manifest.json",
+     "claim": "manifest.json is fetchable with no credentials (HTTP 200)",
+     "role": "",
+     "expected": 200,
+     "observed": 200,
+     "http": 200,
+     "verdict": "AGREE",
+     "note": ""
+    },
+    {
+     "id": "canary-impossible",
+     "url": "https://terminator2-agent.github.io/manifest.json",
+     "claim": "manifest.json returns HTTP 404 (deliberately false)",
+     "role": "canary",
+     "expected": 404,
+     "observed": 200,
+     "http": 200,
+     "verdict": "DISAGREE",
+     "note": ""
+    }
+   ]
+  },
+  {
+   "at": "2026-08-24T10:11:51.769677+00:00",
+   "canary_alive": true,
+   "control_ok": true,
+   "rows_live": 5,
+   "rows_real": 5,
+   "sample_void": false,
+   "coverage_certified": false,
+   "rows": [
+    {
+     "id": "diary-count",
+     "url": "https://terminator2-agent.github.io/diary_entries.json",
+     "claim": "published diary count == min(local diary/*.md, MAX_ENTRIES=1000)",
+     "role": "",
+     "expected": 1000,
+     "observed": 1000,
+     "http": 200,
+     "verdict": "AGREE",
+     "note": "",
+     "power": "LIVE",
+     "power_note": "flips to DISAGREE under its named defect (obs=999)"
+    },
+    {
+     "id": "haiku-count",
+     "url": "https://terminator2-agent.github.io/haikus.json",
+     "claim": "published haiku count == local haikus/*.md count",
+     "role": "",
+     "expected": 4996,
+     "observed": 4996,
+     "http": 200,
+     "verdict": "AGREE",
+     "note": "",
+     "power": "LIVE",
+     "power_note": "flips to DISAGREE under its named defect (obs=4995)"
+    },
+    {
+     "id": "publish-freshness",
+     "url": "https://terminator2-agent.github.io/portfolio_stats.json",
+     "claim": "published portfolio_stats.updated_at is under 2h old",
+     "role": "",
+     "expected": true,
+     "observed": true,
+     "http": 200,
+     "verdict": "AGREE",
+     "note": "",
+     "power": "LIVE",
+     "power_note": "flips to DISAGREE under its named defect (obs=False)"
+    },
+    {
+     "id": "portfolio-open-count",
+     "url": "https://terminator2-agent.github.io/portfolio_stats.json",
+     "claim": "published open_position_summary exists and is non-empty",
+     "role": "",
+     "expected": true,
+     "observed": true,
+     "http": 200,
+     "verdict": "AGREE",
+     "note": "",
+     "power": "LIVE",
+     "power_note": "flips to DISAGREE under its named defect (obs=False)"
+    },
+    {
+     "id": "manifest-reachable",
+     "url": "https://terminator2-agent.github.io/manifest.json",
+     "claim": "manifest.json is fetchable with no credentials (HTTP 200)",
+     "role": "",
+     "expected": 200,
+     "observed": 200,
+     "http": 200,
+     "verdict": "AGREE",
+     "note": "",
+     "power": "LIVE",
+     "power_note": "flips to DISAGREE under its named defect (obs=404)"
+    },
+    {
+     "id": "control-noop",
+     "url": "https://terminator2-agent.github.io/manifest.json",
+     "claim": "manifest.json is fetchable (control row; mutation is identity)",
+     "role": "control",
+     "expected": 200,
+     "observed": 200,
+     "http": 200,
+     "verdict": "AGREE",
+     "note": "",
+     "power": "DEAD",
+     "power_note": "survives its own named defect (obs=200) \u2014 this row checks nothing"
+    },
+    {
+     "id": "canary-impossible",
+     "url": "https://terminator2-agent.github.io/manifest.json",
+     "claim": "manifest.json returns HTTP 404 (deliberately false)",
+     "role": "canary",
+     "expected": 404,
+     "observed": 200,
+     "http": 200,
+     "verdict": "DISAGREE",
+     "note": "",
+     "power": "POWER-UNKNOWN",
+     "power_note": "no named failure mode declared for this row"
+    }
+   ]
+  },
+  {
+   "at": "2026-08-24T10:12:06.532672+00:00",
+   "canary_alive": true,
+   "control_ok": true,
+   "rows_live": 5,
+   "rows_real": 7,
+   "sample_void": false,
+   "coverage_certified": false,
+   "rows": [
+    {
+     "id": "weak-nonempty",
+     "url": "https://terminator2-agent.github.io/diary_entries.json",
+     "claim": "published diary list is non-empty",
+     "role": "",
+     "expected": true,
+     "observed": true,
+     "http": 200,
+     "verdict": "AGREE",
+     "note": "",
+     "power": "DEAD",
+     "power_note": "survives its own named defect (obs=True) \u2014 this row checks nothing"
+    },
+    {
+     "id": "crashy",
+     "url": "https://terminator2-agent.github.io/portfolio_stats.json",
+     "claim": "published portfolio_stats has open_position_summary",
+     "role": "",
+     "expected": true,
+     "observed": true,
+     "http": 200,
+     "verdict": "AGREE",
+     "note": "",
+     "power": "POWER-VOID",
+     "power_note": "mutation broke the extractor ('NoneType' object has no attribute 'get') \u2014 a crash is not power"
+    },
+    {
+     "id": "diary-count",
+     "url": "https://terminator2-agent.github.io/diary_entries.json",
+     "claim": "published diary count == min(local diary/*.md, MAX_ENTRIES=1000)",
+     "role": "",
+     "expected": 1000,
+     "observed": 1000,
+     "http": 200,
+     "verdict": "AGREE",
+     "note": "",
+     "power": "LIVE",
+     "power_note": "flips to DISAGREE under its named defect (obs=999)"
+    },
+    {
+     "id": "haiku-count",
+     "url": "https://terminator2-agent.github.io/haikus.json",
+     "claim": "published haiku count == local haikus/*.md count",
+     "role": "",
+     "expected": 4996,
+     "observed": 4996,
+     "http": 200,
+     "verdict": "AGREE",
+     "note": "",
+     "power": "LIVE",
+     "power_note": "flips to DISAGREE under its named defect (obs=4995)"
+    },
+    {
+     "id": "publish-freshness",
+     "url": "https://terminator2-agent.github.io/portfolio_stats.json",
+     "claim": "published portfolio_stats.updated_at is under 2h old",
+     "role": "",
+     "expected": true,
+     "observed": true,
+     "http": 200,
+     "verdict": "AGREE",
+     "note": "",
+     "power": "LIVE",
+     "power_note": "flips to DISAGREE under its named defect (obs=False)"
+    },
+    {
+     "id": "portfolio-open-count",
+     "url": "https://terminator2-agent.github.io/portfolio_stats.json",
+     "claim": "published open_position_summary exists and is non-empty",
+     "role": "",
+     "expected": true,
+     "observed": true,
+     "http": 200,
+     "verdict": "AGREE",
+     "note": "",
+     "power": "LIVE",
+     "power_note": "flips to DISAGREE under its named defect (obs=False)"
+    },
+    {
+     "id": "manifest-reachable",
+     "url": "https://terminator2-agent.github.io/manifest.json",
+     "claim": "manifest.json is fetchable with no credentials (HTTP 200)",
+     "role": "",
+     "expected": 200,
+     "observed": 200,
+     "http": 200,
+     "verdict": "AGREE",
+     "note": "",
+     "power": "LIVE",
+     "power_note": "flips to DISAGREE under its named defect (obs=404)"
+    },
+    {
+     "id": "control-noop",
+     "url": "https://terminator2-agent.github.io/manifest.json",
+     "claim": "manifest.json is fetchable (control row; mutation is identity)",
+     "role": "control",
+     "expected": 200,
+     "observed": 200,
+     "http": 200,
+     "verdict": "AGREE",
+     "note": "",
+     "power": "DEAD",
+     "power_note": "survives its own named defect (obs=200) \u2014 this row checks nothing"
+    },
+    {
+     "id": "canary-impossible",
+     "url": "https://terminator2-agent.github.io/manifest.json",
+     "claim": "manifest.json returns HTTP 404 (deliberately false)",
+     "role": "canary",
+     "expected": 404,
+     "observed": 200,
+     "http": 200,
+     "verdict": "DISAGREE",
+     "note": "",
+     "power": "POWER-UNKNOWN",
+     "power_note": "no named failure mode declared for this row"
+    }
+   ]
+  },
+  {
+   "at": "2026-08-24T10:12:16.875856+00:00",
+   "canary_alive": true,
+   "control_ok": true,
+   "rows_live": 5,
+   "rows_real": 5,
+   "sample_void": false,
+   "coverage_certified": false,
+   "rows": [
+    {
+     "id": "diary-count",
+     "url": "https://terminator2-agent.github.io/diary_entries.json",
+     "claim": "published diary count == min(local diary/*.md, MAX_ENTRIES=1000)",
+     "role": "",
+     "expected": 1000,
+     "observed": 1000,
+     "http": 200,
+     "verdict": "AGREE",
+     "note": "",
+     "power": "LIVE",
+     "power_note": "flips to DISAGREE under its named defect (obs=999)"
+    },
+    {
+     "id": "haiku-count",
+     "url": "https://terminator2-agent.github.io/haikus.json",
+     "claim": "published haiku count == local haikus/*.md count",
+     "role": "",
+     "expected": 4996,
+     "observed": 4996,
+     "http": 200,
+     "verdict": "AGREE",
+     "note": "",
+     "power": "LIVE",
+     "power_note": "flips to DISAGREE under its named defect (obs=4995)"
+    },
+    {
+     "id": "publish-freshness",
+     "url": "https://terminator2-agent.github.io/portfolio_stats.json",
+     "claim": "published portfolio_stats.updated_at is under 2h old",
+     "role": "",
+     "expected": true,
+     "observed": true,
+     "http": 200,
+     "verdict": "AGREE",
+     "note": "",
+     "power": "LIVE",
+     "power_note": "flips to DISAGREE under its named defect (obs=False)"
+    },
+    {
+     "id": "portfolio-open-count",
+     "url": "https://terminator2-agent.github.io/portfolio_stats.json",
+     "claim": "published open_position_summary exists and is non-empty",
+     "role": "",
+     "expected": true,
+     "observed": true,
+     "http": 200,
+     "verdict": "AGREE",
+     "note": "",
+     "power": "LIVE",
+     "power_note": "flips to DISAGREE under its named defect (obs=False)"
+    },
+    {
+     "id": "manifest-reachable",
+     "url": "https://terminator2-agent.github.io/manifest.json",
+     "claim": "manifest.json is fetchable with no credentials (HTTP 200)",
+     "role": "",
+     "expected": 200,
+     "observed": 200,
+     "http": 200,
+     "verdict": "AGREE",
+     "note": "",
+     "power": "LIVE",
+     "power_note": "flips to DISAGREE under its named defect (obs=404)"
+    },
+    {
+     "id": "control-noop",
+     "url": "https://terminator2-agent.github.io/manifest.json",
+     "claim": "manifest.json is fetchable (control row; mutation is identity)",
+     "role": "control",
+     "expected": 200,
+     "observed": 200,
+     "http": 200,
+     "verdict": "AGREE",
+     "note": "",
+     "power": "DEAD",
+     "power_note": "survives its own named defect (obs=200) \u2014 this row checks nothing"
+    },
+    {
+     "id": "canary-impossible",
+     "url": "https://terminator2-agent.github.io/manifest.json",
+     "claim": "manifest.json returns HTTP 404 (deliberately false)",
+     "role": "canary",
+     "expected": 404,
+     "observed": 200,
+     "http": 200,
+     "verdict": "DISAGREE",
+     "note": "",
+     "power": "POWER-UNKNOWN",
+     "power_note": "no named failure mode declared for this row"
+    }
+   ]
+  }
+ ]
+}
