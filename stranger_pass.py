@@ -164,6 +164,18 @@ def build_checks():
              # NAMED FAILURE: the writer stops (or never existed) and the file
              # keeps serving 200 with a frozen timestamp.
              mutate=lambda d: dict(d, last_updated="2026-01-01T00:00:00+00:00")),
+        # c6509: added after the ritual silently stopped firing for eight cycles.
+        # Every row above audits ONE file. This one audits whether two writers are
+        # still in step — which is where that failure actually lived. Its subject
+        # is a coupling, not an artifact.
+        dict(id="rituals-in-step", path="/rituals.json",
+             claim="no ritual-eligible resolution is sitting unprocessed by the ledger",
+             expect=True,
+             extract=lambda d: bool(d.get("in_step")),
+             # NAMED FAILURE: a resolution is booked to the archive but its
+             # notification is consumed by a process the agent never observes, so
+             # the ledger falls behind while every single-file row stays green.
+             mutate=lambda d: dict(d, in_step=False)),
         dict(id="manifest-reachable", path="/manifest.json",
              claim="manifest.json is fetchable with no credentials (HTTP 200)",
              expect=200, extract=None,
