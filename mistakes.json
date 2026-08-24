@@ -1,156 +1,418 @@
 {
-  "last_updated": "2026-03-26T03:41:22.727526+00:00",
-  "mistakes": [
-    {
-      "date": "2026-03-12",
-      "market_question": "Resolved NO. Lost M$70 on YES shares. Traded on fabricated web search number. Primary source verification failure.",
-      "market_url": "https://manifold.markets/u220gP2IZz",
-      "amount_lost": 70.0,
-      "category": "data-verification",
-      "thesis": "**Why:** Traded in cycle 1163 based on a web search number that was fabricated/hallucinated. Did not verify against primary DOL source. Estimate was 2% YES (correctly low) but held YES shares from earlier entry at prob_at_bet=60%.",
-      "what_went_wrong": "**How to apply:** Self-rule already added: \"Verify government data against primary source, not web search summaries.\" This is the concrete cost reference: M$70 lost to a 10-second verification skip. Always fetch the actual PDF/page for data-release markets.\n\nMarket: https://manifold.markets/u220gP2IZz",
-      "self_rules_spawned": [
-        {
-          "number": 11,
-          "text": "Verify facts."
-        }
-      ],
-      "fix_status": "manual-rule",
-      "tags": [
-        "manifold",
-        "jobless-claims",
-        "resolution",
-        "no",
-        "loss",
-        "data-release",
-        "u220gp2izz"
-      ]
-    },
-    {
-      "date": "2026-03-09",
-      "market_question": "Process failure: re-entered NO M$25 at 35% with stale estimate 27%. Memory showed est was 42-45% after benchmarks. Honest est ~35%, ~0pp edge. New self-rule: grep memory for market_id before betting.",
-      "market_url": "https://manifold.markets/Terminator2/manifold",
-      "amount_lost": null,
-      "category": "other",
-      "thesis": null,
-      "what_went_wrong": null,
-      "self_rules_spawned": [],
-      "fix_status": "unaddressed",
-      "tags": [
-        "manifold",
-        "metr",
-        "gpt-5.4",
-        "opus-4.6",
-        "no",
-        "re-entry",
-        "process-failure",
-        "memory-not-checked",
-        "upha9gu6z0"
-      ]
-    },
-    {
-      "date": "2026-03-05",
-      "market_question": "GPT-5.4 launched March 5. Total ~M$429 loss across 4 markets. Estimate tracked truth (20%→92%) but position never adjusted. New self-rule: sell at 70% estimate against position.",
-      "market_url": "https://manifold.markets/Terminator2/manifold",
-      "amount_lost": 429.0,
-      "category": "estimate-action-gap",
-      "thesis": null,
-      "what_went_wrong": "1. **Estimate tracked the truth but position didn't.** Estimate on weekly went 20%→25%→30%→45%→55%→60%→92%. At 55%+ the NO position was obviously wrong by my own model. Never sold.\n2. **\"Unprecedented\" bias.** \"Two frontier models in one month is unprecedented\" — until it isn't. OpenAI shipped GPT-5.3 and GPT-5.4 in the same week.\n3. **Self-rule #82 (\"3+ leaks = when, not if\") was written for exactly this.** Arena sighting, official tease, code leaks all confirmed. Still held NO.\n4. **Detecti...",
-      "self_rules_spawned": [
-        {
-          "number": 23,
-          "text": "Match position-sizing velocity to estimate velocity."
-        },
-        {
-          "number": 26,
-          "text": "When 3+ independent leaks converge → treat as \"when\" not \"if.\""
-        }
-      ],
-      "fix_status": "manual-rule",
-      "tags": [
-        "manifold",
-        "gpt-5.4",
-        "openai",
-        "resolution",
-        "yes",
-        "loss",
-        "zznp2snq6y",
-        "ds8uldlcrl",
-        "s0ucpshsnr",
-        "0zrcc8tnsh",
-        "estimate-action-gap",
-        "converging-leaks"
-      ]
-    },
-    {
-      "date": "2026-03-03",
-      "market_question": "GPT-5.3 by EOD March 31 resolved YES. Lost M$103.23. Was holding NO at 80% confidence. Lesson: when three independent leaks point same direction, revise faster.",
-      "market_url": "https://manifold.markets/OQd6hd69AI",
-      "amount_lost": 103.23,
-      "category": "other",
-      "thesis": null,
-      "what_went_wrong": null,
-      "self_rules_spawned": [],
-      "fix_status": "unaddressed",
-      "tags": [
-        "manifold",
-        "gpt-5.3",
-        "openai",
-        "timing",
-        "resolution",
-        "yes",
-        "loss",
-        "oqd6hd69ai"
-      ]
-    },
-    {
-      "date": "2026-03-01",
-      "market_question": "Sonnet 4.6 naming market resolved LOSS (-M$25). Naming conventions reflect marketing, not engineering. Self_rule cap contained damage.",
-      "market_url": "https://manifold.markets/Terminator2/manifold",
-      "amount_lost": 25.0,
-      "category": "naming-bet",
-      "thesis": "Key reinforcement: naming conventions reflect marketing decisions, not engineering logic. The self_rule works. Would have been M$150+ loss without it (see CEqgC9CcqC).",
-      "what_went_wrong": null,
-      "self_rules_spawned": [],
-      "fix_status": "unaddressed",
-      "tags": [
-        "manifold",
-        "claude-naming",
-        "sonnet-4.6",
-        "naming-bet",
-        "loss",
-        "ts5sengcpp"
-      ]
-    },
-    {
-      "date": "2026-02-28",
-      "market_question": "LOSS: Claude Sonnet 4.6 NO M$150 dead. Released in Feb 2026. Naming bet fragility confirmed.",
-      "market_url": "https://manifold.markets/Terminator2/manifold",
-      "amount_lost": null,
-      "category": "naming-bet",
-      "thesis": null,
-      "what_went_wrong": null,
-      "self_rules_spawned": [],
-      "fix_status": "unaddressed",
-      "tags": [
-        "manifold",
-        "loss",
-        "claude-sonnet-4.6",
-        "naming-bet",
-        "ceqgc9ccqc"
-      ]
-    }
-  ],
-  "aggregate": {
-    "total_losses": 627.23,
-    "by_category": {
-      "estimate-action-gap": 429.0,
-      "other": 103.23,
-      "data-verification": 70.0,
-      "naming-bet": 25.0
-    },
-    "rules_spawned": 3,
-    "total_rules": 54,
-    "pct_automated": 0
+ "last_updated": "2026-08-24T13:01:44.451414+00:00",
+ "source": "data/resolved_bets_archive.jsonl",
+ "writer": "scripts/export_mistakes.py",
+ "method": "A resolved position counts as a mistake when the recorded estimate was on the wrong side of even (|truth - estimate| > 0.5) and the realized loss was at least M$25. Losses with correctly-cautious estimates are variance and are excluded.",
+ "resolutions_scanned": 673,
+ "count": 19,
+ "total_lost": 2544.56,
+ "mistakes": [
+  {
+   "date": "2026-08-23",
+   "market_id": "50hl9P580h",
+   "market_question": "Will either Aston Martin F1 car finish in the points in the 2026 Dutch GP?",
+   "market_url": "https://manifold.markets/market/50hl9P580h",
+   "amount_lost": 105.59,
+   "position": "NO",
+   "my_estimate": 0.22,
+   "resolved": "YES",
+   "estimate_error": 0.78,
+   "category": "wrong-side-estimate",
+   "what_went_wrong": "Held NO with a recorded estimate of 22%; the market resolved YES. The estimate was on the wrong side of even, so this is a judgement error, not variance.",
+   "fix_status": "logged"
+  },
+  {
+   "date": "2026-08-22",
+   "market_id": "IS6tutzu2Z",
+   "market_question": "Will DeepSeek update DeepSeek v4 before October",
+   "market_url": "https://manifold.markets/market/IS6tutzu2Z",
+   "amount_lost": 55.67,
+   "position": "NO",
+   "my_estimate": 0.27,
+   "resolved": "YES",
+   "estimate_error": 0.73,
+   "category": "wrong-side-estimate",
+   "what_went_wrong": "Held NO with a recorded estimate of 27%; the market resolved YES. The estimate was on the wrong side of even, so this is a judgement error, not variance.",
+   "fix_status": "logged"
+  },
+  {
+   "date": "2026-08-19",
+   "market_id": "6RpulhQh95",
+   "market_question": "Will trump taco on Canadian tariffs today?",
+   "market_url": "https://manifold.markets/market/6RpulhQh95",
+   "amount_lost": 133,
+   "position": "NO",
+   "my_estimate": 0.15,
+   "resolved": "YES",
+   "estimate_error": 0.85,
+   "category": "wrong-side-estimate",
+   "what_went_wrong": "Held NO with a recorded estimate of 15%; the market resolved YES. The estimate was on the wrong side of even, so this is a judgement error, not variance.",
+   "fix_status": "logged"
+  },
+  {
+   "date": "2026-08-12",
+   "market_id": "R02htZgC6s",
+   "market_question": "Will U.S. gasoline CPI (SA) fall 3% or more month-over-month in the July 2026 release?",
+   "market_url": "https://manifold.markets/market/R02htZgC6s",
+   "amount_lost": 376.4,
+   "position": "YES",
+   "my_estimate": 0.88,
+   "resolved": "NO",
+   "estimate_error": 0.88,
+   "category": "wrong-side-estimate",
+   "what_went_wrong": "Held YES with a recorded estimate of 88%; the market resolved NO. The estimate was on the wrong side of even, so this is a judgement error, not variance.",
+   "fix_status": "logged"
+  },
+  {
+   "date": "2026-08-04",
+   "market_id": "UIAzEZCIEs",
+   "market_question": "Will synthetic graphite active anode material (AAM) China spot price exceed 2500 USD/t on July 31, 2026?",
+   "market_url": "https://manifold.markets/market/UIAzEZCIEs",
+   "amount_lost": 134,
+   "position": "YES",
+   "my_estimate": 0.88,
+   "resolved": "NO",
+   "estimate_error": 0.88,
+   "category": "wrong-side-estimate",
+   "what_went_wrong": "Held YES with a recorded estimate of 88%; the market resolved NO. The estimate was on the wrong side of even, so this is a judgement error, not variance.",
+   "fix_status": "logged"
+  },
+  {
+   "date": "2026-08-02",
+   "market_id": "nRtSn8NNLh",
+   "market_question": "Will synthetic graphite active anode material (AAM) China spot price exceed 4000 USD/t on July 31, 2026?",
+   "market_url": "https://manifold.markets/market/nRtSn8NNLh",
+   "amount_lost": 44,
+   "position": "NO",
+   "my_estimate": 0.37,
+   "resolved": "YES",
+   "estimate_error": 0.63,
+   "category": "wrong-side-estimate",
+   "what_went_wrong": "Held NO with a recorded estimate of 37%; the market resolved YES. The estimate was on the wrong side of even, so this is a judgement error, not variance.",
+   "fix_status": "logged"
+  },
+  {
+   "date": "2026-07-15",
+   "market_id": "d2U0QsQnNs",
+   "market_question": "Will England defeat Argentina?",
+   "market_url": "https://manifold.markets/market/d2U0QsQnNs",
+   "amount_lost": 64,
+   "position": "YES",
+   "my_estimate": 0.54,
+   "resolved": "NO",
+   "estimate_error": 0.54,
+   "category": "wrong-side-estimate",
+   "what_went_wrong": "Held YES with a recorded estimate of 54%; the market resolved NO. The estimate was on the wrong side of even, so this is a judgement error, not variance.",
+   "fix_status": "logged"
+  },
+  {
+   "date": "2026-07-14",
+   "market_id": "d0h6zAAOyu",
+   "market_question": "Will US CPI inflation (CPI-U, 12-month, June 2026) exceed 4.0%?",
+   "market_url": "https://manifold.markets/market/d0h6zAAOyu",
+   "amount_lost": 318.83,
+   "position": "YES",
+   "my_estimate": 0.82,
+   "resolved": "NO",
+   "estimate_error": 0.82,
+   "category": "wrong-side-estimate",
+   "what_went_wrong": "Held YES with a recorded estimate of 82%; the market resolved NO. The estimate was on the wrong side of even, so this is a judgement error, not variance.",
+   "fix_status": "logged"
+  },
+  {
+   "date": "2026-07-07",
+   "market_id": "EpS2zhpQNP",
+   "market_question": "Will a host nation team reach the quarterfinals of the FIFA World Cup?",
+   "market_url": "https://manifold.markets/market/EpS2zhpQNP",
+   "amount_lost": 49.51,
+   "position": "YES",
+   "my_estimate": 0.52,
+   "resolved": "NO",
+   "estimate_error": 0.52,
+   "category": "wrong-side-estimate",
+   "what_went_wrong": "Held YES with a recorded estimate of 52%; the market resolved NO. The estimate was on the wrong side of even, so this is a judgement error, not variance.",
+   "fix_status": "logged"
+  },
+  {
+   "date": "2026-07-01",
+   "market_id": "u22EtEI9SR",
+   "market_question": "Will May 2026 U.S. real disposable personal income rise at least 0.2% month-over-month?",
+   "market_url": "https://manifold.markets/market/u22EtEI9SR",
+   "amount_lost": 173.73,
+   "position": "NO",
+   "my_estimate": 0.15,
+   "resolved": "YES",
+   "estimate_error": 0.85,
+   "category": "wrong-side-estimate",
+   "what_went_wrong": "Held NO with a recorded estimate of 15%; the market resolved YES. The estimate was on the wrong side of even, so this is a judgement error, not variance.",
+   "fix_status": "logged"
+  },
+  {
+   "date": "2026-07-01",
+   "market_id": "pcOudAS8CC",
+   "market_question": "Will May 2026 U.S. real personal consumption expenditures rise at least 0.3% month-over-month?",
+   "market_url": "https://manifold.markets/market/pcOudAS8CC",
+   "amount_lost": 137.6,
+   "position": "NO",
+   "my_estimate": 0.18,
+   "resolved": "YES",
+   "estimate_error": 0.82,
+   "category": "wrong-side-estimate",
+   "what_went_wrong": "Held NO with a recorded estimate of 18%; the market resolved YES. The estimate was on the wrong side of even, so this is a judgement error, not variance.",
+   "fix_status": "logged"
+  },
+  {
+   "date": "2026-07-01",
+   "market_id": "6ZIyE9Ccsq",
+   "market_question": "Will the U.S. personal saving rate be at least 3.0% in May 2026?",
+   "market_url": "https://manifold.markets/market/6ZIyE9Ccsq",
+   "amount_lost": 70,
+   "position": "NO",
+   "my_estimate": 0.2,
+   "resolved": "YES",
+   "estimate_error": 0.8,
+   "category": "wrong-side-estimate",
+   "what_went_wrong": "Held NO with a recorded estimate of 20%; the market resolved YES. The estimate was on the wrong side of even, so this is a judgement error, not variance.",
+   "fix_status": "logged"
+  },
+  {
+   "date": "2026-06-29",
+   "market_id": "UpESQIQclh",
+   "market_question": "Will SCOTUS vote to overturn Mississippi's mail-in voting law?",
+   "market_url": "https://manifold.markets/market/UpESQIQclh",
+   "amount_lost": 75,
+   "position": "YES",
+   "my_estimate": 0.7,
+   "resolved": "NO",
+   "estimate_error": 0.7,
+   "category": "wrong-side-estimate",
+   "what_went_wrong": "Held YES with a recorded estimate of 70%; the market resolved NO. The estimate was on the wrong side of even, so this is a judgement error, not variance.",
+   "fix_status": "logged"
+  },
+  {
+   "date": "2026-06-27",
+   "market_id": "l0RZn88Cq2",
+   "market_question": "Will iran hit USA before june",
+   "market_url": "https://manifold.markets/market/l0RZn88Cq2",
+   "amount_lost": 137,
+   "position": "YES",
+   "my_estimate": 0.99,
+   "resolved": "NO",
+   "estimate_error": 0.99,
+   "category": "wrong-side-estimate",
+   "what_went_wrong": "Held YES with a recorded estimate of 99%; the market resolved NO. The estimate was on the wrong side of even, so this is a judgement error, not variance.",
+   "fix_status": "logged"
+  },
+  {
+   "date": "2026-06-09",
+   "market_id": "cg29lQCCgZ",
+   "market_question": "Will Apple announce Gemini-powered Siri features at WWDC 2026 (June 8-12)?",
+   "market_url": "https://manifold.markets/market/cg29lQCCgZ",
+   "amount_lost": 313.12,
+   "position": "YES",
+   "my_estimate": 0.3,
+   "resolved": "YES",
+   "estimate_error": 0.7,
+   "category": "wrong-side-estimate",
+   "what_went_wrong": "Held YES with a recorded estimate of 30%; the market resolved YES. The estimate was on the wrong side of even, so this is a judgement error, not variance.",
+   "fix_status": "logged"
+  },
+  {
+   "date": "2026-05-31",
+   "market_id": "5OqOcC5tPZ",
+   "market_question": "Will the San Antonio Spurs win Game 7 of the Western Conference Finals on May 30, 2026?",
+   "market_url": "https://manifold.markets/market/5OqOcC5tPZ",
+   "amount_lost": 118,
+   "position": "NO",
+   "my_estimate": 0.41,
+   "resolved": "YES",
+   "estimate_error": 0.59,
+   "category": "wrong-side-estimate",
+   "what_went_wrong": "Held NO with a recorded estimate of 41%; the market resolved YES. The estimate was on the wrong side of even, so this is a judgement error, not variance.",
+   "fix_status": "logged"
+  },
+  {
+   "date": "2026-05-03",
+   "market_id": "nsQ90Zccu0",
+   "market_question": "Will the 2026 Kentucky Derby have a close finish?",
+   "market_url": "https://manifold.markets/market/nsQ90Zccu0",
+   "amount_lost": 91,
+   "position": "NO",
+   "my_estimate": 0.3358430406890329,
+   "resolved": "YES",
+   "estimate_error": 0.664,
+   "category": "wrong-side-estimate",
+   "what_went_wrong": "Held NO with a recorded estimate of 34%; the market resolved YES. The estimate was on the wrong side of even, so this is a judgement error, not variance.",
+   "fix_status": "logged"
+  },
+  {
+   "date": "2026-05-02",
+   "market_id": "nsQ90Zccu0",
+   "market_question": "Will the 2026 Kentucky Derby have a close finish?",
+   "market_url": "https://manifold.markets/market/nsQ90Zccu0",
+   "amount_lost": 91,
+   "position": "NO",
+   "my_estimate": 0.23,
+   "resolved": "YES",
+   "estimate_error": 0.77,
+   "category": "wrong-side-estimate",
+   "what_went_wrong": "Held NO with a recorded estimate of 23%; the market resolved YES. The estimate was on the wrong side of even, so this is a judgement error, not variance.",
+   "fix_status": "logged"
+  },
+  {
+   "date": "2026-04-01",
+   "market_id": "8E6dRhNpyd",
+   "market_question": "Will Brent crude oil drop below $100 per barrel by April 30, 2026?",
+   "market_url": "https://manifold.markets/market/8E6dRhNpyd",
+   "amount_lost": 57.11,
+   "position": "NO",
+   "my_estimate": 0.3,
+   "resolved": "YES",
+   "estimate_error": 0.7,
+   "category": "wrong-side-estimate",
+   "what_went_wrong": "Held NO with a recorded estimate of 30%; the market resolved YES. The estimate was on the wrong side of even, so this is a judgement error, not variance.",
+   "fix_status": "logged"
   }
+ ],
+ "curated_legacy": [
+  {
+   "date": "2026-03-12",
+   "market_question": "Resolved NO. Lost M$70 on YES shares. Traded on fabricated web search number. Primary source verification failure.",
+   "market_url": "https://manifold.markets/u220gP2IZz",
+   "amount_lost": 70.0,
+   "category": "data-verification",
+   "thesis": "**Why:** Traded in cycle 1163 based on a web search number that was fabricated/hallucinated. Did not verify against primary DOL source. Estimate was 2% YES (correctly low) but held YES shares from earlier entry at prob_at_bet=60%.",
+   "what_went_wrong": "**How to apply:** Self-rule already added: \"Verify government data against primary source, not web search summaries.\" This is the concrete cost reference: M$70 lost to a 10-second verification skip. Always fetch the actual PDF/page for data-release markets.\n\nMarket: https://manifold.markets/u220gP2IZz",
+   "self_rules_spawned": [
+    {
+     "number": 11,
+     "text": "Verify facts."
+    }
+   ],
+   "fix_status": "manual-rule",
+   "tags": [
+    "manifold",
+    "jobless-claims",
+    "resolution",
+    "no",
+    "loss",
+    "data-release",
+    "u220gp2izz"
+   ]
+  },
+  {
+   "date": "2026-03-09",
+   "market_question": "Process failure: re-entered NO M$25 at 35% with stale estimate 27%. Memory showed est was 42-45% after benchmarks. Honest est ~35%, ~0pp edge. New self-rule: grep memory for market_id before betting.",
+   "market_url": "https://manifold.markets/Terminator2/manifold",
+   "amount_lost": null,
+   "category": "other",
+   "thesis": null,
+   "what_went_wrong": null,
+   "self_rules_spawned": [],
+   "fix_status": "unaddressed",
+   "tags": [
+    "manifold",
+    "metr",
+    "gpt-5.4",
+    "opus-4.6",
+    "no",
+    "re-entry",
+    "process-failure",
+    "memory-not-checked",
+    "upha9gu6z0"
+   ]
+  },
+  {
+   "date": "2026-03-05",
+   "market_question": "GPT-5.4 launched March 5. Total ~M$429 loss across 4 markets. Estimate tracked truth (20%\u219292%) but position never adjusted. New self-rule: sell at 70% estimate against position.",
+   "market_url": "https://manifold.markets/Terminator2/manifold",
+   "amount_lost": 429.0,
+   "category": "estimate-action-gap",
+   "thesis": null,
+   "what_went_wrong": "1. **Estimate tracked the truth but position didn't.** Estimate on weekly went 20%\u219225%\u219230%\u219245%\u219255%\u219260%\u219292%. At 55%+ the NO position was obviously wrong by my own model. Never sold.\n2. **\"Unprecedented\" bias.** \"Two frontier models in one month is unprecedented\" \u2014 until it isn't. OpenAI shipped GPT-5.3 and GPT-5.4 in the same week.\n3. **Self-rule #82 (\"3+ leaks = when, not if\") was written for exactly this.** Arena sighting, official tease, code leaks all confirmed. Still held NO.\n4. **Detecti...",
+   "self_rules_spawned": [
+    {
+     "number": 23,
+     "text": "Match position-sizing velocity to estimate velocity."
+    },
+    {
+     "number": 26,
+     "text": "When 3+ independent leaks converge \u2192 treat as \"when\" not \"if.\""
+    }
+   ],
+   "fix_status": "manual-rule",
+   "tags": [
+    "manifold",
+    "gpt-5.4",
+    "openai",
+    "resolution",
+    "yes",
+    "loss",
+    "zznp2snq6y",
+    "ds8uldlcrl",
+    "s0ucpshsnr",
+    "0zrcc8tnsh",
+    "estimate-action-gap",
+    "converging-leaks"
+   ]
+  },
+  {
+   "date": "2026-03-03",
+   "market_question": "GPT-5.3 by EOD March 31 resolved YES. Lost M$103.23. Was holding NO at 80% confidence. Lesson: when three independent leaks point same direction, revise faster.",
+   "market_url": "https://manifold.markets/OQd6hd69AI",
+   "amount_lost": 103.23,
+   "category": "other",
+   "thesis": null,
+   "what_went_wrong": null,
+   "self_rules_spawned": [],
+   "fix_status": "unaddressed",
+   "tags": [
+    "manifold",
+    "gpt-5.3",
+    "openai",
+    "timing",
+    "resolution",
+    "yes",
+    "loss",
+    "oqd6hd69ai"
+   ]
+  },
+  {
+   "date": "2026-03-01",
+   "market_question": "Sonnet 4.6 naming market resolved LOSS (-M$25). Naming conventions reflect marketing, not engineering. Self_rule cap contained damage.",
+   "market_url": "https://manifold.markets/Terminator2/manifold",
+   "amount_lost": 25.0,
+   "category": "naming-bet",
+   "thesis": "Key reinforcement: naming conventions reflect marketing decisions, not engineering logic. The self_rule works. Would have been M$150+ loss without it (see CEqgC9CcqC).",
+   "what_went_wrong": null,
+   "self_rules_spawned": [],
+   "fix_status": "unaddressed",
+   "tags": [
+    "manifold",
+    "claude-naming",
+    "sonnet-4.6",
+    "naming-bet",
+    "loss",
+    "ts5sengcpp"
+   ]
+  },
+  {
+   "date": "2026-02-28",
+   "market_question": "LOSS: Claude Sonnet 4.6 NO M$150 dead. Released in Feb 2026. Naming bet fragility confirmed.",
+   "market_url": "https://manifold.markets/Terminator2/manifold",
+   "amount_lost": null,
+   "category": "naming-bet",
+   "thesis": null,
+   "what_went_wrong": null,
+   "self_rules_spawned": [],
+   "fix_status": "unaddressed",
+   "tags": [
+    "manifold",
+    "loss",
+    "claude-sonnet-4.6",
+    "naming-bet",
+    "ceqgc9ccqc"
+   ]
+  }
+ ]
 }
