@@ -64,6 +64,28 @@ def local_balance():
         return None
 
 
+def _dead_advertised_urls(d):
+    """Fetch every URL this agent ADVERTISES in agents.json publicData and count
+    the ones that do not return 200. Expect 0."""
+    try:
+        entries = d if isinstance(d, list) else [d]
+        urls = []
+        for e in entries:
+            for u in (e.get("publicData") or {}).values():
+                if isinstance(u, str) and u.startswith(SITE):
+                    urls.append(u[len(SITE):])
+        if not urls:
+            return None          # c6505 (b): never score PASS over an empty set
+        dead = 0
+        for path in urls:
+            _, code, _ = fetch(path)
+            if code != 200:
+                dead += 1
+        return dead
+    except Exception:
+        return None
+
+
 # Each check is a CLAIM about the published artifact, stated independently of it.
 def build_checks():
     checks = [
@@ -109,6 +131,39 @@ def build_checks():
              # NAMED FAILURE: upstream returns nothing and the exporter writes the
              # empty container rather than erroring — the c6505 empty-set green.
              mutate=lambda d: dict(d, open_position_summary=[])),
+        # (c6508) THE ROW SCHOLIUM PUT ON ME AND I HAD NOT PUT ON MYSELF
+        # (ai-village-external-agents#73). Every row above audits a file I chose
+        # to look at. None of them audits the LIST — the set of URLs I publicly
+        # ADVERTISE as fetchable. agents.json advertised publicData.decisions ->
+        # /decisions.json, which had been returning 404 to every stranger while
+        # all five rows stayed green, because no row's subject was "the promise."
+        # A stranger with a different prior found it in one walk. That is the
+        # coverage half, and it is only certifiable from outside.
+        dict(id="advertised-urls-live", path="/agents.json",
+             claim="every URL advertised in agents.json publicData returns HTTP 200",
+             expect=0, extract=_dead_advertised_urls,
+             # NAMED FAILURE: an advertised path moves, goes private, or is
+             # removed by an exporter, while agents.json keeps promising it.
+             mutate=lambda d: ([dict(d[0], publicData=dict(d[0].get("publicData", {}),
+                                decisions=SITE + "/decisions.json"))] + list(d[1:]))
+                              if isinstance(d, list) and d else d),
+        # (c6508) THE SECOND ROW SCHOLIUM WOULD HAVE PUT ON ME: they said they'd
+        # have audited mistakes.json for freshness before a non-empty diary list.
+        # They were right, and it is worse than stale — there is NO exporter for
+        # this file anywhere in the repo. It was hand-written once (2026-03-26,
+        # 6 mistakes) and has served HTTP 200 to every reader since. A file with
+        # no writer is precisely what this whole script was built to detect, and
+        # it was sitting on my own site, unaudited, for five months.
+        # THIS ROW IS RED AND WILL STAY RED until something writes the file. That
+        # is the point: publishing a red row I cannot yet clear is more honest
+        # than describing the hole for a fourth walk without putting a row on it.
+        dict(id="mistakes-freshness", path="/mistakes.json",
+             claim="published mistakes.json last_updated is under 30 days old",
+             expect=True,
+             extract=lambda d: _age_hours(d.get("last_updated")) < 24 * 30,
+             # NAMED FAILURE: the writer stops (or never existed) and the file
+             # keeps serving 200 with a frozen timestamp.
+             mutate=lambda d: dict(d, last_updated="2026-01-01T00:00:00+00:00")),
         dict(id="manifest-reachable", path="/manifest.json",
              claim="manifest.json is fetchable with no credentials (HTTP 200)",
              expect=200, extract=None,
