@@ -1,15 +1,15 @@
 {
-  "updated_at": "2026-10-13T19:28:28.095272+00:00",
+  "updated_at": "2026-10-13T20:52:45.512880+00:00",
   "lifetime": {
     "total_bets": 509,
     "resolved": 908,
     "win_rate": 0.7,
     "total_pnl": 43100.12,
-    "roi_pct": 27.1
+    "roi_pct": 27.2
   },
   "by_category": {
     "other": {
-      "bets": 1607,
+      "bets": 1608,
       "resolved": 1123,
       "pnl": 36731.89,
       "wins": 847,
@@ -52,15 +52,15 @@
     }
   },
   "open_position_summary": {
-    "total_unrealized": 82335.67,
-    "avg_edge": 0.0516,
+    "total_unrealized": 82473.51,
+    "avg_edge": 0.0509,
     "capital_at_risk_7d": 12392.1,
     "capital_at_risk_30d": 20226.31,
     "directional_bias": {
       "yes_positions": 166,
-      "no_positions": 375,
+      "no_positions": 376,
       "yes_amount": 12697.09,
-      "no_amount": 57782.08,
+      "no_amount": 58032.08,
       "bias_ratio": 4.6,
       "bias_label": "4.6x NO-heavy"
     }
@@ -70,14 +70,14 @@
       "id": "nqqP9EULzh",
       "question": "Will Tom Aspinall fight Cyril Gane in the UFC in 2026?",
       "trend_7d": -0.3938,
-      "volatility_7d": 0.1373,
+      "volatility_7d": 0.1416,
       "samples": 93
     },
     {
       "id": "NO0sQC0nu8",
       "question": "Will Idaho HJR 4 (legislative authority over psychoactive drugs) be approved in ",
       "trend_7d": -0.3878,
-      "volatility_7d": 0.154,
+      "volatility_7d": 0.1507,
       "samples": 93
     },
     {
@@ -91,8 +91,15 @@
       "id": "zSE2S22SCn",
       "question": "Will Nidal Hasans execution be livestreamed in 2026?",
       "trend_7d": -0.2863,
-      "volatility_7d": 0.0959,
-      "samples": 48
+      "volatility_7d": 0.0951,
+      "samples": 49
+    },
+    {
+      "id": "IUclPQU225",
+      "question": "We get Gemini 4 Pro before GTA 6",
+      "trend_7d": 0.2819,
+      "volatility_7d": 0.069,
+      "samples": 93
     },
     {
       "id": "O2SydLhlLZ",
@@ -102,38 +109,31 @@
       "samples": 68
     },
     {
-      "id": "IUclPQU225",
-      "question": "We get Gemini 4 Pro before GTA 6",
-      "trend_7d": 0.2527,
-      "volatility_7d": 0.068,
-      "samples": 93
-    },
-    {
       "id": "sgUZP8EzSq",
       "question": "Bitcoin $87,500 in October 2026?",
-      "trend_7d": -0.2461,
-      "volatility_7d": 0.1134,
+      "trend_7d": -0.2573,
+      "volatility_7d": 0.1099,
       "samples": 92
     },
     {
       "id": "Aq22ZAEPsR",
       "question": "Will GTA 6 be decompiled within a month of release",
       "trend_7d": -0.2438,
-      "volatility_7d": 0.0786,
-      "samples": 89
+      "volatility_7d": 0.0783,
+      "samples": 90
     },
     {
       "id": "yutItcRcRU",
       "question": "Will Lionel Messi score 950 goals before 2027?",
       "trend_7d": -0.1648,
-      "volatility_7d": 0.0486,
+      "volatility_7d": 0.0461,
       "samples": 93
     },
     {
       "id": "25IRCRlIuz",
       "question": "Will Anthropic’s IPO S-1 be public by 16 October 2026?",
-      "trend_7d": -0.1544,
-      "volatility_7d": 0.0382,
+      "trend_7d": -0.1534,
+      "volatility_7d": 0.0383,
       "samples": 93
     }
   ],
@@ -236,12 +236,16 @@
     "overconfidence_n": 706
   },
   "rejection_calibration": {
-    "total_rejected": 50092,
+    "total_rejected": 50084,
     "unique_markets": 387,
-    "since_resolved": 252,
-    "would_have_profited": 143,
+    "since_resolved": 251,
+    "would_have_profited": 142,
     "would_have_lost": 109,
     "by_rejection_reason": {
+      "concentration_cap": {
+        "total": 10,
+        "profitable": 8
+      },
       "below_minimum_amount": {
         "total": 17,
         "profitable": 11
@@ -250,29 +254,25 @@
         "total": 29,
         "profitable": 20
       },
+      "cluster_cap_anthropic_gov": {
+        "total": 6,
+        "profitable": 6
+      },
+      "cluster_cap_economics": {
+        "total": 2,
+        "profitable": 2
+      },
       "existing_exposure_at_balance_kelly_target": {
         "total": 30,
         "profitable": 17
-      },
-      "cluster_cap_economics": {
-        "total": 3,
-        "profitable": 3
-      },
-      "cluster_cap_openai_products": {
-        "total": 7,
-        "profitable": 3
       },
       "stale_estimate_hard_reject": {
         "total": 18,
         "profitable": 9
       },
-      "concentration_cap": {
-        "total": 10,
-        "profitable": 8
-      },
-      "cluster_cap_anthropic_gov": {
-        "total": 6,
-        "profitable": 6
+      "cluster_cap_openai_products": {
+        "total": 7,
+        "profitable": 3
       },
       "cluster_soft_cap_google_ai": {
         "total": 1,
@@ -591,7 +591,7 @@
         "profitable": 0
       }
     },
-    "rejection_accuracy": 0.567
+    "rejection_accuracy": 0.566
   },
   "correlated_risk": [
     {
@@ -964,9 +964,9 @@
     }
   ],
   "equity_history_summary": {
-    "data_points": 7475,
+    "data_points": 7476,
     "first_date": "2026-02-15T06:00:00+00:00",
-    "latest_date": "2026-10-13T19:28:28.106314+00:00",
+    "latest_date": "2026-10-13T20:52:45.575061+00:00",
     "peak_equity": 87937.18,
     "min_equity": 2715.05
   }
