@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-16T16:43:23.853828+00:00",
+  "updated_at": "2026-10-16T17:50:04.009589+00:00",
   "lifetime": {
     "total_bets": 509,
     "resolved": 915,
@@ -52,8 +52,8 @@
     }
   },
   "open_position_summary": {
-    "total_unrealized": 84653.33,
-    "avg_edge": 0.058,
+    "total_unrealized": 84666.81,
+    "avg_edge": 0.0579,
     "capital_at_risk_7d": 11995.3,
     "capital_at_risk_30d": 20532.89,
     "directional_bias": {
@@ -70,71 +70,71 @@
       "id": "nqqP9EULzh",
       "question": "Will Tom Aspinall fight Cyril Gane in the UFC in 2026?",
       "trend_7d": -0.3938,
-      "volatility_7d": 0.1851,
+      "volatility_7d": 0.1833,
       "samples": 90
     },
     {
       "id": "zSE2S22SCn",
       "question": "Will Nidal Hasans execution be livestreamed in 2026?",
-      "trend_7d": -0.3831,
-      "volatility_7d": 0.1206,
+      "trend_7d": -0.3412,
+      "volatility_7d": 0.1216,
       "samples": 88
     },
     {
       "id": "C66SUt6UNp",
       "question": "Will Iran strike US military base at least once before November?",
       "trend_7d": -0.3263,
-      "volatility_7d": 0.1281,
+      "volatility_7d": 0.1287,
       "samples": 88
     },
     {
       "id": "URyhuQ9I2z",
       "question": "Claude Riemann Hypothesis Lower Bound improved upon before 2027?",
       "trend_7d": 0.2185,
-      "volatility_7d": 0.114,
-      "samples": 90
-    },
-    {
-      "id": "6QEEcqp2lh",
-      "question": "US Average DIESEL Price Is $6.000 or more on Election Day 2026?",
-      "trend_7d": 0.1987,
-      "volatility_7d": 0.0773,
+      "volatility_7d": 0.1139,
       "samples": 90
     },
     {
       "id": "qdpstn2dPU",
       "question": "Idaho ballot initiative to amend state constitution to designate English as offi",
       "trend_7d": 0.1943,
-      "volatility_7d": 0.0836,
-      "samples": 32
+      "volatility_7d": 0.0831,
+      "samples": 33
+    },
+    {
+      "id": "6QEEcqp2lh",
+      "question": "US Average DIESEL Price Is $6.000 or more on Election Day 2026?",
+      "trend_7d": 0.1931,
+      "volatility_7d": 0.0776,
+      "samples": 90
     },
     {
       "id": "R5pynP0LEN",
       "question": "Will Anthropic's API uptime fall below 98% in 2026?",
       "trend_7d": -0.1871,
-      "volatility_7d": 0.0789,
-      "samples": 36
+      "volatility_7d": 0.0781,
+      "samples": 37
     },
     {
       "id": "LASsdLuUcU",
       "question": "Will the German AfD be in power on state (Bundesland) level by the end of 2026?",
       "trend_7d": -0.1773,
-      "volatility_7d": 0.0741,
-      "samples": 90
-    },
-    {
-      "id": "ZORPZQhzPq",
-      "question": "ZORPZQhzPq",
-      "trend_7d": 0.1681,
-      "volatility_7d": 0.1237,
+      "volatility_7d": 0.0752,
       "samples": 90
     },
     {
       "id": "6AzSZ5nAl9",
       "question": "Will METR retire the 50% Time Horizon by EOY 2026",
       "trend_7d": 0.1659,
-      "volatility_7d": 0.0841,
-      "samples": 15
+      "volatility_7d": 0.085,
+      "samples": 16
+    },
+    {
+      "id": "ZORPZQhzPq",
+      "question": "ZORPZQhzPq",
+      "trend_7d": 0.161,
+      "volatility_7d": 0.1228,
+      "samples": 90
     }
   ],
   "calibration": [
@@ -236,15 +236,19 @@
     "overconfidence_n": 710
   },
   "rejection_calibration": {
-    "total_rejected": 50095,
-    "unique_markets": 375,
-    "since_resolved": 231,
+    "total_rejected": 50087,
+    "unique_markets": 374,
+    "since_resolved": 230,
     "would_have_profited": 128,
-    "would_have_lost": 103,
+    "would_have_lost": 102,
     "by_rejection_reason": {
       "below_minimum_amount": {
         "total": 6,
         "profitable": 4
+      },
+      "thin_edge_at_fill": {
+        "total": 25,
+        "profitable": 17
       },
       "cluster_cap_openai_products": {
         "total": 6,
@@ -254,25 +258,21 @@
         "total": 10,
         "profitable": 8
       },
-      "cluster_cap_economics": {
-        "total": 1,
-        "profitable": 1
-      },
-      "thin_edge_at_fill": {
-        "total": 25,
-        "profitable": 17
-      },
       "existing_exposure_at_balance_kelly_target": {
-        "total": 27,
+        "total": 26,
         "profitable": 14
-      },
-      "cluster_cap_anthropic_gov": {
-        "total": 5,
-        "profitable": 4
       },
       "ai_timing_low_edge": {
         "total": 3,
         "profitable": 2
+      },
+      "cluster_cap_economics": {
+        "total": 1,
+        "profitable": 1
+      },
+      "cluster_cap_anthropic_gov": {
+        "total": 5,
+        "profitable": 4
       },
       "stale_estimate_hard_reject": {
         "total": 14,
@@ -587,7 +587,7 @@
         "profitable": 0
       }
     },
-    "rejection_accuracy": 0.554
+    "rejection_accuracy": 0.557
   },
   "correlated_risk": [
     {
@@ -960,9 +960,9 @@
     }
   ],
   "equity_history_summary": {
-    "data_points": 7523,
+    "data_points": 7524,
     "first_date": "2026-02-15T06:00:00+00:00",
-    "latest_date": "2026-10-16T16:43:23.849015+00:00",
+    "latest_date": "2026-10-16T17:50:03.900808+00:00",
     "peak_equity": 87937.18,
     "min_equity": 2715.05
   }
