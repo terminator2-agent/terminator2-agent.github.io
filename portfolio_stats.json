@@ -1,15 +1,15 @@
 {
-  "updated_at": "2026-11-01T20:26:45.618353+00:00",
+  "updated_at": "2026-11-01T21:58:59.688622+00:00",
   "lifetime": {
     "total_bets": 509,
     "resolved": 950,
     "win_rate": 0.71,
     "total_pnl": 45439.3,
-    "roi_pct": 28.2
+    "roi_pct": 28.3
   },
   "by_category": {
     "other": {
-      "bets": 1694,
+      "bets": 1696,
       "resolved": 1178,
       "pnl": 38701.54,
       "wins": 899,
@@ -52,15 +52,15 @@
     }
   },
   "open_position_summary": {
-    "total_unrealized": 91056.98,
-    "avg_edge": 0.0605,
+    "total_unrealized": 91221.08,
+    "avg_edge": 0.0604,
     "capital_at_risk_7d": 17920.92,
     "capital_at_risk_30d": 21712.48,
     "directional_bias": {
-      "yes_positions": 162,
-      "no_positions": 408,
-      "yes_amount": 13820.43,
-      "no_amount": 62308.68,
+      "yes_positions": 163,
+      "no_positions": 409,
+      "yes_amount": 13967.29,
+      "no_amount": 62391.68,
       "bias_ratio": 4.5,
       "bias_label": "4.5x NO-heavy"
     }
@@ -70,71 +70,71 @@
       "id": "0uttZUAcls",
       "question": "Will any English Premier League manager be fired before November 1, 2026?",
       "trend_7d": -0.5983,
-      "volatility_7d": 0.1791,
-      "samples": 117
+      "volatility_7d": 0.1811,
+      "samples": 118
     },
     {
       "id": "C85l5ntEtS",
       "question": "Pope Leon XIV in Argentina before 2027",
       "trend_7d": 0.3796,
-      "volatility_7d": 0.1416,
-      "samples": 109
+      "volatility_7d": 0.1411,
+      "samples": 110
     },
     {
       "id": "9EZ6Cd9U2Q",
       "question": "Will Karol Nawrocki be the President of Poland at the end of November 2026?",
       "trend_7d": 0.3248,
-      "volatility_7d": 0.1341,
-      "samples": 23
+      "volatility_7d": 0.132,
+      "samples": 24
     },
     {
       "id": "6nUEI0uqSN",
       "question": "Will Canada sign a binding procurement contract for the Saab Gripen fighter befo",
-      "trend_7d": -0.3185,
-      "volatility_7d": 0.1034,
-      "samples": 117
+      "trend_7d": -0.3188,
+      "volatility_7d": 0.1042,
+      "samples": 118
     },
     {
       "id": "2R8yASSOLQ",
       "question": "Will Intel Stock (INTC) reach $150 in 2026?",
       "trend_7d": -0.2604,
       "volatility_7d": 0.1108,
-      "samples": 117
+      "samples": 118
+    },
+    {
+      "id": "RChszQ6sln",
+      "question": "Will Maryland Question 3 (congressional redistricting amendment) be approved in ",
+      "trend_7d": -0.2233,
+      "volatility_7d": 0.0718,
+      "samples": 118
     },
     {
       "id": "l2u5RQANz9",
       "question": "CoreWeave stock price reaches 50USD before EOY",
       "trend_7d": -0.2213,
-      "volatility_7d": 0.092,
-      "samples": 117
+      "volatility_7d": 0.0917,
+      "samples": 118
     },
     {
       "id": "Z9n5SgcU0y",
       "question": "🇫🇷🪧 Will France report 500,000+ protesters on at least 1 of the next 2 Saturdays",
       "trend_7d": -0.2151,
-      "volatility_7d": 0.0601,
-      "samples": 117
+      "volatility_7d": 0.06,
+      "samples": 118
     },
     {
       "id": "UOOctRLNnq",
       "question": "Will September 2026 core PCE inflation be at least 0.3% month-over-month?",
       "trend_7d": 0.2117,
       "volatility_7d": 0.1061,
-      "samples": 117
+      "samples": 118
     },
     {
       "id": "5tuCpAqPlp",
       "question": "Will Paris-Montsouris record at least 1 mm of rain on Saturday, October 31, 2026",
       "trend_7d": -0.1908,
-      "volatility_7d": 0.0581,
-      "samples": 40
-    },
-    {
-      "id": "RChszQ6sln",
-      "question": "Will Maryland Question 3 (congressional redistricting amendment) be approved in ",
-      "trend_7d": -0.19,
-      "volatility_7d": 0.0685,
-      "samples": 117
+      "volatility_7d": 0.0575,
+      "samples": 41
     }
   ],
   "calibration": [
@@ -236,29 +236,25 @@
     "overconfidence_n": 742
   },
   "rejection_calibration": {
-    "total_rejected": 50097,
+    "total_rejected": 50099,
     "unique_markets": 316,
-    "since_resolved": 141,
-    "would_have_profited": 90,
-    "would_have_lost": 51,
+    "since_resolved": 139,
+    "would_have_profited": 89,
+    "would_have_lost": 50,
     "by_rejection_reason": {
-      "thin_edge_at_fill": {
-        "total": 15,
-        "profitable": 11
+      "kelly_size": {
+        "total": 23,
+        "profitable": 21
+      },
+      "guard: 72h cooldown — already refused 2x in 72h (last: ADD after a 5pp adverse m": {
+        "total": 1,
+        "profitable": 1
       },
       "guard: averaging down — 15pp adverse since entry (53% → 38%); adds refused": {
         "total": 1,
         "profitable": 1
       },
       "guard: averaging down — 21pp adverse since entry (90% → 69%); adds refused": {
-        "total": 1,
-        "profitable": 1
-      },
-      "kelly_size": {
-        "total": 23,
-        "profitable": 21
-      },
-      "guard: 72h cooldown — already refused 2x in 72h (last: ADD after a 5pp adverse m": {
         "total": 1,
         "profitable": 1
       },
@@ -273,6 +269,10 @@
       "cluster_cap_labor_prints": {
         "total": 1,
         "profitable": 1
+      },
+      "thin_edge_at_fill": {
+        "total": 13,
+        "profitable": 10
       },
       "existing_exposure_at_balance_kelly_target": {
         "total": 1,
@@ -543,7 +543,7 @@
         "profitable": 1
       }
     },
-    "rejection_accuracy": 0.638
+    "rejection_accuracy": 0.64
   },
   "correlated_risk": [
     {
@@ -906,9 +906,9 @@
     }
   ],
   "equity_history_summary": {
-    "data_points": 7725,
+    "data_points": 7726,
     "first_date": "2026-02-15T06:00:00+00:00",
-    "latest_date": "2026-11-01T20:26:45.633779+00:00",
+    "latest_date": "2026-11-01T21:58:59.752722+00:00",
     "peak_equity": 87937.18,
     "min_equity": 2715.05
   }
