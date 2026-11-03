@@ -1,19 +1,19 @@
 {
-  "updated_at": "2026-11-03T00:19:37.826863+00:00",
+  "updated_at": "2026-11-03T01:35:05.325715+00:00",
   "lifetime": {
     "total_bets": 509,
-    "resolved": 956,
+    "resolved": 957,
     "win_rate": 0.71,
-    "total_pnl": 45666.2,
+    "total_pnl": 45878.89,
     "roi_pct": 28.4
   },
   "by_category": {
     "other": {
-      "bets": 1697,
-      "resolved": 1184,
-      "pnl": 38928.44,
-      "wins": 904,
-      "invested": 116151.14
+      "bets": 1698,
+      "resolved": 1185,
+      "pnl": 39141.13,
+      "wins": 905,
+      "invested": 116348.79
     },
     "ai_capability": {
       "bets": 29,
@@ -52,15 +52,15 @@
     }
   },
   "open_position_summary": {
-    "total_unrealized": 91728.67,
-    "avg_edge": 0.0581,
-    "capital_at_risk_7d": 18001.63,
-    "capital_at_risk_30d": 21793.19,
+    "total_unrealized": 91171.81,
+    "avg_edge": 0.0585,
+    "capital_at_risk_7d": 18123.62,
+    "capital_at_risk_30d": 21566.18,
     "directional_bias": {
-      "yes_positions": 162,
-      "no_positions": 406,
-      "yes_amount": 13942.29,
-      "no_amount": 62508.39,
+      "yes_positions": 163,
+      "no_positions": 405,
+      "yes_amount": 13975.67,
+      "no_amount": 62281.38,
       "bias_ratio": 4.5,
       "bias_label": "4.5x NO-heavy"
     }
@@ -70,56 +70,56 @@
       "id": "0uttZUAcls",
       "question": "Will any English Premier League manager be fired before November 1, 2026?",
       "trend_7d": -0.6118,
-      "volatility_7d": 0.1926,
+      "volatility_7d": 0.1915,
       "samples": 128
     },
     {
       "id": "C85l5ntEtS",
       "question": "Pope Leon XIV in Argentina before 2027",
       "trend_7d": 0.4081,
-      "volatility_7d": 0.1243,
+      "volatility_7d": 0.1208,
       "samples": 127
     },
     {
       "id": "9EZ6Cd9U2Q",
       "question": "Will Karol Nawrocki be the President of Poland at the end of November 2026?",
       "trend_7d": 0.3244,
-      "volatility_7d": 0.1034,
-      "samples": 44
+      "volatility_7d": 0.1024,
+      "samples": 45
     },
     {
       "id": "6nUEI0uqSN",
       "question": "Will Canada sign a binding procurement contract for the Saab Gripen fighter befo",
       "trend_7d": -0.3195,
-      "volatility_7d": 0.1063,
+      "volatility_7d": 0.1056,
       "samples": 127
     },
     {
       "id": "RChszQ6sln",
       "question": "Will Maryland Question 3 (congressional redistricting amendment) be approved in ",
-      "trend_7d": -0.29,
-      "volatility_7d": 0.1094,
+      "trend_7d": -0.2342,
+      "volatility_7d": 0.1091,
       "samples": 128
     },
     {
       "id": "2R8yASSOLQ",
       "question": "Will Intel Stock (INTC) reach $150 in 2026?",
       "trend_7d": -0.2194,
-      "volatility_7d": 0.1074,
+      "volatility_7d": 0.107,
       "samples": 128
     },
     {
       "id": "UOOctRLNnq",
       "question": "Will September 2026 core PCE inflation be at least 0.3% month-over-month?",
       "trend_7d": 0.2117,
-      "volatility_7d": 0.1019,
+      "volatility_7d": 0.1014,
       "samples": 128
     },
     {
       "id": "ZZ5IdLtlU2",
       "question": "Will Florida Amendment 1 (Budget Stabilization Fund changes) be approved in the ",
       "trend_7d": -0.1846,
-      "volatility_7d": 0.067,
+      "volatility_7d": 0.0676,
       "samples": 128
     },
     {
@@ -133,14 +133,14 @@
       "id": "AlytgS0I55",
       "question": "Ed Sheeran has a billboard number 1 single in 2026?",
       "trend_7d": -0.1788,
-      "volatility_7d": 0.0812,
+      "volatility_7d": 0.0817,
       "samples": 128
     }
   ],
   "calibration": [
     {
       "bucket": "0-10%",
-      "predicted": 356,
+      "predicted": 357,
       "actual_yes": 4
     },
     {
@@ -191,9 +191,9 @@
   ],
   "calibration_metrics": {
     "brier_score": 0.0638,
-    "n_samples": 940,
+    "n_samples": 941,
     "by_category": {
-      "other": 0.0649,
+      "other": 0.0648,
       "ai_release": 0.0658,
       "ai_capability": 0.0184,
       "ai_safety": 0.005,
@@ -233,24 +233,28 @@
       }
     ],
     "overconfidence_ratio": 0.03,
-    "overconfidence_n": 747
+    "overconfidence_n": 748
   },
   "rejection_calibration": {
     "total_rejected": 50089,
     "unique_markets": 309,
-    "since_resolved": 137,
+    "since_resolved": 136,
     "would_have_profited": 91,
-    "would_have_lost": 46,
+    "would_have_lost": 45,
     "by_rejection_reason": {
-      "concentration_cap": {
-        "total": 4,
-        "profitable": 4
+      "guard: averaging down — 21pp adverse since entry (90% → 69%); adds refused": {
+        "total": 1,
+        "profitable": 1
       },
       "kelly_size": {
         "total": 24,
         "profitable": 22
       },
-      "guard: averaging down — 37pp adverse since entry (73% → 36%); adds refused": {
+      "cluster_cap_inflation_prints": {
+        "total": 7,
+        "profitable": 7
+      },
+      "guard: averaging down — 35pp adverse since entry (73% → 38%); adds refused": {
         "total": 1,
         "profitable": 0
       },
@@ -258,27 +262,19 @@
         "total": 1,
         "profitable": 1
       },
-      "guard: averaging down — 21pp adverse since entry (90% → 69%); adds refused": {
-        "total": 1,
-        "profitable": 1
-      },
-      "cluster_cap_labor_prints": {
-        "total": 1,
-        "profitable": 1
-      },
-      "guard: averaging down — 35pp adverse since entry (73% → 38%); adds refused": {
-        "total": 1,
-        "profitable": 0
-      },
-      "cluster_cap_inflation_prints": {
-        "total": 7,
-        "profitable": 7
+      "concentration_cap": {
+        "total": 4,
+        "profitable": 4
       },
       "existing_exposure_at_balance_kelly_target": {
         "total": 1,
         "profitable": 0
       },
       "cluster_cap_mrna": {
+        "total": 1,
+        "profitable": 1
+      },
+      "cluster_cap_labor_prints": {
         "total": 1,
         "profitable": 1
       },
@@ -535,7 +531,7 @@
         "profitable": 1
       }
     },
-    "rejection_accuracy": 0.664
+    "rejection_accuracy": 0.669
   },
   "correlated_risk": [
     {
@@ -594,7 +590,6 @@
       "positions": [
         "pUncsZnp2u",
         "ZyAql95zS9",
-        "ndtECCSg2l",
         "h5pCgpQqp9",
         "UnZy8NRCIg",
         "sQSLCEuqIO",
@@ -621,7 +616,6 @@
       "questions": [
         "Will the US and Iran be at war on January 1st,...",
         "Trump claims Hormuz reopened within 72hrs of...",
-        "Will the US-Iran war end before the 2026 midterm...",
         "Will there be a food shortage related to the...",
         "[ACX 2026] Will there be a ceasefire in the...",
         "Trump impeached before Iran war's end?",
@@ -645,12 +639,12 @@
         "US x Iran permanent peace deal by December 31 ?...",
         "Will Donald Trump order a new U.S. attack on Iran..."
       ],
-      "position_count": 25,
-      "answer_count": 25,
-      "total_exposure": 3070.98,
-      "worst_case_loss": 3070.98,
-      "yes_amount": 576.63,
-      "no_amount": 2494.35
+      "position_count": 24,
+      "answer_count": 24,
+      "total_exposure": 2843.71,
+      "worst_case_loss": 2843.71,
+      "yes_amount": 547.01,
+      "no_amount": 2296.7
     },
     {
       "cluster_name": "economics",
@@ -896,9 +890,9 @@
     }
   ],
   "equity_history_summary": {
-    "data_points": 7746,
+    "data_points": 7747,
     "first_date": "2026-02-15T06:00:00+00:00",
-    "latest_date": "2026-11-03T00:19:37.859414+00:00",
+    "latest_date": "2026-11-03T01:35:05.504056+00:00",
     "peak_equity": 87937.18,
     "min_equity": 2715.05
   }
