@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-07T13:37:56.622480+00:00",
+  "updated_at": "2026-11-07T14:56:48.002208+00:00",
   "lifetime": {
     "total_bets": 509,
     "resolved": 1019,
@@ -52,8 +52,8 @@
     }
   },
   "open_position_summary": {
-    "total_unrealized": 87776.47,
-    "avg_edge": 0.0611,
+    "total_unrealized": 88022.09,
+    "avg_edge": 0.0612,
     "capital_at_risk_7d": 11026.38,
     "capital_at_risk_30d": 14528.1,
     "directional_bias": {
@@ -70,14 +70,14 @@
       "id": "5NRI6n9dEc",
       "question": "Will the Democrats hold 56 or more senate seats in the next Congress?",
       "trend_7d": 0.4588,
-      "volatility_7d": 0.1826,
-      "samples": 52
+      "volatility_7d": 0.1812,
+      "samples": 53
     },
     {
       "id": "R8Oz2hgPyU",
       "question": "Will California Proposition 41 (tax limits and special-tax audits) be approved i",
       "trend_7d": -0.4472,
-      "volatility_7d": 0.1383,
+      "volatility_7d": 0.1313,
       "samples": 66
     },
     {
@@ -90,51 +90,51 @@
     {
       "id": "NI8OdpN2UI",
       "question": "Will there be large voting fraud accusations following 2026 midterms?",
-      "trend_7d": -0.3478,
-      "volatility_7d": 0.1029,
+      "trend_7d": -0.3365,
+      "volatility_7d": 0.1049,
       "samples": 128
     },
     {
       "id": "IN5SEZR89u",
       "question": "Will an AI ballot measure in any state be endorsed in a Scott Alexander post by ",
       "trend_7d": -0.3356,
-      "volatility_7d": 0.1026,
-      "samples": 38
+      "volatility_7d": 0.1016,
+      "samples": 39
     },
     {
       "id": "P0QQAtgRlh",
       "question": "Will this El Niño be the strongest ever recorded?",
       "trend_7d": -0.3312,
-      "volatility_7d": 0.1459,
+      "volatility_7d": 0.1468,
       "samples": 128
     },
     {
       "id": "8NZuAqyLcN",
       "question": "Excluding Susan Collins, will any Republican senate candidate get a higher perce",
       "trend_7d": -0.3262,
-      "volatility_7d": 0.0968,
-      "samples": 52
-    },
-    {
-      "id": "9EZ6Cd9U2Q",
-      "question": "Will Karol Nawrocki be the President of Poland at the end of November 2026?",
-      "trend_7d": 0.3248,
-      "volatility_7d": 0.0631,
-      "samples": 128
+      "volatility_7d": 0.0961,
+      "samples": 53
     },
     {
       "id": "9gzl5Rp902",
       "question": "Will Micron hit an all time high within 6 months?",
       "trend_7d": -0.3204,
-      "volatility_7d": 0.1368,
+      "volatility_7d": 0.138,
       "samples": 128
     },
     {
-      "id": "0uttZUAcls",
-      "question": "Will any English Premier League manager be fired before November 1, 2026?",
-      "trend_7d": -0.295,
-      "volatility_7d": 0.0603,
+      "id": "9EZ6Cd9U2Q",
+      "question": "Will Karol Nawrocki be the President of Poland at the end of November 2026?",
+      "trend_7d": 0.3182,
+      "volatility_7d": 0.0558,
       "samples": 128
+    },
+    {
+      "id": "5gShpy6gSN",
+      "question": "NFL Week 9: Will Kansas City Chiefs beat New York Jets by 10 or more points?",
+      "trend_7d": -0.2816,
+      "volatility_7d": 0.0878,
+      "samples": 28
     }
   ],
   "calibration": [
@@ -236,39 +236,31 @@
     "overconfidence_n": 797
   },
   "rejection_calibration": {
-    "total_rejected": 50102,
-    "unique_markets": 306,
-    "since_resolved": 154,
-    "would_have_profited": 103,
+    "total_rejected": 50103,
+    "unique_markets": 304,
+    "since_resolved": 153,
+    "would_have_profited": 102,
     "would_have_lost": 51,
     "by_rejection_reason": {
-      "stale_estimate_hard_reject": {
-        "total": 15,
-        "profitable": 11
-      },
-      "guard: averaging down — 63pp adverse since entry (88% → 25%); adds refused": {
-        "total": 1,
-        "profitable": 1
+      "guard: 72h cooldown — already refused 2x in 72h (last: check 210_price_is_my_own": {
+        "total": 7,
+        "profitable": 7
       },
       "kelly_size": {
         "total": 26,
         "profitable": 22
       },
-      "guard: 72h cooldown — already refused 2x in 72h (last: ADD after a 33pp ADVERSE ": {
-        "total": 1,
-        "profitable": 0
-      },
       "guard: 72h cooldown — already refused 2x in 72h (last: check 280_no_written_reas": {
         "total": 5,
         "profitable": 5
       },
+      "concentration_cap": {
+        "total": 1,
+        "profitable": 1
+      },
       "guard: 72h cooldown — already refused 2x in 72h (last: check 070_na_branch_phant": {
         "total": 5,
         "profitable": 5
-      },
-      "thin_edge_at_fill": {
-        "total": 8,
-        "profitable": 8
       },
       "guard: averaging down — 21pp adverse since entry (90% → 69%); adds refused": {
         "total": 1,
@@ -282,21 +274,29 @@
         "total": 1,
         "profitable": 0
       },
-      "guard: 72h cooldown — already refused 2x in 72h (last: check 210_price_is_my_own": {
-        "total": 7,
-        "profitable": 7
-      },
-      "concentration_cap": {
-        "total": 1,
-        "profitable": 1
-      },
       "cluster_cap_mrna": {
         "total": 1,
         "profitable": 1
       },
+      "guard: averaging down — 63pp adverse since entry (88% → 25%); adds refused": {
+        "total": 1,
+        "profitable": 1
+      },
+      "stale_estimate_hard_reject": {
+        "total": 15,
+        "profitable": 11
+      },
+      "guard: 72h cooldown — already refused 2x in 72h (last: ADD after a 33pp ADVERSE ": {
+        "total": 1,
+        "profitable": 0
+      },
       "cluster_cap_inflation_prints": {
         "total": 5,
         "profitable": 5
+      },
+      "thin_edge_at_fill": {
+        "total": 7,
+        "profitable": 7
       },
       "existing_exposure_at_balance_kelly_target": {
         "total": 1,
@@ -559,7 +559,7 @@
         "profitable": 0
       }
     },
-    "rejection_accuracy": 0.669
+    "rejection_accuracy": 0.667
   },
   "correlated_risk": [
     {
@@ -916,9 +916,9 @@
     }
   ],
   "equity_history_summary": {
-    "data_points": 7830,
+    "data_points": 7831,
     "first_date": "2026-02-15T06:00:00+00:00",
-    "latest_date": "2026-11-07T13:37:56.671648+00:00",
+    "latest_date": "2026-11-07T14:56:48.041056+00:00",
     "peak_equity": 87937.18,
     "min_equity": 2715.05
   }
