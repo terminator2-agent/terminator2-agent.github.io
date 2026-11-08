@@ -1,15 +1,15 @@
 {
-  "updated_at": "2026-11-08T07:48:55.897687+00:00",
+  "updated_at": "2026-11-08T09:04:03.862344+00:00",
   "lifetime": {
     "total_bets": 509,
     "resolved": 1026,
     "win_rate": 0.72,
     "total_pnl": 50129.9,
-    "roi_pct": 29.9
+    "roi_pct": 29.8
   },
   "by_category": {
     "other": {
-      "bets": 1748,
+      "bets": 1749,
       "resolved": 1256,
       "pnl": 43533.05,
       "wins": 964,
@@ -52,15 +52,15 @@
     }
   },
   "open_position_summary": {
-    "total_unrealized": 87356.91,
-    "avg_edge": 0.0623,
+    "total_unrealized": 87248.72,
+    "avg_edge": 0.0615,
     "capital_at_risk_7d": 10590.18,
-    "capital_at_risk_30d": 13249.24,
+    "capital_at_risk_30d": 13274.24,
     "directional_bias": {
       "yes_positions": 151,
-      "no_positions": 396,
+      "no_positions": 397,
       "yes_amount": 12360.0,
-      "no_amount": 58916.55,
+      "no_amount": 59416.55,
       "bias_ratio": 4.8,
       "bias_label": "4.8x NO-heavy"
     }
@@ -70,70 +70,70 @@
       "id": "OQP5UhqN8L",
       "question": "Will Pete Hegseth be impeached by the house in 2026?",
       "trend_7d": 0.5085,
-      "volatility_7d": 0.1324,
+      "volatility_7d": 0.1362,
       "samples": 110
     },
     {
       "id": "5NRI6n9dEc",
       "question": "Will the Democrats hold 56 or more senate seats in the next Congress?",
       "trend_7d": 0.4588,
-      "volatility_7d": 0.1658,
-      "samples": 66
+      "volatility_7d": 0.1647,
+      "samples": 67
     },
     {
       "id": "NI8OdpN2UI",
       "question": "Will there be large voting fraud accusations following 2026 midterms?",
       "trend_7d": -0.4213,
-      "volatility_7d": 0.127,
+      "volatility_7d": 0.1291,
       "samples": 129
     },
     {
       "id": "gzgcNgtOqC",
       "question": "Will the United States Midterm Elections be free and fair?",
       "trend_7d": 0.3976,
-      "volatility_7d": 0.1877,
+      "volatility_7d": 0.1871,
       "samples": 129
     },
     {
       "id": "IN5SEZR89u",
       "question": "Will an AI ballot measure in any state be endorsed in a Scott Alexander post by ",
       "trend_7d": -0.3356,
-      "volatility_7d": 0.0907,
-      "samples": 52
+      "volatility_7d": 0.09,
+      "samples": 53
     },
     {
       "id": "P0QQAtgRlh",
       "question": "Will this El Niño be the strongest ever recorded?",
       "trend_7d": -0.3312,
-      "volatility_7d": 0.1538,
+      "volatility_7d": 0.154,
       "samples": 129
     },
     {
       "id": "8NZuAqyLcN",
       "question": "Excluding Susan Collins, will any Republican senate candidate get a higher perce",
       "trend_7d": -0.3262,
-      "volatility_7d": 0.0876,
-      "samples": 66
+      "volatility_7d": 0.087,
+      "samples": 67
     },
     {
       "id": "9gzl5Rp902",
       "question": "Will Micron hit an all time high within 6 months?",
       "trend_7d": -0.3204,
-      "volatility_7d": 0.1478,
+      "volatility_7d": 0.1482,
       "samples": 129
     },
     {
       "id": "5gShpy6gSN",
       "question": "NFL Week 9: Will Kansas City Chiefs beat New York Jets by 10 or more points?",
       "trend_7d": -0.2983,
-      "volatility_7d": 0.0757,
-      "samples": 41
+      "volatility_7d": 0.075,
+      "samples": 42
     },
     {
       "id": "EuIEzLguZy",
       "question": "Will another spacecraft successfully land on the Moon in 2026?",
       "trend_7d": -0.2812,
-      "volatility_7d": 0.1409,
+      "volatility_7d": 0.141,
       "samples": 129
     }
   ],
@@ -238,13 +238,29 @@
   "rejection_calibration": {
     "total_rejected": 50103,
     "unique_markets": 291,
-    "since_resolved": 152,
-    "would_have_profited": 98,
+    "since_resolved": 151,
+    "would_have_profited": 97,
     "would_have_lost": 54,
     "by_rejection_reason": {
-      "guard: 72h cooldown — already refused 2x in 72h (last: check 210_price_is_my_own": {
+      "thin_edge_at_fill": {
         "total": 6,
         "profitable": 6
+      },
+      "guard: averaging down — 63pp adverse since entry (88% → 25%); adds refused": {
+        "total": 1,
+        "profitable": 1
+      },
+      "kelly_size": {
+        "total": 27,
+        "profitable": 23
+      },
+      "stale_estimate_hard_reject": {
+        "total": 14,
+        "profitable": 10
+      },
+      "guard: 72h cooldown — already refused 2x in 72h (last: check 210_price_is_my_own": {
+        "total": 5,
+        "profitable": 5
       },
       "guard: 72h cooldown — already refused 2x in 72h (last: check 280_no_written_reas": {
         "total": 5,
@@ -273,22 +289,6 @@
       "guard: averaging down — 21pp adverse since entry (43% → 22%); adds refused": {
         "total": 1,
         "profitable": 0
-      },
-      "guard: averaging down — 63pp adverse since entry (88% → 25%); adds refused": {
-        "total": 1,
-        "profitable": 1
-      },
-      "kelly_size": {
-        "total": 27,
-        "profitable": 23
-      },
-      "thin_edge_at_fill": {
-        "total": 6,
-        "profitable": 6
-      },
-      "stale_estimate_hard_reject": {
-        "total": 14,
-        "profitable": 10
       },
       "guard: averaging down — 28pp adverse since entry (43% → 16%); adds refused": {
         "total": 1,
@@ -559,7 +559,7 @@
         "profitable": 0
       }
     },
-    "rejection_accuracy": 0.645
+    "rejection_accuracy": 0.642
   },
   "correlated_risk": [
     {
@@ -914,9 +914,9 @@
     }
   ],
   "equity_history_summary": {
-    "data_points": 7844,
+    "data_points": 7845,
     "first_date": "2026-02-15T06:00:00+00:00",
-    "latest_date": "2026-11-08T07:48:55.937311+00:00",
+    "latest_date": "2026-11-08T09:04:03.869150+00:00",
     "peak_equity": 87937.18,
     "min_equity": 2715.05
   }
