@@ -1,19 +1,19 @@
 {
-  "updated_at": "2026-11-21T05:21:07.411870+00:00",
+  "updated_at": "2026-11-21T05:59:26.191560+00:00",
   "lifetime": {
     "total_bets": 509,
-    "resolved": 1081,
+    "resolved": 1082,
     "win_rate": 0.72,
-    "total_pnl": 54090.34,
-    "roi_pct": 32.0
+    "total_pnl": 53980.82,
+    "roi_pct": 31.9
   },
   "by_category": {
     "other": {
       "bets": 1833,
-      "resolved": 1323,
-      "pnl": 47503.23,
+      "resolved": 1324,
+      "pnl": 47393.71,
       "wins": 1018,
-      "invested": 135491.06
+      "invested": 135991.06
     },
     "ai_capability": {
       "bets": 28,
@@ -52,17 +52,17 @@
     }
   },
   "open_position_summary": {
-    "total_unrealized": 97750.63,
-    "avg_edge": 0.074,
-    "capital_at_risk_7d": 8115.28,
-    "capital_at_risk_30d": 11680.35,
+    "total_unrealized": 97495.16,
+    "avg_edge": 0.0737,
+    "capital_at_risk_7d": 7615.28,
+    "capital_at_risk_30d": 11180.35,
     "directional_bias": {
       "yes_positions": 151,
-      "no_positions": 419,
+      "no_positions": 418,
       "yes_amount": 13335.58,
-      "no_amount": 63677.16,
-      "bias_ratio": 4.8,
-      "bias_label": "4.8x NO-heavy"
+      "no_amount": 63177.16,
+      "bias_ratio": 4.7,
+      "bias_label": "4.7x NO-heavy"
     }
   },
   "recent_price_trends": [
@@ -70,71 +70,71 @@
       "id": "6LsPUP9AL9",
       "question": "Will GTA VI generate more than $4.5 billion in revenue during its first week?",
       "trend_7d": 0.569,
-      "volatility_7d": 0.2421,
-      "samples": 95
+      "volatility_7d": 0.2481,
+      "samples": 96
     },
     {
       "id": "dCQSRdhgcI",
       "question": "Will GPT Astra 6.1+ be released by November 20, 2026?",
       "trend_7d": 0.3802,
-      "volatility_7d": 0.1664,
-      "samples": 199
+      "volatility_7d": 0.1661,
+      "samples": 200
     },
     {
       "id": "EOQs5pqtR2",
       "question": "Peter Mandelson to face criminal charges in 2026?",
       "trend_7d": -0.28,
-      "volatility_7d": 0.0743,
-      "samples": 213
+      "volatility_7d": 0.0742,
+      "samples": 214
     },
     {
       "id": "LASsdLuUcU",
       "question": "Will the German AfD be in power on state (Bundesland) level by the end of 2026?",
       "trend_7d": 0.2798,
-      "volatility_7d": 0.1085,
-      "samples": 213
+      "volatility_7d": 0.1089,
+      "samples": 214
     },
     {
       "id": "EqPddAR8hQ",
       "question": "Is the agent task horizon really increasing that fast on messy tasks?",
       "trend_7d": 0.2694,
-      "volatility_7d": 0.0669,
-      "samples": 213
+      "volatility_7d": 0.0689,
+      "samples": 214
     },
     {
       "id": "gZthSslt69",
       "question": "What will NVDA close above $205 on Dec 31, 2026",
       "trend_7d": -0.2501,
-      "volatility_7d": 0.0448,
-      "samples": 213
+      "volatility_7d": 0.0476,
+      "samples": 214
     },
     {
       "id": "U0LzSZsRp2",
       "question": "Will METR add any data point on the graph before this year?",
       "trend_7d": -0.2423,
-      "volatility_7d": 0.064,
-      "samples": 213
+      "volatility_7d": 0.0657,
+      "samples": 214
     },
     {
       "id": "Unp8Es0tlC",
       "question": "Will TSMC have a market cap of $2 trillion or more at the end of 2026?",
       "trend_7d": -0.2182,
-      "volatility_7d": 0.0974,
-      "samples": 213
+      "volatility_7d": 0.0972,
+      "samples": 214
     },
     {
       "id": "SRU0c5Ps8U",
       "question": "Will Timothee Chalamet and Kylie Jenner announce their engagement before 2027?",
       "trend_7d": -0.2169,
-      "volatility_7d": 0.1001,
-      "samples": 213
+      "volatility_7d": 0.1,
+      "samples": 214
     },
     {
       "id": "OR9C9pt6hC",
       "question": "Will Gianni Infantino be re-elected as FIFA President in 2027?",
       "trend_7d": 0.2148,
-      "volatility_7d": 0.0702,
-      "samples": 211
+      "volatility_7d": 0.0704,
+      "samples": 212
     }
   ],
   "calibration": [
@@ -236,8 +236,8 @@
     "overconfidence_n": 835
   },
   "rejection_calibration": {
-    "total_rejected": 50106,
-    "unique_markets": 268,
+    "total_rejected": 50108,
+    "unique_markets": 269,
     "since_resolved": 63,
     "would_have_profited": 43,
     "would_have_lost": 20,
@@ -250,9 +250,17 @@
         "total": 1,
         "profitable": 1
       },
+      "guard: 72h cooldown — already refused 2x in 72h (last: ADD after a 7pp adverse m": {
+        "total": 1,
+        "profitable": 0
+      },
       "guard: 72h cooldown — already refused 2x in 72h (last: check 280_no_written_reas": {
         "total": 1,
         "profitable": 1
+      },
+      "stale_estimate_hard_reject": {
+        "total": 8,
+        "profitable": 7
       },
       "guard: 72h cooldown — already refused 3x in 72h (last: thin-book dust: a M$100 b": {
         "total": 1,
@@ -269,14 +277,6 @@
       "kelly_size": {
         "total": 15,
         "profitable": 14
-      },
-      "stale_estimate_hard_reject": {
-        "total": 8,
-        "profitable": 7
-      },
-      "guard: 72h cooldown — already refused 2x in 72h (last: ADD after a 7pp adverse m": {
-        "total": 1,
-        "profitable": 0
       },
       "cluster_cap_inflation_prints": {
         "total": 2,
@@ -714,9 +714,9 @@
     }
   ],
   "equity_history_summary": {
-    "data_points": 8134,
+    "data_points": 8135,
     "first_date": "2026-02-15T06:00:00+00:00",
-    "latest_date": "2026-11-21T05:21:07.337665+00:00",
+    "latest_date": "2026-11-21T05:59:26.199160+00:00",
     "peak_equity": 88845.16,
     "min_equity": 2715.05
   }
